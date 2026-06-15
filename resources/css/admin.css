@@ -1,0 +1,20 @@
+/**
+ * Admin styles for the Ploi FastCGI Cache settings screen.
+ *
+ * Tailwind v4, CSS-first. We import ONLY the theme and utilities layers with the
+ * `tw` prefix and deliberately DO NOT import `preflight.css`, so Tailwind never
+ * resets wp-admin's base element styles. The explicit @layer order places the
+ * utilities in a low-priority cascade layer; wp-admin's own (unlayered) styles
+ * therefore win everywhere outside our scoped markup, which keeps wp-admin
+ * pixel-for-pixel untouched. Utilities are written with the variant-prefix
+ * syntax, e.g. `tw:flex`, `tw:gap-4`.
+ */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme) prefix(tw);
+@import "tailwindcss/utilities.css" layer(utilities) prefix(tw);
+
+/* Hide the Alpine root until it is initialised (avoids a flash of raw markup). */
+[x-cloak] {
+    display: none !important;
+}

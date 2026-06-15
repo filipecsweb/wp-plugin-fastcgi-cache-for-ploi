@@ -1,0 +1,276 @@
+<?php
+
+declare(strict_types=1);
+
+namespace WPForge;
+
+use WPForge\Assets\Vite;
+use WPForge\Container\Container;
+use WPForge\Contracts\ModuleInterface;
+use WPForge\Contracts\ServiceProviderInterface;
+use WPForge\Hooks\HookRegistrar;
+use WPForge\Http\HttpClient;
+use WPForge\I18n\TextDomain;
+use WPForge\Lifecycle\Lifecycle;
+use WPForge\Logging\Logger;
+use WPForge\Logging\LoggerInterface;
+use WPForge\Security\Capability;
+use WPForge\Security\Crypto;
+use WPForge\Security\Escaper;
+use WPForge\Security\Nonce;
+use WPForge\Security\Sanitizer;
+
+/**
+ * The plugin kernel.
+ *
+ * Owns the container, exposes plugin metadata (read from the plugin header,
+ * never hardcoded), pre-binds the Foundation primitives, and runs the
+ * register() -> boot() service-provider lifecycle.
+ */
+final class Plugin
+{
+    private Container $container;
+
+    /** @var list<class-string<ServiceProviderInterface>> */
+    private array $providers = [];
+
+    /** @var list<ModuleInterface> */
+    private array $modules = [];
+
+    private bool $booted = false;
+
+    /** @var array<string, string>|null */
+    private ?array $headers = null;
+
+    public function __construct(private readonly string $file)
+    {
+        $this->container = new Container();
+        $this->container->instance(Container::class, $this->container);
+        $this->container->instance(self::class, $this);
+
+        // Bound here (not in registerFoundation) so activation/deactivation can
+        // be wired at include time, before the plugins_loaded-deferred boot().
+        $this->container->singleton(Lifecycle::class, fn (): Lifecycle => new Lifecycle($this->file));
+    }
+
+    public static function create(string $file): self
+    {
+        return new self($file);
+    }
+
+    public function container(): Container
+    {
+        return $this->container;
+    }
+
+    public function file(): string
+    {
+        return $this->file;
+    }
+
+    public function dir(): string
+    {
+        return plugin_dir_path($this->file);
+    }
+
+    public function url(): string
+    {
+        return plugin_dir_url($this->file);
+    }
+
+    public function basename(): string
+    {
+        return plugin_basename($this->file);
+    }
+
+    public function version(): string
+    {
+        return $this->header('Version', '0.0.0');
+    }
+
+    public function name(): string
+    {
+        return $this->header('Name', 'WPForge Plugin');
+    }
+
+    public function textDomain(): string
+    {
+        $domain = $this->header('TextDomain');
+
+        return $domain !== '' ? $domain : sanitize_key(basename($this->file, '.php'));
+    }
+
+    /**
+     * A snake_case slug suitable for option keys, cron hooks and transients.
+     */
+    public function optionPrefix(): string
+    {
+        return str_replace('-', '_', $this->textDomain());
+    }
+
+    /**
+     * Read a single plugin-header field via get_file_data().
+     */
+    public function header(string $key, string $default = ''): string
+    {
+        if ($this->headers === null) {
+            $data    = get_file_data($this->file, [
+                'Name'        => 'Plugin Name',
+                'Version'     => 'Version',
+                'TextDomain'  => 'Text Domain',
+                'DomainPath'  => 'Domain Path',
+                'RequiresPHP' => 'Requires PHP',
+                'RequiresWP'  => 'Requires at least',
+            ]);
+            $headers = [];
+
+            foreach ($data as $name => $value) {
+                $headers[(string) $name] = is_string($value) ? $value : '';
+            }
+
+            $this->headers = $headers;
+        }
+
+        $value = $this->headers[$key] ?? '';
+
+        return $value !== '' ? $value : $default;
+    }
+
+    public function lifecycle(): Lifecycle
+    {
+        return $this->container->make(Lifecycle::class);
+    }
+
+    /**
+     * Wire activation/deactivation hooks synchronously, at plugin-include time.
+     *
+     * This MUST run before the plugins_loaded-deferred boot(): WordPress fires
+     * activation hooks on the activation request WITHOUT re-running
+     * plugins_loaded, so wiring them inside a provider's boot() would never run
+     * on that request.
+     *
+     * @param callable(Lifecycle): void $register
+     */
+    public function withLifecycle(callable $register): self
+    {
+        $register($this->lifecycle());
+
+        return $this;
+    }
+
+    /**
+     * @param list<class-string<ServiceProviderInterface>> $providers
+     */
+    public function withProviders(array $providers): self
+    {
+        $this->providers = array_values(array_merge($this->providers, $providers));
+
+        return $this;
+    }
+
+    /**
+     * Register an opt-in module. Its providers are merged in at boot() only when
+     * the module reports it is enabled for the current request.
+     */
+    public function withModule(ModuleInterface $module): self
+    {
+        $this->modules[] = $module;
+
+        return $this;
+    }
+
+    /**
+     * @param list<ModuleInterface> $modules
+     */
+    public function withModules(array $modules): self
+    {
+        foreach ($modules as $module) {
+            $this->modules[] = $module;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Run the two-phase provider lifecycle: register() everything first so all
+     * bindings exist, then boot() everything.
+     */
+    public function boot(): void
+    {
+        if ($this->booted) {
+            return;
+        }
+
+        $this->registerFoundation();
+
+        // Merge in providers from every enabled module before the lifecycle runs.
+        foreach ($this->modules as $module) {
+            if ($module->isEnabled($this->container)) {
+                $this->providers = array_values(array_merge($this->providers, $module->providers()));
+            }
+        }
+
+        $instances = [];
+
+        foreach ($this->providers as $providerClass) {
+            $provider = new $providerClass($this->container);
+            $provider->register();
+            $instances[] = $provider;
+        }
+
+        foreach ($instances as $provider) {
+            $provider->boot();
+        }
+
+        // Translations must load no earlier than init. Guard did_action() so a
+        // late boot() (after init already fired) still loads the text domain.
+        $loadTextDomain = function (): void {
+            $this->container->make(TextDomain::class)->load();
+        };
+
+        if (did_action('init')) {
+            $loadTextDomain();
+        } else {
+            add_action('init', $loadTextDomain);
+        }
+
+        $this->booted = true;
+    }
+
+    /**
+     * Bind the plugin-agnostic Foundation primitives. Plugin-specific
+     * primitives (Options, Migrator, SettingsRepository) are bound by the
+     * plugin's own service providers because they need plugin-specific names.
+     */
+    private function registerFoundation(): void
+    {
+        $container = $this->container;
+
+        // Version in the cache key invalidates the compiled hook map on deploy.
+        $container->singleton(HookRegistrar::class, fn (): HookRegistrar => new HookRegistrar(
+            $this->optionPrefix() . '_hooks',
+            $this->version()
+        ));
+        $container->singleton(Nonce::class, static fn (): Nonce => new Nonce());
+        $container->singleton(Capability::class, static fn (): Capability => new Capability());
+        $container->singleton(Sanitizer::class, static fn (): Sanitizer => new Sanitizer());
+        $container->singleton(Escaper::class, static fn (): Escaper => new Escaper());
+        $container->singleton(Crypto::class, static fn (): Crypto => new Crypto());
+        $container->singleton(HttpClient::class, static fn (): HttpClient => new HttpClient());
+
+        $container->singleton(
+            LoggerInterface::class,
+            fn (): LoggerInterface => new Logger($this->textDomain())
+        );
+
+        $container->singleton(Vite::class, fn (): Vite => new Vite(
+            rtrim($this->dir(), '/') . '/public/build',
+            rtrim($this->url(), '/') . '/public/build',
+        ));
+
+        $container->singleton(TextDomain::class, fn (): TextDomain => new TextDomain(
+            $this->textDomain(),
+            dirname($this->basename()) . '/' . trim($this->header('DomainPath', '/languages'), '/'),
+        ));
+    }
+}

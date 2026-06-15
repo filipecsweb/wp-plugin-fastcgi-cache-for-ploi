@@ -1,0 +1,147 @@
+<?php
+
+declare(strict_types=1);
+
+namespace WPForge\Logging;
+
+use Stringable;
+
+/**
+ * Lightweight logger that writes interpolated lines to the PHP error log.
+ *
+ * Honours a minimum level so production noise can be tuned. Context values are
+ * interpolated into {placeholders} PSR-3 style.
+ */
+final class Logger implements LoggerInterface
+{
+    /** @var array<string, int> */
+    private const LEVELS = [
+        LogLevel::DEBUG     => 0,
+        LogLevel::INFO      => 1,
+        LogLevel::NOTICE    => 2,
+        LogLevel::WARNING   => 3,
+        LogLevel::ERROR     => 4,
+        LogLevel::CRITICAL  => 5,
+        LogLevel::ALERT     => 6,
+        LogLevel::EMERGENCY => 7,
+    ];
+
+    public function __construct(
+        private readonly string $channel = 'wpforge',
+        private readonly string $minLevel = LogLevel::DEBUG,
+    ) {
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function log(string $level, string|Stringable $message, array $context = []): void
+    {
+        if (! $this->shouldLog($level)) {
+            return;
+        }
+
+        $line = sprintf(
+            '[%s] %s.%s: %s',
+            gmdate('c'),
+            $this->channel,
+            $level,
+            $this->interpolate((string) $message, $context)
+        );
+
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+        error_log($line);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function emergency(string|Stringable $message, array $context = []): void
+    {
+        $this->log(LogLevel::EMERGENCY, $message, $context);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function alert(string|Stringable $message, array $context = []): void
+    {
+        $this->log(LogLevel::ALERT, $message, $context);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function critical(string|Stringable $message, array $context = []): void
+    {
+        $this->log(LogLevel::CRITICAL, $message, $context);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function error(string|Stringable $message, array $context = []): void
+    {
+        $this->log(LogLevel::ERROR, $message, $context);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function warning(string|Stringable $message, array $context = []): void
+    {
+        $this->log(LogLevel::WARNING, $message, $context);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function notice(string|Stringable $message, array $context = []): void
+    {
+        $this->log(LogLevel::NOTICE, $message, $context);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function info(string|Stringable $message, array $context = []): void
+    {
+        $this->log(LogLevel::INFO, $message, $context);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function debug(string|Stringable $message, array $context = []): void
+    {
+        $this->log(LogLevel::DEBUG, $message, $context);
+    }
+
+    private function shouldLog(string $level): bool
+    {
+        $current   = self::LEVELS[$level] ?? 0;
+        $threshold = self::LEVELS[$this->minLevel] ?? 0;
+
+        return $current >= $threshold;
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function interpolate(string $message, array $context): string
+    {
+        if ($context === []) {
+            return $message;
+        }
+
+        $replacements = [];
+
+        foreach ($context as $key => $value) {
+            if (is_scalar($value) || $value === null || $value instanceof Stringable) {
+                $replacements['{' . $key . '}'] = $value === null ? 'null' : (string) $value;
+            }
+        }
+
+        return strtr($message, $replacements);
+    }
+}

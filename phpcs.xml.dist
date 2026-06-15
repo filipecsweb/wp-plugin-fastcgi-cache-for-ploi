@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<ruleset name="Ploi FastCGI Cache">
+    <description>PSR-12 formatting plus WordPress security and correctness sniffs.</description>
+
+    <file>foundation/src</file>
+    <file>modules/admin-ui/src</file>
+    <file>src</file>
+    <file>ploi-fastcgi-cache.php</file>
+    <file>uninstall.php</file>
+
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/public/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="ps"/>
+    <arg name="parallel" value="8"/>
+
+    <config name="testVersion" value="8.2-"/>
+    <config name="minimum_wp_version" value="6.5"/>
+
+    <!-- Modern OOP formatting baseline. -->
+    <rule ref="PSR12">
+        <!-- The bootstrap and uninstall files legitimately run code beside declarations. -->
+        <exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
+    </rule>
+
+    <!-- Soft line length for readable long sprintf()/translated strings. -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="160"/>
+            <property name="absoluteLineLimit" value="0"/>
+        </properties>
+    </rule>
+
+    <!-- WordPress security + correctness (escaping, nonces, sanitisation, i18n). -->
+    <rule ref="WordPress.Security">
+        <!--
+            Exceptions in this codebase are always caught and surfaced as escaped
+            WP_Error / REST-JSON responses, or logged — never echoed as HTML.
+            HTML-escaping their messages would corrupt those JSON payloads, so this
+            sniff does not apply here. The real output sniff (OutputNotEscaped) stays.
+        -->
+        <exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped"/>
+    </rule>
+
+    <!-- SQL-injection prevention stays enforced (values use prepare() / %i / %d / %s). -->
+    <rule ref="WordPress.DB.PreparedSQL"/>
+
+    <rule ref="WordPress.WP.GlobalVariablesOverride"/>
+    <rule ref="WordPress.WP.EnqueuedResources"/>
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="ploi-fastcgi-cache"/>
+                <element value="default"/>
+            </property>
+        </properties>
+    </rule>
+</ruleset>

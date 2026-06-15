@@ -1,0 +1,17 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: max
+    phpVersion: 80200
+    paths:
+        - foundation/src
+        - modules/admin-ui/src
+        - src
+        - ploi-fastcgi-cache.php
+        - uninstall.php
+    treatPhpDocTypesAsCertain: false
+    dynamicConstantNames:
+        - PLOI_FASTCGI_CACHE_KEY
+        - WP_DEBUG
+        - DOING_AUTOSAVE
