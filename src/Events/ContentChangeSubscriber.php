@@ -11,7 +11,7 @@ use WPForge\Hooks\Action;
 use WP_Post;
 
 /**
- * Listens to the 7 content-change hooks and schedules a (debounced) flush.
+ * Listens to the 9 content-change hooks and schedules a (debounced) flush.
  *
  * Every handler funnels through trigger(), whose FIRST check is the per-event
  * toggle — so turning a toggle off stops a flush from ALL of that event's
