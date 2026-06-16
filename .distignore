@@ -1,0 +1,58 @@
+# Files excluded from the distributed plugin ZIP (wp dist-archive reads this).
+#
+# The shipped ZIP = runtime PHP (ploi-fastcgi-cache.php, uninstall.php, src/,
+# foundation/, modules/, resources/views/) + the production Composer autoloader
+# (vendor/, installed with --no-dev) + built front-end assets (public/build/) +
+# the compiled translations template (languages/). Everything below is
+# build/test/tooling and must NOT ship.
+
+# --- VCS / CI / OS / editor ---
+.git
+.gitignore
+.gitattributes
+.distignore
+.github
+.editorconfig
+.nvmrc
+.DS_Store
+
+# --- AI / assistant tooling ---
+.claude
+
+# --- Front-end source (compiled output lives in public/build/) ---
+node_modules
+package.json
+package-lock.json
+vite.config.*
+resources/js
+resources/css
+
+# --- Composer dev manifests (production vendor/ itself SHIPS) ---
+composer.json
+composer.lock
+
+# --- Tests & QA tooling ---
+tests
+phpunit.xml.dist
+phpunit.xml
+.phpunit.cache
+.phpunit.result.cache
+phpcs.xml.dist
+phpcs.xml
+.phpcs.cache
+phpstan.neon.dist
+phpstan.neon
+playwright.config.js
+playwright-report
+test-results
+
+# --- Local WordPress dev environment ---
+.wp-env.json
+
+# --- Documentation & markdown (readme.txt is .txt and is KEPT) ---
+docs
+*.md
+
+# --- Misc dev-only ---
+*.example
+public/build/hot

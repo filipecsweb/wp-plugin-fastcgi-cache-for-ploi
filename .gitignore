@@ -5,6 +5,9 @@
 # Build output (run `composer install && npm install && npm run build`)
 /public/build/
 
+# Distributable archive (built into a staging dir; see .distignore)
+/dist/
+
 # Tooling caches
 /.phpunit.cache/
 /.phpunit.result.cache
