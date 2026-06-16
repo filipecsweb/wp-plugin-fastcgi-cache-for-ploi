@@ -7,6 +7,8 @@ namespace Ploi\FastCgiCache\Ploi;
 use WPForge\Http\HttpClient;
 use WPForge\Http\Response;
 
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- PloiApiException::fromResponse() receives a Response object (esc_html is inapplicable); its message is surfaced as an escaped WP_Error/JSON response and escaped at output, not here.
+
 /**
  * Thin client for the Ploi API, built on the Foundation HTTP wrapper.
  *

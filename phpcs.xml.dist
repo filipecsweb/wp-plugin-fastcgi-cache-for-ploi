@@ -35,16 +35,14 @@
         </properties>
     </rule>
 
-    <!-- WordPress security + correctness (escaping, nonces, sanitisation, i18n). -->
-    <rule ref="WordPress.Security">
-        <!--
-            Exceptions in this codebase are always caught and surfaced as escaped
-            WP_Error / REST-JSON responses, or logged — never echoed as HTML.
-            HTML-escaping their messages would corrupt those JSON payloads, so this
-            sniff does not apply here. The real output sniff (OutputNotEscaped) stays.
-        -->
-        <exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped"/>
-    </rule>
+    <!-- WordPress security + correctness (escaping, nonces, sanitisation, i18n).
+         ExceptionNotEscaped is suppressed at the file level (phpcs:disable) in the
+         few files that throw with interpolated internal identifiers — Container,
+         HookRegistrar, Crypto, Vite and PloiClient — each with a per-file rationale.
+         (Those inline disables travel with the code, so the official Plugin Check,
+         which ignores this project config, sees them too.) Keeping the sniff enabled
+         here flags any NEW unescaped-exception case that lacks a justified disable. -->
+    <rule ref="WordPress.Security"/>
 
     <!-- SQL-injection prevention stays enforced (values use prepare() / %i / %d / %s). -->
     <rule ref="WordPress.DB.PreparedSQL"/>

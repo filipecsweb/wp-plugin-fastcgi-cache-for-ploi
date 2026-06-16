@@ -29,6 +29,7 @@ final class FlushLogRepository
         /** @var \wpdb $wpdb */
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Inserting one row into our own custom log table.
         $wpdb->insert(
             $this->table,
             [
@@ -55,6 +56,7 @@ final class FlushLogRepository
         /** @var \wpdb $wpdb */
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reading recent rows from our own custom log table (prepared with %i/%d); intentionally uncached so the audit view is always fresh.
         $rows = $wpdb->get_results(
             $wpdb->prepare('SELECT * FROM %i ORDER BY id DESC LIMIT %d', $this->table, $limit),
             ARRAY_A
@@ -83,6 +85,7 @@ final class FlushLogRepository
         /** @var \wpdb $wpdb */
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reading the prune threshold from our own custom log table (prepared with %i/%d); a one-off maintenance read, not cached.
         $threshold = $wpdb->get_var(
             $wpdb->prepare('SELECT id FROM %i ORDER BY id DESC LIMIT 1 OFFSET %d', $this->table, $keep)
         );
@@ -91,7 +94,7 @@ final class FlushLogRepository
             $delete = $wpdb->prepare('DELETE FROM %i WHERE id <= %d', $this->table, (int) $threshold);
 
             if (is_string($delete)) {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $delete holds a prepared query.
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $delete is a prepared DELETE against our own custom log table; a write with no caching.
                 $wpdb->query($delete);
             }
         }
@@ -102,6 +105,7 @@ final class FlushLogRepository
         /** @var \wpdb $wpdb */
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Counting rows in our own custom log table (prepared with %i); intentionally uncached.
         $count = $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i', $this->table));
 
         return is_numeric($count) ? (int) $count : 0;

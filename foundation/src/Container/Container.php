@@ -11,6 +11,8 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
 
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Messages are built only from internal identifiers (service IDs, class names) and are caught and logged or surfaced as an escaped WP_Error/JSON response — never echoed as HTML. (PCP runs its own ruleset and cannot see the project phpcs.xml exclusion.)
+
 /**
  * A minimal PSR-11 container with constructor autowiring.
  *

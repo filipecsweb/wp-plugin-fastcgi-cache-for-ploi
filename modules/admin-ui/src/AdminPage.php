@@ -87,6 +87,7 @@ abstract class AdminPage
     public function render(): void
     {
         if (! current_user_can($this->capability())) {
+            // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- Intentionally reuses WordPress core's own translation of this standard capability-denied message.
             wp_die(esc_html__('Sorry, you are not allowed to access this page.', 'default'));
         }
 

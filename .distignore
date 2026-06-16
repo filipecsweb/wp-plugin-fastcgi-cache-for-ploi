@@ -27,8 +27,10 @@ vite.config.*
 resources/js
 resources/css
 
-# --- Composer dev manifests (production vendor/ itself SHIPS) ---
-composer.json
+# --- Composer ---
+# composer.json SHIPS: Plugin Check warns (missing_composer_json_file) when a
+# composer-managed vendor/ exists without it. The production vendor/ (installed
+# with --no-dev) ships too; composer.lock is dev-only and excluded.
 composer.lock
 
 # --- Tests & QA tooling ---

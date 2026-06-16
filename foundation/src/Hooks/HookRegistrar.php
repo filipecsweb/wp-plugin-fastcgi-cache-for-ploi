@@ -7,6 +7,8 @@ namespace WPForge\Hooks;
 use LogicException;
 use ReflectionObject;
 
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- The message is built only from reflected class/method names and surfaces at boot via wp_die/log — never echoed as HTML.
+
 /**
  * Discovers #[Action] / #[Filter] attributes on a service's methods and wires
  * them to WordPress via add_action()/add_filter().

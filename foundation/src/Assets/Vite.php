@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace WPForge\Assets;
 
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- ViteException messages contain only internal manifest entry keys; they surface at build/boot via wp_die/log, never echoed as HTML.
+// phpcs:disable WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Asset filenames are content-hashed (admin-<hash>.js), so the hash is the cache-buster; the version arg is intentionally false (no ?ver query string, no WordPress-core-version leak). Dev-server assets are HMR-managed.
+
 /**
  * Vendored Vite asset enqueuer (no external dependency).
  *
@@ -66,7 +69,7 @@ final class Vite
         $chunk    = $manifest[$entry] ?? null;
 
         if (is_array($chunk) && isset($chunk['file']) && is_string($chunk['file'])) {
-            wp_enqueue_style($handle, $this->buildUrl . '/' . $chunk['file'], [], null);
+            wp_enqueue_style($handle, $this->buildUrl . '/' . $chunk['file'], [], false);
         }
     }
 
@@ -79,10 +82,10 @@ final class Vite
 
         $clientHandle = $handle . '-vite-client';
         $this->registerModuleHandle($clientHandle);
-        wp_enqueue_script($clientHandle, $origin . '/@vite/client', [], null, $inFooter);
+        wp_enqueue_script($clientHandle, $origin . '/@vite/client', [], false, $inFooter);
 
         $this->registerModuleHandle($handle);
-        wp_enqueue_script($handle, $origin . '/' . ltrim($entry, '/'), $deps, null, $inFooter);
+        wp_enqueue_script($handle, $origin . '/' . ltrim($entry, '/'), $deps, false, $inFooter);
     }
 
     /**
@@ -110,11 +113,11 @@ final class Vite
             // chunk shared by multiple entries collapses to a single <link>
             // (WordPress dedupes styles by handle, not by URL).
             $styleHandle = 'wpforge-vite-' . sanitize_title(pathinfo($style, PATHINFO_FILENAME));
-            wp_enqueue_style($styleHandle, $this->buildUrl . '/' . $style, [], null);
+            wp_enqueue_style($styleHandle, $this->buildUrl . '/' . $style, [], false);
         }
 
         $this->registerModuleHandle($handle);
-        wp_enqueue_script($handle, $this->buildUrl . '/' . $chunk['file'], $deps, null, $inFooter);
+        wp_enqueue_script($handle, $this->buildUrl . '/' . $chunk['file'], $deps, false, $inFooter);
     }
 
     /**

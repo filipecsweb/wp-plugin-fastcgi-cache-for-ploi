@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace WPForge\Security;
 
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- The message contains only a libsodium byte-length constant; it is a boot-time configuration guard, never echoed as HTML.
+
 /**
  * Authenticated symmetric encryption via libsodium (XSalsa20-Poly1305).
  *

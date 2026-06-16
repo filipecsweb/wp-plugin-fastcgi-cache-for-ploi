@@ -17,6 +17,7 @@ final class TextDomain
 
     public function load(): void
     {
+        // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Retained so bundled /languages translations load on installs outside wordpress.org; on wordpress.org, translations also auto-load by slug.
         load_plugin_textdomain($this->domain, false, $this->relativePath);
     }
 }

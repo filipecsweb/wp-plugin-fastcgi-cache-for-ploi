@@ -47,7 +47,7 @@ final class CreateFlushLogTable extends Migration
         global $wpdb;
 
         $table = $this->tableName(FlushLogRepository::TABLE);
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Dropping our own custom table on migration rollback; $table derives from $wpdb->prefix (trusted), the schema change is intentional, and caching does not apply to DDL.
         $wpdb->query("DROP TABLE IF EXISTS {$table}");
     }
 }
