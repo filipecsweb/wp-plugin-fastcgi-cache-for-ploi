@@ -56,3 +56,5 @@ docs
 # --- Misc dev-only ---
 *.example
 public/build/hot
+bin
+dist
