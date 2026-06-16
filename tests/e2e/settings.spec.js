@@ -1,198 +1,95 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures.js'
 
-const ADMIN_USER = process.env.WP_ADMIN_USER || 'admin'
-const ADMIN_PASS = process.env.WP_ADMIN_PASS || 'password'
-// Path prefix for installs that nest WordPress (e.g. Bedrock serves wp-admin
-// under /wp). Empty for a standard install / the default wp-env target.
-const WP_PREFIX = process.env.WP_PATH_PREFIX || ''
-const SETTINGS_PATH = `${WP_PREFIX}/wp-admin/options-general.php?page=ploi-fastcgi-cache`
+// UI of the settings screen: shell, event toggles, the coalesce window, saving +
+// persistence, and the native-styling smoke test. Connection/disconnect lives in
+// connection.spec.js; permissions in security.spec.js; auto-flush in autoflush.spec.js.
 
-async function login(page) {
-  await page.goto(`${WP_PREFIX}/wp-login.php`)
-  await page.fill('#user_login', ADMIN_USER)
-  await page.fill('#user_pass', ADMIN_PASS)
-  await page.click('#wp-submit')
-  await expect(page).toHaveURL(/wp-admin/)
-}
-
-async function openSettings(page) {
-  await login(page)
-  await page.goto(SETTINGS_PATH)
-}
-
-// Read the REST base + nonce the page was localized with (window.PloiCacheConfig).
-function pageConfig(page) {
-  return page.evaluate(() => ({
-    restUrl: window.PloiCacheConfig.restUrl,
-    nonce: window.PloiCacheConfig.nonce,
-  }))
-}
-
-// Seed a "connected" state. POST /settings persists a token WITHOUT contacting
-// Ploi, so this reaches hasToken=true offline. page.request carries the admin
-// session cookies; the localized nonce satisfies guard().
-async function seedConnection(page, overrides = {}) {
-  const { restUrl, nonce } = await pageConfig(page)
-  const res = await page.request.post(`${restUrl}/settings`, {
-    headers: { 'X-WP-Nonce': nonce },
-    data: {
-      token: 'seed-token-e2e',
-      server_id: '7',
-      site_id: '42',
-      server_name: 'Seed Server',
-      site_domain: 'seed.example',
-      events: { post_save: true, menu: true },
-      debounce: 12,
-      ...overrides,
-    },
-  })
-  expect(res.ok()).toBeTruthy()
-}
-
-// Reset to the clean "no token" state other tests assume. Idempotent.
-async function resetConnection(page) {
-  const { restUrl, nonce } = await pageConfig(page)
-  await page.request.delete(`${restUrl}/connection`, { headers: { 'X-WP-Nonce': nonce } })
-}
-
-test.describe('FastCGI Cache for Ploi settings screen', () => {
-  test.beforeEach(async ({ page }) => {
-    await openSettings(page)
+test.describe('Settings screen — unconfigured', () => {
+  test('renders the live Alpine shell (§1)', async ({ admin }) => {
+    await expect(admin.getByRole('heading', { name: 'FastCGI Cache for Ploi' })).toBeVisible()
+    await expect(admin.locator('.ploi-cache-admin')).toBeVisible()
+    await expect(admin.locator('.ploi-cache-admin input[type="password"]')).toBeVisible()
   })
 
-  test('renders the live Alpine shell', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'FastCGI Cache for Ploi' })).toBeVisible()
-    await expect(page.locator('.ploi-cache-admin')).toBeVisible()
-    await expect(page.locator('.ploi-cache-admin input[type="password"]')).toBeVisible()
+  test('renders all six event toggles from the localized config (§4)', async ({ admin }) => {
+    await expect(admin.locator('.ploi-cache-admin input[type="checkbox"]')).toHaveCount(6)
   })
 
-  test('renders all six event toggles from the localized config', async ({ page }) => {
-    await expect(page.locator('.ploi-cache-admin input[type="checkbox"]')).toHaveCount(6)
+  test('disables "Flush now" until configured, with a reason (§7)', async ({ admin }) => {
+    await expect(admin.getByRole('button', { name: /Flush now/i })).toBeDisabled()
+    await expect(admin.locator('.ploi-cache-admin')).toContainText(/Add a Ploi API token first|Choose a server and site/i)
   })
 
-  test('disables "Flush now" until configured, with a reason', async ({ page }) => {
-    await expect(page.getByRole('button', { name: /Flush now/i })).toBeDisabled()
-    await expect(page.locator('.ploi-cache-admin')).toContainText(/Add a Ploi API token first|Choose a server and site/i)
-  })
-
-  test('rejects an invalid coalesce window', async ({ page }) => {
-    const input = page.locator('#ploi-debounce')
+  test('rejects an invalid coalesce window (§5)', async ({ admin }) => {
+    const input = admin.locator('#ploi-debounce')
     await input.fill('999')
     await input.blur()
-    await expect(page.getByRole('button', { name: /Save settings/i })).toBeDisabled()
+    await expect(admin.getByRole('button', { name: /Save settings/i })).toBeDisabled()
   })
 })
 
-// These tests MUTATE the shared wp-env DB (seed then remove a token). They run
-// serially and reset to the clean "no token" state in afterEach so the read-only
-// tests above keep their unconfigured assumption. (With fullyParallel workers and
-// one shared DB, run e2e with --workers=1 if you see cross-test contention.)
-test.describe('Disconnect (remove the saved token)', () => {
-  test.describe.configure({ mode: 'serial' })
+test.describe('Settings screen — event toggles (§4)', () => {
+  test('enable all / disable all and the count track the toggles', async ({ admin }) => {
+    const root = admin.locator('.ploi-cache-admin')
+    const checks = root.locator('input[type="checkbox"]')
 
-  test.beforeEach(async ({ page }) => {
-    await openSettings(page)
-  })
-  test.afterEach(async ({ page }) => {
-    await resetConnection(page)
-  })
+    await root.getByRole('button', { name: 'Disable all' }).click()
+    await expect(root).toContainText('0 of 6 events enabled')
+    await expect(checks.first()).not.toBeChecked()
 
-  test('removes the token from storage and returns the card to the empty state', async ({ page }) => {
-    await seedConnection(page)
-    await page.reload()
-    await expect(page.locator('.ploi-cache-admin')).toContainText('A token is saved.')
+    await root.getByRole('button', { name: 'Enable all' }).click()
+    await expect(root).toContainText('6 of 6 events enabled')
+    await expect(checks.first()).toBeChecked()
 
-    // Two-step confirm: the first click only reveals the prompt — it must NOT disconnect.
-    await page.getByRole('button', { name: 'Disconnect' }).click()
-    await expect(page.getByText('Remove the saved token?')).toBeVisible()
-    await expect(page.locator('.ploi-cache-admin')).toContainText('A token is saved.')
-
-    // Confirm.
-    await page.getByRole('button', { name: 'Yes, disconnect' }).click()
-    await expect(page.locator('.ploi-cache-admin')).toContainText('No token saved yet.')
-
-    // Flushing goes inert through the EXISTING gating (no new ungated path).
-    await expect(page.getByRole('button', { name: 'Flush now' })).toBeDisabled()
-    await expect(page.locator('.ploi-cache-admin')).toContainText('Add a Ploi API token first.')
-
-    // STORAGE check: a fresh settings read proves the token is gone from the DB
-    // (hasToken derives from the stored option, not UI state), target cleared,
-    // events + debounce preserved, and the raw token never appears in the body.
-    const { restUrl, nonce } = await pageConfig(page)
-    const after = await page.request.get(`${restUrl}/settings`, { headers: { 'X-WP-Nonce': nonce } })
-    const body = await after.json()
-    expect(body.hasToken).toBe(false)
-    expect(body.needsReconnect).toBe(false)
-    expect(body.serverId).toBe('')
-    expect(body.siteId).toBe('')
-    expect(body.enabledEvents.post_save).toBe(true)
-    expect(body.enabledEvents.menu).toBe(true)
-    expect(body.debounce).toBe(12)
-    expect(JSON.stringify(body)).not.toContain('seed-token-e2e')
-
-    // Persisted: a full reload still shows the disconnected state.
-    await page.reload()
-    await expect(page.locator('.ploi-cache-admin')).toContainText('No token saved yet.')
-  })
-
-  test('Cancel keeps the token and hides the prompt', async ({ page }) => {
-    await seedConnection(page)
-    await page.reload()
-    await page.getByRole('button', { name: 'Disconnect' }).click()
-    await page.getByRole('button', { name: 'Cancel' }).click()
-    await expect(page.getByText('Remove the saved token?')).toBeHidden()
-    await expect(page.locator('.ploi-cache-admin')).toContainText('A token is saved.')
+    await checks.first().uncheck()
+    await expect(root).toContainText('5 of 6 events enabled')
   })
 })
 
-// §13 — the disconnect route must reject unauthenticated/forged requests. Both
-// tests use a FRESH, cookieless request context (anonymous caller). Note the two
-// distinct rejection layers, asserted by exact code so green can't mean "harness
-// loosened":
-//   * MISSING nonce passes WordPress core's auth layer (which only rejects a
-//     present-but-invalid nonce) and reaches OUR guard() — proving the route is
-//     wired through guard(). A guard-skipped route would 200; a capability-only
-//     guard would return rest_forbidden. Neither is rest_invalid_nonce.
-//   * A FORGED nonce is caught even earlier by core's global REST auth layer,
-//     before any route runs — so the route is simply unreachable with a bad nonce.
-// guard()'s capability half (non-admin → rest_forbidden) and its nonce half under
-// internal dispatch are pinned by the rest_do_request checks in docs/e2e-tests.md §13.
-test.describe('Disconnect endpoint security (§13)', () => {
-  test.beforeEach(async ({ page }) => {
-    await openSettings(page)
+test.describe('Settings screen — saving (§6)', () => {
+  test('saves events + debounce and they survive a reload', async ({ admin, rest }) => {
+    const root = admin.locator('.ploi-cache-admin')
+
+    await root.getByRole('button', { name: 'Disable all' }).click()
+    await admin.locator('.ploi-cache-admin input[type="checkbox"]').first().check() // post_save
+    const debounce = admin.locator('#ploi-debounce')
+    await debounce.fill('0')
+    await debounce.blur()
+    await admin.getByRole('button', { name: /Save settings/i }).click()
+    await expect(root).toContainText('Settings saved.')
+
+    // Persisted server-side…
+    const saved = await rest.settings()
+    expect(saved.debounce).toBe(0)
+    expect(saved.enabledEvents.post_save).toBe(true)
+
+    // …and survives a full reload.
+    await admin.reload()
+    await expect(admin.locator('#ploi-debounce')).toHaveValue('0')
+    await expect(admin.locator('.ploi-cache-admin input[type="checkbox"]').first()).toBeChecked()
   })
 
-  test('missing nonce is rejected by guard() (rest_invalid_nonce, 403)', async ({ page, playwright }) => {
-    const restUrl = await page.evaluate(() => window.PloiCacheConfig.restUrl)
-    const ctx = await playwright.request.newContext({ ignoreHTTPSErrors: true })
-    const res = await ctx.delete(`${restUrl}/connection`)
-    expect(res.status()).toBe(403)
-    expect((await res.json()).code).toBe('rest_invalid_nonce')
-    await ctx.dispose()
+  test('a saved connection hydrates the UI on reload (§6)', async ({ admin, rest }) => {
+    await rest.seed({ debounce: 7 })
+    await admin.reload()
+    await expect(admin.locator('#ploi-debounce')).toHaveValue('7')
+    await expect(admin.locator('.ploi-cache-admin')).toContainText('A token is saved.')
+    await expect(admin.locator('.ploi-cache-admin')).toContainText('Currently flushing:')
   })
 
-  test('forged nonce is rejected before the route (rest_cookie_invalid_nonce, 403)', async ({ page, playwright }) => {
-    const restUrl = await page.evaluate(() => window.PloiCacheConfig.restUrl)
-    const ctx = await playwright.request.newContext({ ignoreHTTPSErrors: true })
-    const res = await ctx.delete(`${restUrl}/connection`, { headers: { 'X-WP-Nonce': 'not-a-real-nonce' } })
-    expect(res.status()).toBe(403)
-    expect((await res.json()).code).toBe('rest_cookie_invalid_nonce')
-    await ctx.dispose()
+  test('a token with no server/site is not a flushable config (§6)', async ({ admin, rest }) => {
+    await rest.seed({ server_id: '', site_id: '' })
+    await admin.reload()
+    await expect(admin.getByRole('button', { name: /Flush now/i })).toBeDisabled()
+    await expect(admin.locator('.ploi-cache-admin')).toContainText(/Choose a server and site/i)
   })
 })
 
-// Styling smoke test. Tailwind preflight is OFF on this screen, so a newly added
-// control renders raw (default browser chrome) until it is given a native
-// wp-admin class. This fails if ANY actionable control (<button>, <a role=button>,
-// or .button) carries no recognized native class — catching "raw/unstyled control"
-// mechanically across the connected AND disconnected states. It only detects the
-// absence of a styling class; it cannot judge visual appearance.
+// Tailwind preflight is OFF on this screen, so a newly added control renders raw
+// until given a native wp-admin class. Fails if ANY actionable control carries no
+// recognized native class — across connected AND disconnected states.
 test.describe('Admin controls use native wp-admin styling', () => {
-  test.describe.configure({ mode: 'serial' })
-
-  // Native button/link classes WordPress styles out of the box…
   const RECOGNIZED = ['button', 'button-primary', 'button-secondary', 'button-link', 'button-link-delete']
-  // …plus an explicit allow-list of core-styled controls that aren't `.button`.
   const ALLOWLIST = ['notice-dismiss']
 
   function rawControls(page) {
@@ -201,33 +98,23 @@ test.describe('Admin controls use native wp-admin styling', () => {
       (els, ok) =>
         els
           .filter((el) => !Array.from(el.classList).some((c) => ok.includes(c)))
-          .map((el) => ({
-            tag: el.tagName.toLowerCase(),
-            class: el.className,
-            text: (el.textContent || '').trim().slice(0, 30),
-          })),
+          .map((el) => ({ tag: el.tagName.toLowerCase(), class: el.className, text: (el.textContent || '').trim().slice(0, 30) })),
       [...RECOGNIZED, ...ALLOWLIST]
     )
   }
 
-  test.afterEach(async ({ page }) => {
-    await resetConnection(page)
+  test('no raw controls — connected state', async ({ admin, rest }) => {
+    await rest.seed()
+    await admin.reload()
+    await expect(admin.getByRole('button', { name: 'Disconnect' })).toBeVisible()
+    const raw = await rawControls(admin)
+    expect(raw, `Unstyled control(s): ${JSON.stringify(raw, null, 2)}`).toEqual([])
   })
 
-  test('no raw controls — connected state', async ({ page }) => {
-    await openSettings(page)
-    await seedConnection(page)
-    await page.reload()
-    await expect(page.getByRole('button', { name: 'Disconnect' })).toBeVisible()
-    const raw = await rawControls(page)
-    expect(raw, `Unstyled control(s) found: ${JSON.stringify(raw, null, 2)}`).toEqual([])
-  })
-
-  test('no raw controls — disconnected state', async ({ page }) => {
-    await openSettings(page)
-    await resetConnection(page)
-    await page.reload()
-    const raw = await rawControls(page)
-    expect(raw, `Unstyled control(s) found: ${JSON.stringify(raw, null, 2)}`).toEqual([])
+  test('no raw controls — disconnected state', async ({ admin, rest }) => {
+    await rest.reset()
+    await admin.reload()
+    const raw = await rawControls(admin)
+    expect(raw, `Unstyled control(s): ${JSON.stringify(raw, null, 2)}`).toEqual([])
   })
 })
