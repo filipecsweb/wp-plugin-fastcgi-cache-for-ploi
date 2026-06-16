@@ -266,6 +266,7 @@ final class Plugin
         $container->singleton(Vite::class, fn (): Vite => new Vite(
             rtrim($this->dir(), '/') . '/public/build',
             rtrim($this->url(), '/') . '/public/build',
+            $this->version(),
         ));
 
         $container->singleton(TextDomain::class, fn (): TextDomain => new TextDomain(

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace WPForge\Assets;
 
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- ViteException messages contain only internal manifest entry keys; they surface at build/boot via wp_die/log, never echoed as HTML.
-// phpcs:disable WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Asset filenames are content-hashed (admin-<hash>.js), so the hash is the cache-buster; the version arg is intentionally false (no ?ver query string, no WordPress-core-version leak). Dev-server assets are HMR-managed.
 
 /**
  * Vendored Vite asset enqueuer (no external dependency).
@@ -30,6 +29,7 @@ final class Vite
     public function __construct(
         private readonly string $buildPath,
         private readonly string $buildUrl,
+        private readonly string $version = '',
         private readonly string $devServer = 'http://localhost:5173',
     ) {
     }
@@ -69,7 +69,7 @@ final class Vite
         $chunk    = $manifest[$entry] ?? null;
 
         if (is_array($chunk) && isset($chunk['file']) && is_string($chunk['file'])) {
-            wp_enqueue_style($handle, $this->buildUrl . '/' . $chunk['file'], [], false);
+            wp_enqueue_style($handle, $this->buildUrl . '/' . $chunk['file'], [], $this->version);
         }
     }
 
@@ -82,10 +82,12 @@ final class Vite
 
         $clientHandle = $handle . '-vite-client';
         $this->registerModuleHandle($clientHandle);
-        wp_enqueue_script($clientHandle, $origin . '/@vite/client', [], false, $inFooter);
+        // phpcs:ignore WordPress.WP.EnqueuedResourceParameters -- Dev-server asset (Vite HMR); this branch runs only when the build/hot file exists and is never present in a distributed build.
+        wp_enqueue_script($clientHandle, $origin . '/@vite/client', [], null, $inFooter);
 
         $this->registerModuleHandle($handle);
-        wp_enqueue_script($handle, $origin . '/' . ltrim($entry, '/'), $deps, false, $inFooter);
+        // phpcs:ignore WordPress.WP.EnqueuedResourceParameters -- Dev-server asset (Vite HMR); this branch runs only when the build/hot file exists and is never present in a distributed build.
+        wp_enqueue_script($handle, $origin . '/' . ltrim($entry, '/'), $deps, null, $inFooter);
     }
 
     /**
@@ -113,11 +115,11 @@ final class Vite
             // chunk shared by multiple entries collapses to a single <link>
             // (WordPress dedupes styles by handle, not by URL).
             $styleHandle = 'wpforge-vite-' . sanitize_title(pathinfo($style, PATHINFO_FILENAME));
-            wp_enqueue_style($styleHandle, $this->buildUrl . '/' . $style, [], false);
+            wp_enqueue_style($styleHandle, $this->buildUrl . '/' . $style, [], $this->version);
         }
 
         $this->registerModuleHandle($handle);
-        wp_enqueue_script($handle, $this->buildUrl . '/' . $chunk['file'], $deps, false, $inFooter);
+        wp_enqueue_script($handle, $this->buildUrl . '/' . $chunk['file'], $deps, $this->version, $inFooter);
     }
 
     /**
