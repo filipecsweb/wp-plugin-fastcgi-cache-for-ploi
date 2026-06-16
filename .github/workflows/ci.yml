@@ -73,10 +73,14 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     env:
-      WP_DIR: ${{ runner.temp }}/wp
       WP_BASE_URL: http://127.0.0.1:8889
     steps:
       - uses: actions/checkout@v4
+
+      # runner.temp isn't available in job-level env, so export WP_DIR here for
+      # the run-script steps below ($WP_DIR) and later expressions (env.WP_DIR).
+      - name: Resolve the WordPress directory
+        run: echo "WP_DIR=$RUNNER_TEMP/wp" >> "$GITHUB_ENV"
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -130,7 +134,7 @@ jobs:
       - name: Run E2E
         run: npm run e2e
         env:
-          WP_PLUGIN_PATH: ${{ runner.temp }}/wp/wp-content/plugins/ploi-fastcgi-cache
-          WP_CLI_CWD: ${{ runner.temp }}/wp
+          WP_PLUGIN_PATH: ${{ env.WP_DIR }}/wp-content/plugins/ploi-fastcgi-cache
+          WP_CLI_CWD: ${{ env.WP_DIR }}
           WP_ADMIN_USER: admin
           WP_ADMIN_PASS: password
