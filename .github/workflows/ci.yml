@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
 
+# Supersede in-flight runs for the same ref when a newer push/PR-update arrives.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   php:
     name: PHP ${{ matrix.php }} (cs + stan + test)
