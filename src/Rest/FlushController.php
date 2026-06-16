@@ -63,11 +63,7 @@ final class FlushController extends RestController
         }
 
         if (! $entry->success) {
-            return $this->error(
-                'flush_failed',
-                $entry->message ?? __('The flush request failed.', 'ploi-fastcgi-cache'),
-                502
-            );
+            return $this->error('flush_failed', $this->failureNotice($entry->httpCode, $entry->message), 502);
         }
 
         return $this->respond([
@@ -75,5 +71,33 @@ final class FlushController extends RestController
             'message' => __('FastCGI cache flushed.', 'ploi-fastcgi-cache'),
             'entry'   => $entry->toArray(),
         ]);
+    }
+
+    /**
+     * Build the user-facing notice for a failed flush.
+     *
+     * The log keeps the raw Ploi message (see CacheFlusher) for debugging; this
+     * only shapes what the admin sees. Ploi answers 422 on the flush endpoint
+     * when the site has no FastCGI cache to flush, and its raw "The given data
+     * was invalid." is opaque. We can't prove 422 is exclusive to that case, so
+     * we hedge ("may not be enabled") and still append Ploi's raw message so any
+     * other 422 cause stays legible. Bad server/site IDs return 404, not 422.
+     */
+    private function failureNotice(int $httpCode, ?string $raw): string
+    {
+        $raw = $raw !== null && $raw !== '' ? $raw : null;
+
+        if ($httpCode === 422) {
+            $hint = __('Ploi rejected the flush — FastCGI caching may not be enabled for this site.', 'ploi-fastcgi-cache');
+
+            return $raw === null ? $hint : sprintf(
+                /* translators: 1: friendly explanation, 2: raw message from the Ploi API. */
+                __('%1$s (Ploi: %2$s)', 'ploi-fastcgi-cache'),
+                $hint,
+                $raw
+            );
+        }
+
+        return $raw ?? __('The flush request failed.', 'ploi-fastcgi-cache');
     }
 }
