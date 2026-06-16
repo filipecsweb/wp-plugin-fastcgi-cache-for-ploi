@@ -16,7 +16,7 @@ use WPForge\Provider\ServiceProvider;
 use WPForge\Security\Nonce;
 
 /**
- * Registers the Settings → Ploi FastCGI Cache screen and enqueues its bundle,
+ * Registers the Settings → FastCGI Cache for Ploi screen and enqueues its bundle,
  * hydrating the Alpine app with the real saved settings and recent flush log.
  */
 final class AdminServiceProvider extends ServiceProvider

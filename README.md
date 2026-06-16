@@ -1,4 +1,4 @@
-# Ploi FastCGI Cache
+# FastCGI Cache for Ploi
 
 Automatically flush a [Ploi](https://ploi.io)-managed site's **FastCGI cache**
 whenever your content changes — and flush on demand from a clean settings screen.
@@ -79,8 +79,8 @@ activate it.
    ```bash
    ln -s ~/dev/ploi-fastcgi-cache ~/Herd/mysite/wp-content/plugins/ploi-fastcgi-cache
    ```
-6. Visit `https://mysite.test/wp-admin/`, activate **Ploi FastCGI Cache**, then
-   open **Settings → Ploi FastCGI Cache**.
+6. Visit `https://mysite.test/wp-admin/`, activate **FastCGI Cache for Ploi**, then
+   open **Settings → FastCGI Cache for Ploi**.
 7. *(Recommended)* add a dedicated encryption key to the site's `wp-config.php`
    (see [Security](#security)):
    ```php
@@ -154,7 +154,7 @@ All of the above run in CI (`.github/workflows/ci.yml`) across PHP 8.2/8.3/8.4.
 ```
 foundation/src/        WPForge kernel (reusable)
 modules/admin-ui/src/  admin-ui module (opt-in)
-src/                   Ploi FastCGI Cache plugin code
+src/                   FastCGI Cache for Ploi plugin code
 resources/             Alpine + Tailwind v4 sources (built into public/build/)
 tests/Unit/            Pest unit tests
 tests/e2e/             Playwright E2E

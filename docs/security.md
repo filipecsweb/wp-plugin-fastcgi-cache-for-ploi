@@ -1,4 +1,4 @@
-# Security notes — Ploi FastCGI Cache
+# Security notes — FastCGI Cache for Ploi
 
 ## Why the API token is sensitive
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name:       Ploi FastCGI Cache
+ * Plugin Name:       FastCGI Cache for Ploi
  * Plugin URI:        https://github.com/filipeseabra/ploi-fastcgi-cache
  * Description:       Automatically flush a Ploi-managed site's FastCGI cache when content changes.
  * Version:           1.0.0
@@ -43,7 +43,7 @@ if (! is_file($ploi_fastcgi_cache_autoload)) {
     add_action('admin_notices', static function (): void {
         echo '<div class="notice notice-error"><p>';
         echo esc_html__(
-            'Ploi FastCGI Cache: dependencies are missing. Run "composer install" in the plugin directory.',
+            'FastCGI Cache for Ploi: dependencies are missing. Run "composer install" in the plugin directory.',
             'ploi-fastcgi-cache'
         );
         echo '</p></div>';

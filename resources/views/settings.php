@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Settings → Ploi FastCGI Cache screen.
+ * Settings → FastCGI Cache for Ploi screen.
  *
  * Server-rendered shell. Dynamic state is hydrated from window.PloiCacheConfig
  * and driven by the `ploiCache` Alpine component. Chrome reuses WordPress's own
@@ -22,7 +22,7 @@ declare(strict_types=1);
 defined('ABSPATH') || exit;
 ?>
 <div class="wrap">
-    <h1><?php echo esc_html__('Ploi FastCGI Cache', 'ploi-fastcgi-cache'); ?></h1>
+    <h1><?php echo esc_html__('FastCGI Cache for Ploi', 'ploi-fastcgi-cache'); ?></h1>
     <p class="description">
         <?php echo esc_html__('Automatically flush your Ploi-managed site\'s FastCGI cache when content changes.', 'ploi-fastcgi-cache'); ?>
     </p>
@@ -135,6 +135,10 @@ defined('ABSPATH') || exit;
                         </p>
                     </div>
                 </div>
+
+                <p class="description tw:mt-3 tw:text-[13px] tw:text-gray-500">
+                    <?php echo esc_html__('Ploi is a trademark of its respective owner. This plugin is not affiliated with or endorsed by Ploi.', 'ploi-fastcgi-cache'); ?>
+                </p>
             </div>
         </section>
 

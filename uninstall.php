@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Uninstall routine for Ploi FastCGI Cache.
+ * Uninstall routine for FastCGI Cache for Ploi.
  *
  * @package Ploi\FastCgiCache
  */
