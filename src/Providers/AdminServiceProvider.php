@@ -26,7 +26,12 @@ final class AdminServiceProvider extends ServiceProvider
         $this->container->singleton(SettingsPage::class, function (): SettingsPage {
             $plugin = $this->container->make(Plugin::class);
 
-            return new SettingsPage($plugin->dir() . 'resources/views/settings.php');
+            return new SettingsPage(
+                $plugin->dir() . 'resources/views/settings.php',
+                $plugin->dir() . 'resources/views/partials/admin-footer.php',
+                $plugin->name(),
+                $plugin->version(),
+            );
         });
     }
 

@@ -17,8 +17,12 @@ final class SettingsPage extends AdminPage
 {
     public const SLUG = 'ploi-fastcgi-cache';
 
-    public function __construct(private readonly string $viewPath)
-    {
+    public function __construct(
+        private readonly string $viewPath,
+        private readonly string $footerPath,
+        private readonly string $pluginName,
+        private readonly string $version,
+    ) {
     }
 
     protected function slug(): string
@@ -53,5 +57,30 @@ final class SettingsPage extends AdminPage
     protected function renderBody(): void
     {
         require $this->viewPath;
+    }
+
+    /**
+     * Render the shared admin footer. Called from the page views so the partial
+     * executes in this object's scope and renders consistently across screens.
+     */
+    public function renderFooter(): void
+    {
+        require $this->footerPath;
+    }
+
+    /**
+     * Plugin display name shown in the footer.
+     */
+    protected function footerName(): string
+    {
+        return $this->pluginName;
+    }
+
+    /**
+     * Plugin version shown in the footer.
+     */
+    protected function footerVersion(): string
+    {
+        return $this->version;
     }
 }

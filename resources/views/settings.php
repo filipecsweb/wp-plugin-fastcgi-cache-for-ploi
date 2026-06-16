@@ -135,10 +135,6 @@ defined('ABSPATH') || exit;
                         </p>
                     </div>
                 </div>
-
-                <p class="description tw:mt-3 tw:text-[13px] tw:text-gray-500">
-                    <?php echo esc_html__('Ploi is a trademark of its respective owner. This plugin is not affiliated with or endorsed by Ploi.', 'ploi-fastcgi-cache'); ?>
-                </p>
             </div>
         </section>
 
@@ -307,4 +303,6 @@ defined('ABSPATH') || exit;
             </div>
         </section>
     </div>
+
+    <?php $this->renderFooter(); ?>
 </div>
