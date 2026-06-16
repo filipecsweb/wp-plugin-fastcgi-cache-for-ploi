@@ -14,7 +14,7 @@ namespace WPForge\Security;
  * wp-config.php keys) makes existing ciphertext undecryptable — by design,
  * decrypt() returns NULL on any failure (wrong format, tampering, rotated
  * salts) and NEVER throws or fatals. Callers detect the null and trigger a
- * graceful "reconnect" flow rather than white-screening (see Phase 4).
+ * graceful "reconnect" flow rather than white-screening.
  */
 final class Crypto
 {

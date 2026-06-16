@@ -12,7 +12,7 @@ namespace WPForge\Module\AdminUi;
  *   - return 'options-general.php' (etc.) => a submenu (add_submenu_page)
  *
  * So the SAME page class works as either a top-level menu or a submenu without
- * code changes (Constraint 2). register() captures the resulting hook suffix so
+ * code changes. register() captures the resulting hook suffix so
  * assets can be scoped to exactly this screen.
  */
 abstract class AdminPage

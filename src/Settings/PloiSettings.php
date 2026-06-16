@@ -11,7 +11,7 @@ use WPForge\Settings\Options;
 /**
  * Typed settings for the plugin, layered over the Foundation Options + Crypto.
  *
- * Token handling (Constraint 3): the token is stored encrypted. token() decrypts
+ * Token handling: the token is stored encrypted. token() decrypts
  * it; if decryption fails (e.g. the WordPress salts were rotated), the stored
  * value is cleared and a "needs reconnect" flag is raised, and null is returned —
  * never an exception. Callers surface the reconnect prompt instead of erroring.

@@ -38,7 +38,7 @@ exactly like first-party providers.
 
 | Module     | Path                 | Namespace                  | Status |
 |------------|----------------------|----------------------------|--------|
-| `admin-ui` | `modules/admin-ui/`  | `WPForge\Module\AdminUi\`  | ✅ Built in Phase 3 |
+| `admin-ui` | `modules/admin-ui/`  | `WPForge\Module\AdminUi\`  | ✅ Built |
 
 > **admin-ui targets Tailwind CSS v4.** Admin styling is scoped to the plugin's
 > own screen using the v4 **CSS-first** pattern: import only `theme.css` +

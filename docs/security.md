@@ -48,13 +48,13 @@ This guarantees the key is filesystem-only **and** decouples the token from
 login-salt rotation (rotating `AUTH_KEY` to invalidate sessions will no longer
 invalidate the stored token).
 
-### Plugin behaviour (Phase 4)
+### Plugin behaviour
 
 - `Crypto` is bound to prefer `PLOI_FASTCGI_CACHE_KEY`, then fall back to
   `wp_salt()`.
 - If the key changes (salt rotation) and the stored token can no longer be
   decrypted, the plugin clears the token and prompts the operator to reconnect —
-  no white screen (Constraint 3).
+  no white screen.
 - When salts are detected as DB-derived (no constants), the settings screen
   shows a non-blocking warning recommending the hardening above.
 

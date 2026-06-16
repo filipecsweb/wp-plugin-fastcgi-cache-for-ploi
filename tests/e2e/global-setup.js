@@ -9,8 +9,8 @@ import { E2E_SUBSCRIBER, wp, wpAvailable, wpTry } from './wp-cli.js'
  * Otherwise the suite silently validates a stale or duplicate copy of the plugin
  * (a real debugging trap — two .test sites each had their own copy). When
  * WP_PLUGIN_PATH is set, assert it resolves to this repo and fail loudly if not.
- * When it is unset (e.g. a wp-env copy rather than a symlink), skip with a notice
- * rather than block.
+ * When it is unset (e.g. a local site whose plugin dir is a plain copy rather than
+ * a symlink to this checkout), skip with a notice rather than block.
  */
 export default function globalSetup() {
   const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')

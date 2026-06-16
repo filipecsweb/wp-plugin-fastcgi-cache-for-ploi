@@ -136,18 +136,30 @@ composer qa      # all three
 
 npm run build    # production assets
 npm run dev      # Vite dev server (HMR)
-npm run e2e      # Playwright E2E (requires a running wp-env — see below)
+npm run e2e      # Playwright E2E against a real WordPress (see below)
 ```
 
-**E2E with wp-env:**
+**E2E (Playwright against a real WordPress):**
+
+The suite drives an actual WordPress install — not a bundled container. Point it at
+a local site (Herd/Valet, or any WordPress) that serves *this* checkout, then run
+Playwright. Copy `.claude/.env.example` to `.claude/.env` (auto-loaded) and set:
 
 ```bash
-npx wp-env start
+WP_BASE_URL=https://your-site.test        # the WordPress under test
+WP_ADMIN_USER=admin                       # an admin login
+WP_ADMIN_PASS=password
+WP_PLUGIN_PATH=/abs/path/to/site/wp-content/plugins/ploi-fastcgi-cache
+                                          # symlink to this checkout; the preflight
+                                          # refuses to run against a stale copy
+
 npm run e2e
-npx wp-env stop
 ```
 
-All of the above run in CI (`.github/workflows/ci.yml`) across PHP 8.2/8.3/8.4.
+CI provisions its own WordPress from scratch with WP-CLI (`wp core download/install`
++ a symlinked plugin + the PHP built-in server) — see `.github/workflows/ci.yml`.
+The full quality gate (`composer qa` across PHP 8.2/8.3/8.4, asset build, and this
+E2E job) runs there on every push.
 
 ## Project layout
 

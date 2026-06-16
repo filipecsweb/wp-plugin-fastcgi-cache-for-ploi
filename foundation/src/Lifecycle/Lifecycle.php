@@ -9,7 +9,7 @@ namespace WPForge\Lifecycle;
  *
  * Uninstall is intentionally NOT handled here: register_uninstall_hook() cannot
  * accept closures or instance methods, so uninstall is driven by the canonical
- * uninstall.php file at the plugin root (added in Phase 4).
+ * uninstall.php file at the plugin root.
  */
 final class Lifecycle
 {

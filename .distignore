@@ -1,4 +1,6 @@
 # Files excluded from the distributed plugin ZIP (wp dist-archive reads this).
+# This is the SINGLE source of truth for what the shipped archive omits — there is
+# deliberately no second mechanism (no .gitattributes export-ignore) to drift from.
 #
 # The shipped ZIP = runtime PHP (ploi-fastcgi-cache.php, uninstall.php, src/,
 # foundation/, modules/, resources/views/) + the production Composer autoloader
@@ -9,7 +11,6 @@
 # --- VCS / CI / OS / editor ---
 .git
 .gitignore
-.gitattributes
 .distignore
 .github
 .editorconfig
@@ -47,9 +48,6 @@ phpstan.neon
 playwright.config.js
 playwright-report
 test-results
-
-# --- Local WordPress dev environment ---
-.wp-env.json
 
 # --- Documentation & markdown (readme.txt is .txt and is KEPT) ---
 docs

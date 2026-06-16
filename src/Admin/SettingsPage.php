@@ -10,7 +10,7 @@ use WPForge\Module\AdminUi\AdminPage;
 /**
  * The "Settings → FastCGI Cache for Ploi" screen.
  *
- * Placed as a submenu under Settings (Constraint 2) by returning a parent slug;
+ * Placed as a submenu under Settings by returning a parent slug;
  * returning null instead would make the very same class a top-level menu.
  */
 final class SettingsPage extends AdminPage

@@ -57,8 +57,8 @@ require $ploi_fastcgi_cache_autoload;
 /**
  * Boot the plugin on top of the WPForge Foundation.
  *
- *   - Phase 3 (admin-ui module): the settings screen, loaded only in wp-admin.
- *   - Phase 4 (Ploi behaviour):  always-on core, REST and flush providers via
+ *   - Admin-UI module: the settings screen, loaded only in wp-admin.
+ *   - Ploi behaviour:  always-on core, REST and flush providers via
  *     withProviders(), plus activation/deactivation via withLifecycle() — wired
  *     synchronously here (never in a provider), because WordPress fires
  *     activation hooks without re-running plugins_loaded.
