@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ploi\FastCgiCache\Admin;
 
+use Ploi\FastCgiCache\Providers\RestServiceProvider;
 use WPForge\Module\AdminUi\AdminPage;
 
 /**
@@ -28,6 +29,15 @@ final class SettingsPage extends AdminPage
     protected function parentSlug(): string
     {
         return 'options-general.php';
+    }
+
+    /**
+     * Gate the screen with the same capability the REST routes enforce, from the
+     * one shared definition.
+     */
+    protected function capability(): string
+    {
+        return RestServiceProvider::CAPABILITY;
     }
 
     protected function pageTitle(): string

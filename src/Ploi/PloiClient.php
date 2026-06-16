@@ -20,6 +20,11 @@ final class PloiClient
 {
     private const BASE_URL = 'https://ploi.io';
 
+    /**
+     * Page size for Ploi list endpoints — fetch the full list in one request.
+     */
+    private const PER_PAGE = 100;
+
     public function __construct(private readonly HttpClient $http)
     {
     }
@@ -29,7 +34,7 @@ final class PloiClient
      */
     public function servers(string $token): array
     {
-        $response = $this->authed($token)->get('/api/servers', ['per_page' => 100]);
+        $response = $this->authed($token)->get('/api/servers', ['per_page' => self::PER_PAGE]);
 
         if (! $response->ok()) {
             throw PloiApiException::fromResponse($response);
@@ -45,7 +50,7 @@ final class PloiClient
     {
         $response = $this->authed($token)->get(
             sprintf('/api/servers/%s/sites', rawurlencode($serverId)),
-            ['per_page' => 100]
+            ['per_page' => self::PER_PAGE]
         );
 
         if (! $response->ok()) {

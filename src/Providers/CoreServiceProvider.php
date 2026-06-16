@@ -8,6 +8,7 @@ use Ploi\FastCgiCache\Cache\CacheFlusher;
 use Ploi\FastCgiCache\Cache\FlushScheduler;
 use Ploi\FastCgiCache\Log\FlushLogRepository;
 use Ploi\FastCgiCache\Ploi\PloiClient;
+use Ploi\FastCgiCache\Settings\OptionNames;
 use Ploi\FastCgiCache\Settings\PloiSettings;
 use WPForge\Database\Migrator;
 use WPForge\Plugin;
@@ -24,6 +25,14 @@ use WPForge\Settings\Options;
  */
 final class CoreServiceProvider extends ServiceProvider
 {
+    /**
+     * The wp-config constant that supplies a dedicated encryption key. Single
+     * source for the NAME, read both here (to derive the Crypto key) and by
+     * AdminServiceProvider (to decide whether to show the "DB-derived key"
+     * warning), so the two checks can never test different constant names.
+     */
+    public const KEY_CONSTANT = 'PLOI_FASTCGI_CACHE_KEY';
+
     public function register(): void
     {
         $container = $this->container;
@@ -31,14 +40,20 @@ final class CoreServiceProvider extends ServiceProvider
 
         $container->singleton(
             Options::class,
-            static fn (): Options => new Options($prefix . '_settings', PloiSettings::defaults())
+            static fn (): Options => new Options(OptionNames::settings($prefix), PloiSettings::defaults())
         );
 
         $container->singleton(Crypto::class, static function (): Crypto {
-            if (defined('PLOI_FASTCGI_CACHE_KEY') && is_string(PLOI_FASTCGI_CACHE_KEY) && PLOI_FASTCGI_CACHE_KEY !== '') {
-                return new Crypto(
-                    sodium_crypto_generichash((string) PLOI_FASTCGI_CACHE_KEY, '', SODIUM_CRYPTO_SECRETBOX_KEYBYTES)
-                );
+            $keyConstant = self::KEY_CONSTANT;
+
+            if (defined($keyConstant)) {
+                $key = constant($keyConstant);
+
+                if (is_string($key) && $key !== '') {
+                    return new Crypto(
+                        sodium_crypto_generichash($key, '', SODIUM_CRYPTO_SECRETBOX_KEYBYTES)
+                    );
+                }
             }
 
             return new Crypto();
@@ -46,7 +61,7 @@ final class CoreServiceProvider extends ServiceProvider
 
         $container->singleton(
             Migrator::class,
-            static fn (): Migrator => new Migrator($prefix . '_migrations')
+            static fn (): Migrator => new Migrator(OptionNames::migrations($prefix))
         );
 
         // Autowired from the bindings above + Foundation primitives.

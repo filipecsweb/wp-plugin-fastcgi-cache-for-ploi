@@ -14,6 +14,6 @@ final class Deactivator
     public static function deactivate(): void
     {
         wp_clear_scheduled_hook(FlushScheduler::CRON_HOOK);
-        delete_transient('ploi_fastcgi_cache_pending');
+        delete_transient(FlushScheduler::LOCK);
     }
 }

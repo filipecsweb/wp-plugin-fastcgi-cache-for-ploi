@@ -6,8 +6,8 @@ namespace Ploi\FastCgiCache\Rest;
 
 use Ploi\FastCgiCache\Ploi\PloiApiException;
 use Ploi\FastCgiCache\Ploi\PloiClient;
+use Ploi\FastCgiCache\Providers\RestServiceProvider;
 use Ploi\FastCgiCache\Settings\PloiSettings;
-use WPForge\Rest\RestController;
 use WPForge\Security\Capability;
 use WP_Error;
 use WP_REST_Request;
@@ -25,7 +25,7 @@ use WP_REST_Response;
  * GET    /servers             list the connected account's servers
  * GET    /servers/{server}/sites list a server's sites
  */
-final class ConnectionController extends RestController
+final class ConnectionController extends PloiRestController
 {
     public function __construct(
         string $namespace,
@@ -41,7 +41,7 @@ final class ConnectionController extends RestController
         $this->registerRoute('/connection/test', [
             'methods'             => 'POST',
             'callback'            => [$this, 'test'],
-            'permission_callback' => $this->guard('manage_options'),
+            'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
             'args'                => [
                 'token' => ['type' => 'string', 'required' => false],
             ],
@@ -50,19 +50,19 @@ final class ConnectionController extends RestController
         $this->registerRoute('/connection', [
             'methods'             => 'DELETE',
             'callback'            => [$this, 'disconnect'],
-            'permission_callback' => $this->guard('manage_options'),
+            'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
         ]);
 
         $this->registerRoute('/servers', [
             'methods'             => 'GET',
             'callback'            => [$this, 'servers'],
-            'permission_callback' => $this->guard('manage_options'),
+            'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
         ]);
 
         $this->registerRoute('/servers/(?P<server>[A-Za-z0-9_-]+)/sites', [
             'methods'             => 'GET',
             'callback'            => [$this, 'sites'],
-            'permission_callback' => $this->guard('manage_options'),
+            'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
             'args'                => [
                 'server' => ['type' => 'string', 'required' => true],
             ],
@@ -81,7 +81,7 @@ final class ConnectionController extends RestController
         try {
             $servers = $this->client->servers($token);
         } catch (PloiApiException $exception) {
-            return $this->error('ploi_error', $exception->getMessage(), $this->statusFor($exception));
+            return $this->ploiError($exception);
         }
 
         // Persist only a freshly entered, verified token.
@@ -110,49 +110,52 @@ final class ConnectionController extends RestController
 
     public function servers(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
-        $token = $this->settings->token();
-
-        if ($token === null) {
-            return $this->reconnect();
-        }
-
-        try {
-            return $this->respond(['servers' => $this->client->servers($token)]);
-        } catch (PloiApiException $exception) {
-            return $this->error('ploi_error', $exception->getMessage(), $this->statusFor($exception));
-        }
+        return $this->withToken(fn (string $token): WP_REST_Response => $this->respond(
+            ['servers' => $this->client->servers($token)]
+        ));
     }
 
     public function sites(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
+        $server = $this->stringParam($request, 'server');
+
+        return $this->withToken(fn (string $token): WP_REST_Response => $this->respond(
+            ['sites' => $this->client->sites($token, $server)]
+        ));
+    }
+
+    /**
+     * Resolve the saved token (or bail to the reconnect error) and run $fn with
+     * it inside the shared Ploi-error handler. The single home for the
+     * null-token -> reconnect gate and the PloiApiException -> error mapping that
+     * servers() and sites() share.
+     *
+     * @param callable(string): WP_REST_Response $fn
+     */
+    private function withToken(callable $fn): WP_REST_Response|WP_Error
+    {
         $token = $this->settings->token();
 
         if ($token === null) {
-            return $this->reconnect();
+            return $this->reconnectError();
         }
 
-        $server = $this->stringParam($request, 'server');
-
         try {
-            return $this->respond(['sites' => $this->client->sites($token, $server)]);
+            return $fn($token);
         } catch (PloiApiException $exception) {
-            return $this->error('ploi_error', $exception->getMessage(), $this->statusFor($exception));
+            return $this->ploiError($exception);
         }
     }
 
-    private function reconnect(): WP_Error
+    private function ploiError(PloiApiException $exception): WP_Error
     {
-        return $this->error(
-            'needs_reconnect',
-            __('Your saved token could not be read. Please re-enter your Ploi API token.', 'ploi-fastcgi-cache'),
-            409
-        );
+        return $this->error('ploi_error', $exception->getMessage(), $this->statusFor($exception));
     }
 
     private function statusFor(PloiApiException $exception): int
     {
         $status = $exception->statusCode();
 
-        return $status >= 400 && $status < 600 ? $status : 502;
+        return $status >= 400 && $status < 600 ? $status : self::STATUS_UPSTREAM_FAILURE;
     }
 }

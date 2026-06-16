@@ -68,15 +68,15 @@ final class AdminServiceProvider extends ServiceProvider
             'settings'    => $settings->toArray(),
             'log'         => array_map(
                 static fn (FlushLogEntry $entry): array => $entry->toArray(),
-                $log->recent(20)
+                $log->recent(FlushLogRepository::RECENT_LIMIT)
             ),
-            'keyWarning'  => $this->keyIsDatabaseDerived(),
-            'debounceMin' => PloiSettings::DEBOUNCE_MIN,
-            'debounceMax' => PloiSettings::DEBOUNCE_MAX,
+            'keyWarning'      => $this->keyIsDatabaseDerived(),
+            'debounceMin'     => PloiSettings::DEBOUNCE_MIN,
+            'debounceMax'     => PloiSettings::DEBOUNCE_MAX,
+            'debounceDefault' => PloiSettings::DEBOUNCE_DEFAULT,
             'i18n'        => [
                 'connected'      => __('Connection successful.', 'ploi-fastcgi-cache'),
                 'saved'          => __('Settings saved.', 'ploi-fastcgi-cache'),
-                'flushed'        => __('FastCGI cache flushed.', 'ploi-fastcgi-cache'),
                 'disconnected'   => __('Token removed. Add a new token to reconnect.', 'ploi-fastcgi-cache'),
                 'genericError'   => __('Something went wrong. Please try again.', 'ploi-fastcgi-cache'),
                 'needToken'      => __('Add a Ploi API token first.', 'ploi-fastcgi-cache'),
@@ -98,7 +98,9 @@ final class AdminServiceProvider extends ServiceProvider
      */
     private function keyIsDatabaseDerived(): bool
     {
-        if (defined('PLOI_FASTCGI_CACHE_KEY') && PLOI_FASTCGI_CACHE_KEY) {
+        $keyConstant = CoreServiceProvider::KEY_CONSTANT;
+
+        if (defined($keyConstant) && constant($keyConstant)) {
             return false;
         }
 

@@ -21,7 +21,12 @@ final class FlushScheduler
 {
     public const CRON_HOOK = 'ploi_fastcgi_cache_flush';
 
-    private const LOCK = 'ploi_fastcgi_cache_pending';
+    /**
+     * Transient key for the pending-flush marker. Public so the lifecycle
+     * teardown (Deactivator/Uninstaller) clears the exact same key, never a
+     * re-typed copy.
+     */
+    public const LOCK = 'ploi_fastcgi_cache_pending';
 
     public function __construct(
         private readonly PloiSettings $settings,

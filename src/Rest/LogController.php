@@ -6,7 +6,7 @@ namespace Ploi\FastCgiCache\Rest;
 
 use Ploi\FastCgiCache\Log\FlushLogEntry;
 use Ploi\FastCgiCache\Log\FlushLogRepository;
-use WPForge\Rest\RestController;
+use Ploi\FastCgiCache\Providers\RestServiceProvider;
 use WPForge\Security\Capability;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -14,10 +14,8 @@ use WP_REST_Response;
 /**
  * GET /log — the most recent flush-log entries for the "Recent flushes" table.
  */
-final class LogController extends RestController
+final class LogController extends PloiRestController
 {
-    private const LIMIT = 20;
-
     public function __construct(
         string $namespace,
         Capability $capability,
@@ -31,7 +29,7 @@ final class LogController extends RestController
         $this->registerRoute('/log', [
             'methods'             => 'GET',
             'callback'            => [$this, 'index'],
-            'permission_callback' => $this->guard('manage_options'),
+            'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
         ]);
     }
 
@@ -39,7 +37,7 @@ final class LogController extends RestController
     {
         $entries = array_map(
             static fn (FlushLogEntry $entry): array => $entry->toArray(),
-            $this->log->recent(self::LIMIT)
+            $this->log->recent(FlushLogRepository::RECENT_LIMIT)
         );
 
         return $this->respond(['entries' => $entries]);

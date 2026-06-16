@@ -1,5 +1,5 @@
 /**
- * Alpine component for the Ploi FastCGI Cache settings screen.
+ * Alpine component for the FastCGI Cache for Ploi settings screen.
  *
  * Hydrated from window.PloiCacheConfig. Talks to the plugin REST routes with the
  * wp_rest nonce. Distinguishes the SAVED snapshot (what auto-flush / manual flush
@@ -18,7 +18,7 @@ export default function ploiCache() {
     serverId: s.serverId || '',
     siteId: s.siteId || '',
     enabled: { ...(s.enabledEvents || {}) },
-    debounce: s.debounce ?? 5,
+    debounce: s.debounce ?? cfg.debounceDefault,
 
     // Fetched from Ploi.
     servers: [],
@@ -261,7 +261,8 @@ export default function ploiCache() {
       this.notice = null
       try {
         const data = await this.api('POST', '/flush', {})
-        this.setNotice('success', data.message || this.cfg.i18n.flushed)
+        // FlushController always returns a success message; no client fallback.
+        this.setNotice('success', data.message)
         await this.loadLog()
       } catch (e) {
         this.handleError(e)

@@ -55,13 +55,13 @@ async function resetConnection(page) {
   await page.request.delete(`${restUrl}/connection`, { headers: { 'X-WP-Nonce': nonce } })
 }
 
-test.describe('Ploi FastCGI Cache settings screen', () => {
+test.describe('FastCGI Cache for Ploi settings screen', () => {
   test.beforeEach(async ({ page }) => {
     await openSettings(page)
   })
 
   test('renders the live Alpine shell', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Ploi FastCGI Cache' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'FastCGI Cache for Ploi' })).toBeVisible()
     await expect(page.locator('.ploi-cache-admin')).toBeVisible()
     await expect(page.locator('.ploi-cache-admin input[type="password"]')).toBeVisible()
   })

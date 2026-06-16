@@ -14,6 +14,13 @@ final class FlushLogRepository
 {
     public const TABLE = 'ploi_flush_log';
 
+    /**
+     * How many recent rows the "Recent flushes" table shows. Single source for
+     * both the initial server-side hydration (AdminServiceProvider) and the
+     * GET /log refresh (LogController), so the two can't show different counts.
+     */
+    public const RECENT_LIMIT = 20;
+
     private string $table;
 
     public function __construct()
@@ -51,7 +58,7 @@ final class FlushLogRepository
     /**
      * @return list<FlushLogEntry>
      */
-    public function recent(int $limit = 20): array
+    public function recent(int $limit = self::RECENT_LIMIT): array
     {
         /** @var \wpdb $wpdb */
         global $wpdb;

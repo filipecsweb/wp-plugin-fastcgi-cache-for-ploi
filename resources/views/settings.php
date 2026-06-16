@@ -22,7 +22,7 @@ declare(strict_types=1);
 defined('ABSPATH') || exit;
 ?>
 <div class="wrap">
-    <h1><?php echo esc_html__('FastCGI Cache for Ploi', 'ploi-fastcgi-cache'); ?></h1>
+    <h1><?php echo esc_html($this->pageTitle()); ?></h1>
     <p class="description">
         <?php echo esc_html__('Automatically flush your Ploi-managed site\'s FastCGI cache when content changes.', 'ploi-fastcgi-cache'); ?>
     </p>

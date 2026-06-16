@@ -6,8 +6,8 @@ namespace Ploi\FastCgiCache\Rest;
 
 use Ploi\FastCgiCache\Cache\CacheFlusher;
 use Ploi\FastCgiCache\Cache\FlushReason;
+use Ploi\FastCgiCache\Providers\RestServiceProvider;
 use Ploi\FastCgiCache\Settings\PloiSettings;
-use WPForge\Rest\RestController;
 use WPForge\Security\Capability;
 use WP_Error;
 use WP_REST_Request;
@@ -18,7 +18,7 @@ use WP_REST_Response;
  * returns the resulting log entry. Refuses cleanly when not configured / when a
  * reconnect is required (concern 3 + 4).
  */
-final class FlushController extends RestController
+final class FlushController extends PloiRestController
 {
     public function __construct(
         string $namespace,
@@ -34,7 +34,7 @@ final class FlushController extends RestController
         $this->registerRoute('/flush', [
             'methods'             => 'POST',
             'callback'            => [$this, 'flush'],
-            'permission_callback' => $this->guard('manage_options'),
+            'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
         ]);
     }
 
@@ -42,11 +42,7 @@ final class FlushController extends RestController
     {
         if (! $this->settings->isConfigured()) {
             if ($this->settings->needsReconnect()) {
-                return $this->error(
-                    'needs_reconnect',
-                    __('Your saved token could not be read. Please re-enter your Ploi API token.', 'ploi-fastcgi-cache'),
-                    409
-                );
+                return $this->reconnectError();
             }
 
             return $this->error(
@@ -63,7 +59,7 @@ final class FlushController extends RestController
         }
 
         if (! $entry->success) {
-            return $this->error('flush_failed', $this->failureNotice($entry->httpCode, $entry->message), 502);
+            return $this->error('flush_failed', $this->failureNotice($entry->httpCode, $entry->message), self::STATUS_UPSTREAM_FAILURE);
         }
 
         return $this->respond([

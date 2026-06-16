@@ -33,15 +33,28 @@ final class PloiApiException extends RuntimeException
             );
         }
 
-        $data    = $response->array();
-        $message = isset($data['message']) && is_string($data['message']) && $data['message'] !== ''
-            ? $data['message']
-            : ($response->error() ?? sprintf(
-                /* translators: %d: HTTP status code. */
-                __('The Ploi API request failed (HTTP %d).', 'ploi-fastcgi-cache'),
-                $status
-            ));
+        return new self(self::messageFromResponse($response), $status);
+    }
 
-        return new self($message, $status);
+    /**
+     * Resolve a human-readable message from a Ploi error response: the API's own
+     * "message" field if present, then the transport-level error, then a generic
+     * HTTP-status line. The single home for parsing Ploi's error envelope, shared
+     * by fromResponse() (Test connection / listing) and CacheFlusher (the flush
+     * log) so the two can't drift.
+     */
+    public static function messageFromResponse(Response $response): string
+    {
+        $data = $response->array();
+
+        if (isset($data['message']) && is_string($data['message']) && $data['message'] !== '') {
+            return $data['message'];
+        }
+
+        return $response->error() ?? sprintf(
+            /* translators: %d: HTTP status code. */
+            __('The Ploi API request failed (HTTP %d).', 'ploi-fastcgi-cache'),
+            $response->status()
+        );
     }
 }

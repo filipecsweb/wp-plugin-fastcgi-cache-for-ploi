@@ -6,9 +6,9 @@ namespace Ploi\FastCgiCache\Cache;
 
 use Ploi\FastCgiCache\Log\FlushLogEntry;
 use Ploi\FastCgiCache\Log\FlushLogRepository;
+use Ploi\FastCgiCache\Ploi\PloiApiException;
 use Ploi\FastCgiCache\Ploi\PloiClient;
 use Ploi\FastCgiCache\Settings\PloiSettings;
-use WPForge\Http\Response;
 use WPForge\Logging\LoggerInterface;
 
 /**
@@ -52,7 +52,7 @@ final class CacheFlusher
             success: $response->ok(),
             httpCode: $response->status(),
             durationMs: $durationMs,
-            message: $response->ok() ? null : $this->failureMessage($response),
+            message: $response->ok() ? null : PloiApiException::messageFromResponse($response),
             createdAt: current_time('mysql', true),
         );
 
@@ -66,20 +66,5 @@ final class CacheFlusher
         }
 
         return $entry->withId($id);
-    }
-
-    private function failureMessage(Response $response): string
-    {
-        if ($response->error() !== null) {
-            return $response->error();
-        }
-
-        $data = $response->array();
-
-        if (isset($data['message']) && is_string($data['message']) && $data['message'] !== '') {
-            return $data['message'];
-        }
-
-        return sprintf('HTTP %d', $response->status());
     }
 }

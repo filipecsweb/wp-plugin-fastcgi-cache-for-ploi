@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Ploi\FastCgiCache\Rest;
 
+use Ploi\FastCgiCache\Providers\RestServiceProvider;
 use Ploi\FastCgiCache\Settings\PloiSettings;
-use WPForge\Rest\RestController;
 use WPForge\Security\Capability;
+use WPForge\Security\Sanitizer;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -17,12 +18,13 @@ use WP_REST_Response;
  * a new one is supplied. The debounce value is clamped server-side (concern 6);
  * the token is never echoed back (concern 2) — only hasToken is reported.
  */
-final class SettingsController extends RestController
+final class SettingsController extends PloiRestController
 {
     public function __construct(
         string $namespace,
         Capability $capability,
         private readonly PloiSettings $settings,
+        private readonly Sanitizer $sanitizer,
     ) {
         parent::__construct($namespace, $capability);
     }
@@ -33,12 +35,12 @@ final class SettingsController extends RestController
             [
                 'methods'             => 'GET',
                 'callback'            => [$this, 'show'],
-                'permission_callback' => $this->guard('manage_options'),
+                'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
             ],
             [
                 'methods'             => 'POST',
                 'callback'            => [$this, 'save'],
-                'permission_callback' => $this->guard('manage_options'),
+                'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
             ],
         ]);
     }
@@ -57,10 +59,10 @@ final class SettingsController extends RestController
         }
 
         $this->settings->setTarget(
-            sanitize_text_field($this->stringParam($request, 'server_id')),
-            sanitize_text_field($this->stringParam($request, 'site_id')),
-            sanitize_text_field($this->stringParam($request, 'server_name')),
-            sanitize_text_field($this->stringParam($request, 'site_domain')),
+            $this->sanitizer->text($this->stringParam($request, 'server_id')),
+            $this->sanitizer->text($this->stringParam($request, 'site_id')),
+            $this->sanitizer->text($this->stringParam($request, 'server_name')),
+            $this->sanitizer->text($this->stringParam($request, 'site_domain')),
         );
 
         $events = $request->get_param('events');

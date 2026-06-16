@@ -14,6 +14,7 @@ use Ploi\FastCgiCache\Rest\SettingsController;
 use Ploi\FastCgiCache\Settings\PloiSettings;
 use WPForge\Provider\ServiceProvider;
 use WPForge\Security\Capability;
+use WPForge\Security\Sanitizer;
 
 /**
  * Registers the REST controllers (all extend the Foundation RestController and
@@ -23,6 +24,13 @@ use WPForge\Security\Capability;
 final class RestServiceProvider extends ServiceProvider
 {
     public const NAMESPACE = 'ploi-fastcgi-cache/v1';
+
+    /**
+     * The capability required to manage this plugin. Single source for every REST
+     * guard AND the admin settings screen (SettingsPage::capability()), so the
+     * access policy lives in exactly one place.
+     */
+    public const CAPABILITY = 'manage_options';
 
     /** @var list<class-string<\WPForge\Rest\RestController>> */
     private const CONTROLLERS = [
@@ -47,6 +55,7 @@ final class RestServiceProvider extends ServiceProvider
             self::NAMESPACE,
             $container->make(Capability::class),
             $container->make(PloiSettings::class),
+            $container->make(Sanitizer::class),
         ));
 
         $container->singleton(FlushController::class, static fn () => new FlushController(

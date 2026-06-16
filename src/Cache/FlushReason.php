@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Ploi\FastCgiCache\Cache;
 
 /**
- * Why a flush happened. The six auto cases share their string value with the
- * matching FlushEvents toggle key; Manual is the "Flush now" button.
+ * Why a flush happened, and the single source of truth for which auto-flush
+ * events exist. The six auto cases (everything except Manual, exposed by
+ * autoCases()) define the canonical event keys + labels that FlushEvents derives
+ * from; Manual is the "Flush now" button and has no FlushEvents toggle.
  */
 enum FlushReason: string
 {
@@ -17,6 +19,21 @@ enum FlushReason: string
     case Customizer = 'customizer';
     case Menu       = 'menu';
     case Manual     = 'manual';
+
+    /**
+     * The content-change cases that map to a FlushEvents toggle — every case
+     * except Manual. The canonical list FlushEvents reads from, so the event
+     * keys can never drift from the enum.
+     *
+     * @return list<self>
+     */
+    public static function autoCases(): array
+    {
+        return array_values(array_filter(
+            self::cases(),
+            static fn (self $case): bool => $case !== self::Manual,
+        ));
+    }
 
     public function label(): string
     {

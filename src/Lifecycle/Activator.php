@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ploi\FastCgiCache\Lifecycle;
 
 use Ploi\FastCgiCache\Database\Migrations\CreateFlushLogTable;
+use Ploi\FastCgiCache\Settings\OptionNames;
 use WPForge\Database\Migrator;
 
 /**
@@ -15,6 +16,6 @@ final class Activator
 {
     public static function activate(string $optionPrefix): void
     {
-        (new Migrator($optionPrefix . '_migrations'))->migrate([new CreateFlushLogTable()]);
+        (new Migrator(OptionNames::migrations($optionPrefix)))->migrate([new CreateFlushLogTable()]);
     }
 }
