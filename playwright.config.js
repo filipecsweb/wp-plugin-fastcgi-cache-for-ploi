@@ -34,6 +34,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  // CI serves ONE WordPress (shared option row + flush-log table), so run serially
+  // there to avoid cross-test state races; locally, parallelise across cores.
+  workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: process.env.WP_BASE_URL || 'http://localhost:8888',

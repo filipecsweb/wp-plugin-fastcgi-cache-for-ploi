@@ -54,8 +54,27 @@ jobs:
         run: test -f public/build/.vite/manifest.json
 
   e2e:
-    name: E2E (Playwright + wp-env)
+    name: E2E (Playwright + real WordPress)
     runs-on: ubuntu-latest
+    # A real WordPress served by WP-CLI + the PHP built-in server, with the plugin
+    # symlinked in — the exact shape the e2e suite expects (WP_PLUGIN_PATH points at
+    # this checkout, WP_CLI_CWD drives the auto-flush/permission specs via `wp`).
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      WP_DIR: ${{ runner.temp }}/wp
+      WP_BASE_URL: http://127.0.0.1:8889
     steps:
       - uses: actions/checkout@v4
 
@@ -63,8 +82,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: sodium
-          tools: composer:v2
+          extensions: sodium, mysqli
+          tools: composer:v2, wp-cli
 
       - run: composer install --prefer-dist --no-progress --no-dev
 
@@ -76,8 +95,34 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      - name: Start wp-env
-        run: npx wp-env start
+      - name: Install WordPress
+        run: |
+          mkdir -p "$WP_DIR"
+          wp core download --path="$WP_DIR" --version=latest
+          wp config create --path="$WP_DIR" \
+            --dbname=wordpress --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306
+          wp core install --path="$WP_DIR" \
+            --url="$WP_BASE_URL" --title="E2E" \
+            --admin_user=admin --admin_password=password \
+            --admin_email=admin@example.test --skip-email
+
+      - name: Symlink the plugin and activate
+        run: |
+          ln -s "$GITHUB_WORKSPACE" "$WP_DIR/wp-content/plugins/ploi-fastcgi-cache"
+          wp plugin activate ploi-fastcgi-cache --path="$WP_DIR"
+
+      - name: Start the PHP server
+        run: |
+          PHP_CLI_SERVER_WORKERS=8 nohup php -S 127.0.0.1:8889 -t "$WP_DIR" \
+            >/tmp/php-server.log 2>&1 &
+          for _ in $(seq 1 30); do
+            if curl -sf "$WP_BASE_URL/wp-login.php" >/dev/null; then
+              echo "WordPress is reachable at $WP_BASE_URL"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "WordPress did not become reachable:" && cat /tmp/php-server.log && exit 1
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
@@ -85,8 +130,7 @@ jobs:
       - name: Run E2E
         run: npm run e2e
         env:
-          WP_BASE_URL: http://localhost:8888
-
-      - name: Stop wp-env
-        if: always()
-        run: npx wp-env stop
+          WP_PLUGIN_PATH: ${{ runner.temp }}/wp/wp-content/plugins/ploi-fastcgi-cache
+          WP_CLI_CWD: ${{ runner.temp }}/wp
+          WP_ADMIN_USER: admin
+          WP_ADMIN_PASS: password
