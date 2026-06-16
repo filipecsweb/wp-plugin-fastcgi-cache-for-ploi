@@ -113,7 +113,7 @@ defined('ABSPATH') || exit;
                             : '<?php echo esc_js(__('No token saved yet.', 'ploi-fastcgi-cache')); ?>'"></span>
                         <button
                             type="button"
-                            class="button-link-delete tw:ml-auto"
+                            class="button-link button-link-delete tw:ml-auto"
                             x-show="hasToken && !confirmingDisconnect"
                             @click="askDisconnect()"
                         ><?php echo esc_html__('Disconnect', 'ploi-fastcgi-cache'); ?></button>

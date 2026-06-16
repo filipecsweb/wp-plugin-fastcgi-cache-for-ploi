@@ -180,3 +180,54 @@ test.describe('Disconnect endpoint security (§13)', () => {
     await ctx.dispose()
   })
 })
+
+// Styling smoke test. Tailwind preflight is OFF on this screen, so a newly added
+// control renders raw (default browser chrome) until it is given a native
+// wp-admin class. This fails if ANY actionable control (<button>, <a role=button>,
+// or .button) carries no recognized native class — catching "raw/unstyled control"
+// mechanically across the connected AND disconnected states. It only detects the
+// absence of a styling class; it cannot judge visual appearance.
+test.describe('Admin controls use native wp-admin styling', () => {
+  test.describe.configure({ mode: 'serial' })
+
+  // Native button/link classes WordPress styles out of the box…
+  const RECOGNIZED = ['button', 'button-primary', 'button-secondary', 'button-link', 'button-link-delete']
+  // …plus an explicit allow-list of core-styled controls that aren't `.button`.
+  const ALLOWLIST = ['notice-dismiss']
+
+  function rawControls(page) {
+    return page.$$eval(
+      '.ploi-cache-admin button, .ploi-cache-admin a[role="button"], .ploi-cache-admin .button',
+      (els, ok) =>
+        els
+          .filter((el) => !Array.from(el.classList).some((c) => ok.includes(c)))
+          .map((el) => ({
+            tag: el.tagName.toLowerCase(),
+            class: el.className,
+            text: (el.textContent || '').trim().slice(0, 30),
+          })),
+      [...RECOGNIZED, ...ALLOWLIST]
+    )
+  }
+
+  test.afterEach(async ({ page }) => {
+    await resetConnection(page)
+  })
+
+  test('no raw controls — connected state', async ({ page }) => {
+    await openSettings(page)
+    await seedConnection(page)
+    await page.reload()
+    await expect(page.getByRole('button', { name: 'Disconnect' })).toBeVisible()
+    const raw = await rawControls(page)
+    expect(raw, `Unstyled control(s) found: ${JSON.stringify(raw, null, 2)}`).toEqual([])
+  })
+
+  test('no raw controls — disconnected state', async ({ page }) => {
+    await openSettings(page)
+    await resetConnection(page)
+    await page.reload()
+    const raw = await rawControls(page)
+    expect(raw, `Unstyled control(s) found: ${JSON.stringify(raw, null, 2)}`).toEqual([])
+  })
+})
