@@ -105,12 +105,36 @@ defined('ABSPATH') || exit;
                     </button>
                 </div>
 
-                <p class="tw:mt-3 tw:flex tw:items-center tw:gap-2 tw:text-sm">
-                    <span class="tw:inline-block tw:h-2 tw:w-2 tw:rounded-full" :class="hasToken ? 'tw:bg-green-500' : 'tw:bg-gray-300'"></span>
-                    <span class="tw:text-gray-600" x-text="hasToken
-                        ? '<?php echo esc_js(__('A token is saved.', 'ploi-fastcgi-cache')); ?>'
-                        : '<?php echo esc_js(__('No token saved yet.', 'ploi-fastcgi-cache')); ?>'"></span>
-                </p>
+                <div class="tw:mt-3 tw:flex tw:flex-col tw:gap-3">
+                    <div class="tw:flex tw:items-center tw:gap-2 tw:text-sm">
+                        <span class="tw:inline-block tw:h-2 tw:w-2 tw:rounded-full" :class="hasToken ? 'tw:bg-green-500' : 'tw:bg-gray-300'"></span>
+                        <span class="tw:text-gray-600" x-text="hasToken
+                            ? '<?php echo esc_js(__('A token is saved.', 'ploi-fastcgi-cache')); ?>'
+                            : '<?php echo esc_js(__('No token saved yet.', 'ploi-fastcgi-cache')); ?>'"></span>
+                        <button
+                            type="button"
+                            class="button-link-delete tw:ml-auto"
+                            x-show="hasToken && !confirmingDisconnect"
+                            @click="askDisconnect()"
+                        ><?php echo esc_html__('Disconnect', 'ploi-fastcgi-cache'); ?></button>
+                    </div>
+
+                    <!-- Inline destructive confirm (no native dialog) -->
+                    <div x-show="confirmingDisconnect" class="notice notice-warning inline tw:m-0!" role="alert">
+                        <p><?php echo esc_html__('Remove the saved token? Flushing will stop until you reconnect.', 'ploi-fastcgi-cache'); ?></p>
+                        <p class="tw:flex tw:items-center tw:gap-2">
+                            <button type="button" class="button button-small" @click="disconnect()" :disabled="busy.disconnect">
+                                <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
+                                    <span x-show="busy.disconnect" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
+                                    <span x-text="busy.disconnect
+                                        ? '<?php echo esc_js(__('Disconnecting…', 'ploi-fastcgi-cache')); ?>'
+                                        : '<?php echo esc_js(__('Yes, disconnect', 'ploi-fastcgi-cache')); ?>'"></span>
+                                </span>
+                            </button>
+                            <button type="button" class="button button-small" @click="cancelDisconnect()" :disabled="busy.disconnect"><?php echo esc_html__('Cancel', 'ploi-fastcgi-cache'); ?></button>
+                        </p>
+                    </div>
+                </div>
             </div>
         </section>
 

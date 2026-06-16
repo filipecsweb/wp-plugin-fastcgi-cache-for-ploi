@@ -77,6 +77,7 @@ final class AdminServiceProvider extends ServiceProvider
                 'connected'      => __('Connection successful.', 'ploi-fastcgi-cache'),
                 'saved'          => __('Settings saved.', 'ploi-fastcgi-cache'),
                 'flushed'        => __('FastCGI cache flushed.', 'ploi-fastcgi-cache'),
+                'disconnected'   => __('Token removed. Add a new token to reconnect.', 'ploi-fastcgi-cache'),
                 'genericError'   => __('Something went wrong. Please try again.', 'ploi-fastcgi-cache'),
                 'needToken'      => __('Add a Ploi API token first.', 'ploi-fastcgi-cache'),
                 'needTarget'     => __('Choose a server and site, then save.', 'ploi-fastcgi-cache'),

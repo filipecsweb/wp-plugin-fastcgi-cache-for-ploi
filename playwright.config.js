@@ -15,6 +15,9 @@ export default defineConfig({
   use: {
     baseURL: process.env.WP_BASE_URL || 'http://localhost:8888',
     trace: 'on-first-retry',
+    // Local test sites (Herd/Valet) serve HTTPS with a locally-trusted CA that
+    // the bundled browser doesn't know about.
+    ignoreHTTPSErrors: true,
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },

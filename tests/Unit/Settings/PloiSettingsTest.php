@@ -68,6 +68,47 @@ it('normalises event toggles to the known keys', function (): void {
         ->and($settings->isEventEnabled('post_save'))->toBeFalse();
 });
 
+it('disconnect deletes the token + target, resets reconnect, and keeps events + debounce', function (): void {
+    $settings = ($this->make)();
+    $settings->setToken('secret-token');
+    $settings->setTarget('7', '42', 'srv', 'site.test');
+    $settings->setEvents(['post_save' => true, 'menu' => true]);
+    $settings->setDebounce(12);
+
+    $settings->disconnect();
+
+    // Token gone from storage (no decryption needed to tell), and the same on a
+    // fresh instance reading straight from the option row.
+    expect($settings->hasStoredToken())->toBeFalse()
+        ->and($settings->token())->toBeNull()
+        ->and($settings->hasToken())->toBeFalse()
+        ->and(($this->make)()->hasStoredToken())->toBeFalse();
+
+    // Clean empty state, not the decrypt-failure "needs reconnect" state.
+    expect($settings->needsReconnect())->toBeFalse();
+
+    // Target cleared (stale IDs could misfire).
+    expect($settings->serverId())->toBe('')
+        ->and($settings->serverName())->toBe('')
+        ->and($settings->siteId())->toBe('')
+        ->and($settings->siteDomain())->toBe('');
+
+    // Preferences preserved.
+    expect($settings->isEventEnabled('post_save'))->toBeTrue()
+        ->and($settings->isEventEnabled('menu'))->toBeTrue()
+        ->and($settings->debounce())->toBe(12);
+
+    // The wire shape the UI re-syncs from reports a fully disconnected state.
+    expect($settings->toArray())
+        ->toMatchArray([
+            'hasToken'       => false,
+            'needsReconnect' => false,
+            'serverId'       => '',
+            'siteId'         => '',
+            'isConfigured'   => false,
+        ]);
+});
+
 it('is configured only with token, server and site', function (): void {
     $settings = ($this->make)();
     expect($settings->isConfigured())->toBeFalse();

@@ -108,6 +108,29 @@ final class PloiSettings
         return $this->options->getBool(self::KEY_RECONNECT, false);
     }
 
+    /**
+     * Tear down the saved connection: delete the encrypted token and the saved
+     * target, and clear the reconnect flag. A deliberate disconnect lands in a
+     * clean "no token" state — NOT the decrypt-failure "needs reconnect" state —
+     * so the reconnect flag is reset rather than raised. Event toggles and the
+     * debounce window are user preferences and are deliberately preserved.
+     */
+    public function disconnect(): void
+    {
+        $this->options->fill([
+            self::KEY_SERVER_ID   => '',
+            self::KEY_SERVER_NAME => '',
+            self::KEY_SITE_ID     => '',
+            self::KEY_SITE_DOMAIN => '',
+            self::KEY_RECONNECT   => false,
+        ]);
+
+        $this->options->forget(self::KEY_TOKEN);
+
+        $this->tokenLoaded = true;
+        $this->tokenPlain  = null;
+    }
+
     // --- Target ------------------------------------------------------------
 
     public function serverId(): string

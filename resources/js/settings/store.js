@@ -37,8 +37,9 @@ export default function ploiCache() {
 
     events: cfg.events || [],
     log: cfg.log || [],
-    busy: { test: false, servers: false, sites: false, save: false, flush: false, log: false },
+    busy: { test: false, servers: false, sites: false, save: false, flush: false, log: false, disconnect: false },
     notice: null,
+    confirmingDisconnect: false,
 
     init() {
       // Populate the dropdowns from the saved target when we have a usable token.
@@ -136,6 +137,42 @@ export default function ploiCache() {
         this.handleError(e)
       } finally {
         this.busy.test = false
+      }
+    },
+
+    // Two-step destructive confirm for removing the saved token.
+    askDisconnect() {
+      this.confirmingDisconnect = true
+    },
+    cancelDisconnect() {
+      this.confirmingDisconnect = false
+    },
+    async disconnect() {
+      this.busy.disconnect = true
+      this.notice = null
+      try {
+        const data = await this.api('DELETE', '/connection')
+        // Adopt the server's fresh snapshot (token + target now empty), exactly
+        // like save(), then clear the editable working copy + loaded lists.
+        this.saved = {
+          hasToken: !!data.hasToken,
+          serverId: data.serverId || '',
+          serverName: data.serverName || '',
+          siteId: data.siteId || '',
+          siteDomain: data.siteDomain || '',
+        }
+        this.needsReconnect = !!data.needsReconnect
+        this.token = ''
+        this.serverId = ''
+        this.siteId = ''
+        this.servers = []
+        this.sites = []
+        this.confirmingDisconnect = false
+        this.setNotice('success', this.cfg.i18n.disconnected)
+      } catch (e) {
+        this.handleError(e)
+      } finally {
+        this.busy.disconnect = false
       }
     },
 

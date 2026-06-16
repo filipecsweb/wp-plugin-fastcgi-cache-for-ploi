@@ -16,11 +16,14 @@ use WP_REST_Response;
 /**
  * Connection + resource listing routes.
  *
- * POST /connection/test       validate a token (provided or saved); on success
+ * POST   /connection/test     validate a token (provided or saved); on success
  *                             with a NEW token, encrypt + save it. (Concern 2:
  *                             token persistence happens here.)
- * GET  /servers               list the connected account's servers
- * GET  /servers/{server}/sites list a server's sites
+ * DELETE /connection          disconnect: delete the saved token + target and
+ *                             reset the reconnect flag. (Inverse of token save;
+ *                             event toggles + debounce are preserved.)
+ * GET    /servers             list the connected account's servers
+ * GET    /servers/{server}/sites list a server's sites
  */
 final class ConnectionController extends RestController
 {
@@ -42,6 +45,12 @@ final class ConnectionController extends RestController
             'args'                => [
                 'token' => ['type' => 'string', 'required' => false],
             ],
+        ]);
+
+        $this->registerRoute('/connection', [
+            'methods'             => 'DELETE',
+            'callback'            => [$this, 'disconnect'],
+            'permission_callback' => $this->guard('manage_options'),
         ]);
 
         $this->registerRoute('/servers', [
@@ -85,6 +94,18 @@ final class ConnectionController extends RestController
             'message' => __('Connection successful — token saved.', 'ploi-fastcgi-cache'),
             'servers' => $servers,
         ]);
+    }
+
+    /**
+     * Disconnect: delete the saved token + target (idempotent). Returns the fresh
+     * settings snapshot so the client re-syncs to the empty state, exactly like a
+     * save. Goes through the same guard() (nonce + manage_options) as every route.
+     */
+    public function disconnect(WP_REST_Request $request): WP_REST_Response
+    {
+        $this->settings->disconnect();
+
+        return $this->respond($this->settings->toArray());
     }
 
     public function servers(WP_REST_Request $request): WP_REST_Response|WP_Error
