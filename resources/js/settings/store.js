@@ -299,10 +299,6 @@ export default function ploiCache() {
     // Persist the event toggles + debounce window. The token (connect) and the
     // flush target (saveTarget) own their own state, so this preserves them.
     async save() {
-      if (!this.debounceValid) {
-        this.setNotice('error', this.cfg.i18n.badDebounce)
-        return
-      }
       this.busy.save = true
       this.notice = null
       try {
