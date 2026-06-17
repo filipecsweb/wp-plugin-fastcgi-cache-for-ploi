@@ -20,15 +20,15 @@ declare(strict_types=1);
 defined('ABSPATH') || exit;
 ?>
 <div
-    x-show="<?php echo $state; ?>"
+    x-show="<?php echo esc_attr($state); ?>"
     x-cloak
-    @keydown.escape.window="<?php echo $state; ?> = false"
+    @keydown.escape.window="<?php echo esc_attr($state); ?> = false"
     class="tw:fixed tw:inset-0 tw:z-[100000] tw:flex tw:items-center tw:justify-center tw:bg-black/50 tw:p-4"
     style="display: none;"
 >
     <div
-        @click.outside="<?php echo $state; ?> = false"
-        x-effect="<?php echo $state; ?> && $nextTick(() => $el.querySelector('select, input, button')?.focus())"
+        @click.outside="<?php echo esc_attr($state); ?> = false"
+        x-effect="<?php echo esc_attr($state); ?> && $nextTick(() => $el.querySelector('select, input, button')?.focus())"
         role="dialog"
         aria-modal="true"
         aria-labelledby="<?php echo esc_attr($titleId); ?>"
@@ -39,7 +39,7 @@ defined('ABSPATH') || exit;
             <button
                 type="button"
                 class="button-link tw:text-gray-500!"
-                @click="<?php echo $state; ?> = false"
+                @click="<?php echo esc_attr($state); ?> = false"
                 aria-label="<?php echo esc_attr__('Close', 'fastcgi-cache-for-ploi'); ?>"
             ><span aria-hidden="true" class="tw:text-lg">&times;</span></button>
         </div>
