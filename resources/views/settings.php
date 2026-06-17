@@ -29,6 +29,8 @@ defined('ABSPATH') || exit;
         <?php $this->partial('settings-tab'); ?>
 
         <?php $this->partial('logs-tab'); ?>
+
+        <?php $this->partial('toast-host'); ?>
     </div>
 
     <?php $this->renderFooter(); ?>

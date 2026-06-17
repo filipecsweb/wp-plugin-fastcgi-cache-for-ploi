@@ -89,6 +89,11 @@ export default function ploiCache() {
     setNotice(type, text) {
       this.notice = { type, text }
     },
+    // Transient confirmation that needn't persist above the tabs. Delegates to the
+    // shared toast store so any screen raises toasts the same way.
+    toast(type, text, opts = {}) {
+      this.$store.toasts.add(type, text, opts)
+    },
     dismiss() {
       this.notice = null
     },
@@ -198,7 +203,7 @@ export default function ploiCache() {
         const data = await this.api('POST', '/connection', { token: entered })
         this.adoptSaved(data)
         this.token = ''
-        this.setNotice('success', this.cfg.i18n.connected)
+        this.toast('success', this.cfg.i18n.connected)
       } catch (e) {
         this.handleError(e)
       } finally {
@@ -217,7 +222,7 @@ export default function ploiCache() {
         this.siteId = ''
         this.servers = []
         this.sites = []
-        this.setNotice('success', this.cfg.i18n.disconnected)
+        this.toast('success', this.cfg.i18n.disconnected)
       } catch (e) {
         this.handleError(e)
       } finally {
@@ -283,7 +288,7 @@ export default function ploiCache() {
         this.adoptSaved(data)
         this.targetModalOpen = false
         // A decrypt-flake on save raises needsReconnect; let the page banner own it.
-        if (!this.needsReconnect) this.setNotice('success', this.cfg.i18n.targetSaved)
+        if (!this.needsReconnect) this.toast('success', this.cfg.i18n.targetSaved)
       } catch (e) {
         this.targetError = e.message || this.cfg.i18n.genericError
       } finally {
@@ -309,7 +314,7 @@ export default function ploiCache() {
           events: this.enabled,
           debounce: Number(this.debounce),
         })
-        this.setNotice('success', this.cfg.i18n.saved)
+        this.toast('success', this.cfg.i18n.saved)
       } catch (e) {
         this.handleError(e)
       } finally {
@@ -323,7 +328,7 @@ export default function ploiCache() {
       try {
         const data = await this.api('POST', '/flush', {})
         // CONTRACT: FlushController always returns data.message on success, so no client fallback.
-        this.setNotice('success', data.message)
+        this.toast('success', data.message)
         await this.loadLog()
       } catch (e) {
         this.handleError(e)
