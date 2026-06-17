@@ -21,8 +21,8 @@ final class ConnectionController extends PloiRestController
 {
     /**
      * Saved-connection health states. These string values are a contract with the
-     * admin JS (resources/js/settings/store.js maps them to a dot colour + the
-     * i18n.connection copy), so they must stay in lockstep.
+     * admin JS: the change-target modal maps a non-ok state to the matching
+     * i18n.targetError message, so they must stay in lockstep.
      */
     private const STATE_OK                 = 'ok';
     private const STATE_INVALID            = 'invalid';

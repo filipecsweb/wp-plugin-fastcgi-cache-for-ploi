@@ -69,14 +69,6 @@ defined('ABSPATH') || exit;
                     ?>
                 </p>
 
-                <div class="tw:flex tw:items-center tw:gap-2 tw:text-sm">
-                    <span
-                        class="tw:inline-block tw:h-2 tw:w-2 tw:rounded-full"
-                        :class="connectionDot"
-                    ></span>
-                    <span class="tw:text-gray-600" x-text="connectionMessage"></span>
-                </div>
-
                 <div class="tw:flex tw:flex-col tw:gap-2 tw:border-t tw:border-gray-100 tw:pt-4">
                     <span class="tw:text-sm tw:font-semibold"><?php echo esc_html__('Flush target', 'fastcgi-cache-for-ploi'); ?></span>
                     <div class="tw:flex tw:flex-wrap tw:items-center tw:gap-3">

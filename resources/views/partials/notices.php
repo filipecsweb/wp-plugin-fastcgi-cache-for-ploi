@@ -20,7 +20,7 @@ defined('ABSPATH') || exit;
 <div x-show="needsReconnect" class="notice notice-warning inline tw:m-0!">
     <p>
         <strong><?php echo esc_html__('Reconnect required.', 'fastcgi-cache-for-ploi'); ?></strong>
-        <?php echo esc_html__('Your saved token could not be read — your site\'s security keys may have changed. Re-enter your Ploi API token below, then test and save it.', 'fastcgi-cache-for-ploi'); ?>
+        <?php echo esc_html__('Your saved token could not be read — your site\'s security keys may have changed. Re-enter your Ploi API token below and click Connect.', 'fastcgi-cache-for-ploi'); ?>
     </p>
 </div>
 

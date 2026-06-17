@@ -47,17 +47,15 @@ export default function ploiCache() {
     },
     needsReconnect: !!s.needsReconnect,
     keyWarning: !!cfg.keyWarning,
-    // Health of the SAVED token, shown as the status dot. No probe on load: a
-    // saved token reads as 'ok' until Test or the change-target modal proves
-    // otherwise. Values mirror ConnectionController's states + the JS-only
-    // 'checking': absent | checking | ok | invalid | missing_permission | unknown.
-    connectionState: s.hasToken ? 'ok' : 'absent',
 
     events: cfg.events || [],
     log: cfg.log || [],
     busy: { connect: false, servers: false, sites: false, save: false, flush: false, log: false, disconnect: false, target: false },
     notice: null,
     targetModalOpen: false,
+    // The change-target modal's own error line (its server/site lists couldn't
+    // load). Separate from `notice` because a page notice sits behind the overlay.
+    targetError: '',
 
     init() {
       // Reflect tab changes in the URL hash (refresh-safe, shareable) without
@@ -87,20 +85,6 @@ export default function ploiCache() {
       const n = Number(this.debounce)
       return Number.isInteger(n) && n >= this.cfg.debounceMin && n <= this.cfg.debounceMax
     },
-    // The one line of status copy, keyed by connectionState. Shared with the
-    // after-Save notice (see save()), so the wording lives in exactly one place.
-    get connectionMessage() {
-      return this.cfg.i18n.connection[this.connectionState] || ''
-    },
-    // Dot colour per state; everything else (absent / checking / unknown) stays
-    // neutral grey so a blip or an in-flight check never reads as good or bad.
-    get connectionDot() {
-      return (
-        { ok: 'tw:bg-green-500', invalid: 'tw:bg-red-500', missing_permission: 'tw:bg-amber-500' }[
-          this.connectionState
-        ] || 'tw:bg-gray-300'
-      )
-    },
 
     setNotice(type, text) {
       this.notice = { type, text }
@@ -127,34 +111,31 @@ export default function ploiCache() {
         siteDomain: data.siteDomain || '',
       }
       this.needsReconnect = !!data.needsReconnect
-      // Drop the dot to neutral only when no token remains; with a token, keep the
-      // last-known health (a probe, if one follows, updates it).
-      if (!data.hasToken) this.connectionState = 'absent'
     },
 
-    // Map a Ploi probe failure to a saved-token health state (401 invalid, 403
-    // missing permission, else couldn't-verify). Used wherever a live call can
-    // reveal the saved token's health: the load/Save reconcile and picking a server.
-    applyProbeError(e) {
-      this.connectionState = e.status === 401 ? 'invalid' : e.status === 403 ? 'missing_permission' : 'unknown'
+    // The specific reason a Ploi list call failed, for the modal's inline error:
+    // 401 → invalid token, 403 → missing scope, anything else → couldn't reach Ploi.
+    // The GET /connection probe reports the same reasons as a `state` (no HTTP
+    // error), so its keys match this map.
+    targetErrorFor(e) {
+      const key = e.status === 401 ? 'invalid' : e.status === 403 ? 'missing_permission' : 'unknown'
+      return this.cfg.i18n.targetError[key]
     },
 
-    // Probe the saved token (GET /connection) and load the server/site lists in
-    // one round-trip. Called when a token is saved and when the change-target
-    // modal opens — never on page load, and never by Test, so testing can't move
-    // the badge.
-    async refreshConnection() {
+    // Load the server/site lists for the change-target modal in one round-trip
+    // (GET /connection probes both scopes). A probe failure comes back as a
+    // `state`, not an HTTP error, so it maps to the same inline message.
+    async loadTargetOptions() {
       this.servers = []
       this.sites = []
-      if (!this.saved.hasToken || this.needsReconnect) {
-        this.connectionState = 'absent'
-        return
-      }
-      this.connectionState = 'checking'
+      this.targetError = ''
       this.busy.servers = true
       try {
         const data = await this.api('GET', '/connection')
-        this.connectionState = data.state || 'unknown'
+        if (data.state && data.state !== 'ok') {
+          this.targetError = this.cfg.i18n.targetError[data.state] || this.cfg.i18n.targetError.unknown
+          return
+        }
         this.servers = data.servers || []
         // Reuse the saved server's sites the probe already fetched; otherwise load
         // them when the saved server is present in the list.
@@ -164,14 +145,14 @@ export default function ploiCache() {
           await this.loadSites()
         }
       } catch (e) {
-        // A decrypt-failure (409) routes to the reconnect banner; any other failure
-        // only colours the badge — no toast on a refresh the user didn't trigger.
+        // A decrypt-failure (409) means the token is unreadable: close the dialog
+        // and let the page reconnect banner own it. Otherwise show the reason inline.
         if (e.code === 'needs_reconnect' || e.status === 409) {
           this.needsReconnect = true
           this.saved.hasToken = false
-          this.connectionState = 'absent'
+          this.targetModalOpen = false
         } else {
-          this.applyProbeError(e)
+          this.targetError = this.targetErrorFor(e)
         }
       } finally {
         this.busy.servers = false
@@ -216,7 +197,6 @@ export default function ploiCache() {
       try {
         const data = await this.api('POST', '/connection', { token: entered })
         this.adoptSaved(data)
-        this.connectionState = data.state || 'ok'
         this.token = ''
         this.setNotice('success', this.cfg.i18n.connected)
       } catch (e) {
@@ -255,10 +235,9 @@ export default function ploiCache() {
         const data = await this.api('GET', `/servers/${encodeURIComponent(this.serverId)}/sites`)
         this.sites = data.sites || []
       } catch (e) {
-        // No stale options on failure; an auth/scope failure also colours the badge.
+        // No stale options on failure; show the reason inline in the modal.
         this.sites = []
-        this.applyProbeError(e)
-        this.handleError(e)
+        this.targetError = this.targetErrorFor(e)
       } finally {
         this.busy.sites = false
       }
@@ -267,6 +246,7 @@ export default function ploiCache() {
     onServerChange() {
       this.siteId = ''
       this.sites = []
+      this.targetError = ''
       if (this.serverId) this.loadSites()
     },
 
@@ -283,15 +263,16 @@ export default function ploiCache() {
       // Start the dialog from the saved target, then lazy-load the lists it needs.
       this.serverId = this.saved.serverId
       this.siteId = this.saved.siteId
+      this.targetError = ''
       this.targetModalOpen = true
-      this.refreshConnection()
+      this.loadTargetOptions()
     },
 
     // Persist ONLY the target (its own route), so changing the flush target never
     // touches the token, events, or debounce.
     async saveTarget() {
       this.busy.target = true
-      this.notice = null
+      this.targetError = ''
       try {
         const data = await this.api('POST', '/target', {
           server_id: this.serverId,
@@ -301,9 +282,10 @@ export default function ploiCache() {
         })
         this.adoptSaved(data)
         this.targetModalOpen = false
-        this.setNotice('success', this.cfg.i18n.targetSaved)
+        // A decrypt-flake on save raises needsReconnect; let the page banner own it.
+        if (!this.needsReconnect) this.setNotice('success', this.cfg.i18n.targetSaved)
       } catch (e) {
-        this.handleError(e)
+        this.targetError = e.message || this.cfg.i18n.genericError
       } finally {
         this.busy.target = false
       }

@@ -91,19 +91,13 @@ final class AdminServiceProvider extends ServiceProvider
                     PloiSettings::DEBOUNCE_MIN,
                     PloiSettings::DEBOUNCE_MAX
                 ),
-                // Keys must track ConnectionController's state strings; one source
-                // for both the badge and the after-Save notice. 'unknown' (Ploi
-                // unreachable) stays neutral so a blip never reads as invalid.
-                'connection'     => [
-                    'absent'             => __('No token saved yet.', 'fastcgi-cache-for-ploi'),
-                    'checking'           => __('Checking your token…', 'fastcgi-cache-for-ploi'),
-                    'ok'                 => __('Connected.', 'fastcgi-cache-for-ploi'),
-                    'invalid'            => __('Your saved token is no longer valid. Enter a new one and save.', 'fastcgi-cache-for-ploi'),
-                    'missing_permission' => __(
-                        'Your saved token is missing a required permission. Enter a token with the Servers and Sites scopes and save.',
-                        'fastcgi-cache-for-ploi'
-                    ),
-                    'unknown'            => __('Couldn\'t verify your token right now.', 'fastcgi-cache-for-ploi'),
+                // Inline messages in the change-target modal when its lists can't
+                // load. Keys track ConnectionController's failure states (the
+                // GET /connection probe reports the reason as a `state`).
+                'targetError'    => [
+                    'invalid'            => __('Ploi rejected your saved token. Disconnect and reconnect with a valid one.', 'fastcgi-cache-for-ploi'),
+                    'missing_permission' => __('Your saved token is missing a required permission. Reconnect with a token that has the Servers and Sites scopes.', 'fastcgi-cache-for-ploi'),
+                    'unknown'            => __('Couldn\'t reach Ploi right now. Close this and try again in a moment.', 'fastcgi-cache-for-ploi'),
                 ],
             ],
         ];
