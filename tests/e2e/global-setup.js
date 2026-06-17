@@ -1,26 +1,26 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { E2E_SUBSCRIBER, wp, wpAvailable, wpTry } from './wp-cli.js'
+import { loadEnv } from './support/load-env.js'
 
 /**
  * E2E preflight: the WordPress under test must serve THIS checkout.
  *
- * Otherwise the suite silently validates a stale or duplicate copy of the plugin
- * (a real debugging trap — two .test sites each had their own copy). When
+ * Otherwise the suite silently validates a stale or duplicate copy of the plugin (a
+ * real debugging trap — two .test sites each had their own copy). When
  * WP_PLUGIN_PATH is set, assert it resolves to this repo and fail loudly if not.
- * When it is unset (e.g. a local site whose plugin dir is a plain copy rather than
- * a symlink to this checkout), skip with a notice rather than block.
+ * When it is unset (e.g. a site whose plugin dir is a plain copy rather than a
+ * symlink to this checkout), warn rather than block.
  */
 export default function globalSetup() {
+  loadEnv() // defensive — the config already loads it, but make setup self-contained.
+
   const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
   const target = process.env.WP_BASE_URL || '(WP_BASE_URL unset)'
   const pluginPath = process.env.WP_PLUGIN_PATH
 
   if (!pluginPath) {
-    console.warn(
-      `[e2e] WP_PLUGIN_PATH unset — skipping the "served plugin == this checkout" check. Target: ${target}`
-    )
+    console.warn(`[e2e] WP_PLUGIN_PATH unset — skipping the "served plugin == this checkout" check. Target: ${target}`)
     return
   }
 
@@ -46,28 +46,4 @@ export default function globalSetup() {
   }
 
   console.log(`[e2e] OK — ${target} serves this checkout (${repoReal}).`)
-
-  // Normalise the WP-under-test to a deterministic baseline via WP-CLI: clear any
-  // saved connection / pending flush (kills the "stale saved token" flake), and
-  // ensure the throwaway non-admin the permission specs log in as. Best-effort —
-  // when WP-CLI isn't usable, the browser-only specs still run; the WP-CLI-backed
-  // ones (auto-flush, non-admin) skip themselves.
-  if (!wpAvailable()) {
-    console.warn('[e2e] WP-CLI not available — skipping baseline reset + subscriber setup.')
-    return
-  }
-
-  wpTry(['option', 'delete', 'fastcgi_cache_for_ploi_settings'])
-  wpTry(['transient', 'delete', 'fastcgi_cache_for_ploi_pending'])
-  wpTry(['cron', 'event', 'delete', 'fastcgi_cache_for_ploi_flush'])
-
-  if (wpTry(['user', 'get', E2E_SUBSCRIBER.login, '--field=ID'])) {
-    wp(['user', 'update', E2E_SUBSCRIBER.login, '--role=subscriber', `--user_pass=${E2E_SUBSCRIBER.pass}`])
-  } else {
-    wp([
-      'user', 'create', E2E_SUBSCRIBER.login, `${E2E_SUBSCRIBER.login}@example.test`,
-      '--role=subscriber', `--user_pass=${E2E_SUBSCRIBER.pass}`,
-    ])
-  }
-  console.log('[e2e] baseline reset + subscriber ensured (WP-CLI).')
 }
