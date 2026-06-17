@@ -84,9 +84,6 @@ export default function ploiCache() {
       if (!this.saved.serverId || !this.saved.siteId) return this.cfg.i18n.needTarget
       return ''
     },
-    get enabledCount() {
-      return Object.values(this.enabled).filter(Boolean).length
-    },
     get debounceValid() {
       const n = Number(this.debounce)
       return Number.isInteger(n) && n >= this.cfg.debounceMin && n <= this.cfg.debounceMax

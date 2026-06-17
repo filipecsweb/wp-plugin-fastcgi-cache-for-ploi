@@ -209,7 +209,5 @@ defined('ABSPATH') || exit;
             </button>
             <span class="tw:text-[13px] tw:text-gray-500" x-show="!canFlush" x-text="flushDisabledReason"></span>
         </span>
-
-        <span class="tw:ml-auto tw:text-[13px] tw:text-gray-500" x-text="`${enabledCount} <?php echo esc_js(__('of', 'fastcgi-cache-for-ploi')); ?> ${events.length} <?php echo esc_js(__('events enabled', 'fastcgi-cache-for-ploi')); ?>`"></span>
     </section>
 </div>

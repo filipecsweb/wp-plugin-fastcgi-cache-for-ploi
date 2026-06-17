@@ -29,20 +29,18 @@ test.describe('Settings screen — unconfigured', () => {
 })
 
 test.describe('Settings screen — event toggles (§4)', () => {
-  test('enable all / disable all and the count track the toggles', async ({ admin }) => {
+  test('enable all / disable all toggle every event', async ({ admin }) => {
     const root = admin.locator('.ploi-cache-admin')
     const checks = root.locator('input[type="checkbox"]')
 
     await root.getByRole('button', { name: 'Disable all' }).click()
-    await expect(root).toContainText('0 of 6 events enabled')
-    await expect(checks.first()).not.toBeChecked()
+    for (const check of await checks.all()) await expect(check).not.toBeChecked()
 
     await root.getByRole('button', { name: 'Enable all' }).click()
-    await expect(root).toContainText('6 of 6 events enabled')
-    await expect(checks.first()).toBeChecked()
+    for (const check of await checks.all()) await expect(check).toBeChecked()
 
     await checks.first().uncheck()
-    await expect(root).toContainText('5 of 6 events enabled')
+    await expect(checks.first()).not.toBeChecked()
   })
 })
 
