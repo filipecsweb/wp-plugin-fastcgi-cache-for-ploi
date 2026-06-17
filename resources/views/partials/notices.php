@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 defined('ABSPATH') || exit;
 ?>
-<div x-show="needsReconnect" class="notice notice-warning inline tw:m-0!">
+<div x-show="needsReconnect" class="notice notice-error inline tw:m-0!" role="status" aria-live="polite">
     <p>
         <strong><?php echo esc_html__('Reconnect required.', 'fastcgi-cache-for-ploi'); ?></strong>
         <span x-text="cfg.i18n.reconnect[reconnectReason] || cfg.i18n.reconnect.unreadable"></span>

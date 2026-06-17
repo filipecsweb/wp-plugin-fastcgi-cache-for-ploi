@@ -44,7 +44,7 @@ defined('ABSPATH') || exit;
 
     <div class="tw:flex tw:items-center tw:justify-end tw:gap-2">
         <button type="button" class="button" @click="targetModalOpen = false" :disabled="busy.target"><?php echo esc_html__('Cancel', 'fastcgi-cache-for-ploi'); ?></button>
-        <button type="button" class="button button-primary" @click="saveTarget()" :disabled="busy.target || !serverId || !siteId">
+        <button type="button" class="button button-primary" @click="saveTarget()" :disabled="busy.target || !serversLoaded || !serverId || !siteId">
             <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
                 <span x-show="busy.target" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
                 <span x-text="busy.target

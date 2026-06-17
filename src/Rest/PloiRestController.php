@@ -37,4 +37,16 @@ abstract class PloiRestController extends RestController
             409
         );
     }
+
+    /**
+     * Ploi HTTP statuses that mean the SAVED token itself is the problem — rejected
+     * (401) or under-scoped (403). The admin JS routes these to the reconnect
+     * banner; every other failure is transient. Surfacing the real status (instead
+     * of flattening to {@see self::STATUS_UPSTREAM_FAILURE}) is what lets an action
+     * like Flush trigger that banner, exactly like the connection probe does.
+     */
+    protected function isReconnectStatus(int $status): bool
+    {
+        return $status === 401 || $status === 403;
+    }
 }

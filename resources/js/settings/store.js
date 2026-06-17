@@ -78,7 +78,9 @@ export default function ploiCache() {
       return this.saved.hasToken && !!this.saved.serverId && !!this.saved.siteId && !this.needsReconnect
     },
     get flushDisabledReason() {
-      if (this.needsReconnect) return this.cfg.i18n.reconnectShort
+      // When reconnect is required the persistent banner already says so — don't
+      // duplicate it next to the Flush button.
+      if (this.needsReconnect) return ''
       if (!this.saved.hasToken) return this.cfg.i18n.needToken
       if (!this.saved.serverId || !this.saved.siteId) return this.cfg.i18n.needTarget
       return ''
@@ -104,29 +106,35 @@ export default function ploiCache() {
       this.targetModalOpen = false
     },
 
-    // A Ploi failure is either a saved-token problem (→ persistent reconnect banner)
-    // or a transient/reachability problem (→ toast). One classifier for both a probe
-    // `state` string and a thrown HTTP error.
-    failureReason(e) {
+    // The reconnect reason an HTTP error implies (token rejected/under-scoped/
+    // unreadable), or null when it's a transient failure that mustn't touch the
+    // saved token. GOTCHA: gate the 401/403 cases on the Ploi error code — WP's own
+    // nonce/capability guard also returns 401/403, and an expired nonce must NOT
+    // tear down a healthy saved token.
+    tokenFailureReason(e) {
       if (e.code === 'needs_reconnect' || e.status === 409) return 'unreadable'
-      if (e.status === 401) return 'invalid'
-      if (e.status === 403) return 'missing_permission'
-      return 'unknown'
-    },
-    routeTokenFailure(reason) {
-      if (reason === 'unreadable' || reason === 'invalid' || reason === 'missing_permission') {
-        this.requireReconnect(reason)
-      } else {
-        this.toast('error', this.cfg.i18n.cannotReach)
-      }
+      if (e.code === 'ploi_error' && e.status === 401) return 'invalid'
+      if (e.code === 'ploi_error' && e.status === 403) return 'missing_permission'
+      return null
     },
 
+    // Show a transient failure as a toast. Prefer Ploi's own message when the
+    // request reached the server; fall back to one shared "couldn't reach Ploi"
+    // line for network failures (which carry only a raw browser error).
+    toastFailure(e) {
+      this.toast('error', e.status ? e.message : this.cfg.i18n.cannotReach)
+    },
+
+    // A saved-token-backed action failed: a token-auth failure raises the single
+    // persistent reconnect banner; anything else is transient → toast. NOT used by
+    // connect(), where a rejected token is a fresh attempt, not a saved-token state.
     handleError(e) {
-      if (e.code === 'needs_reconnect' || e.status === 409) {
-        this.requireReconnect('unreadable')
+      const reason = this.tokenFailureReason(e)
+      if (reason) {
+        this.requireReconnect(reason)
         return
       }
-      this.toast('error', e.message)
+      this.toastFailure(e)
     },
 
     // Adopt a server settings snapshot as the SAVED state (what flushing uses).
@@ -144,8 +152,9 @@ export default function ploiCache() {
     },
 
     // Load the server/site lists for the change-target modal in one round-trip
-    // (GET /connection probes both scopes). A probe failure comes back as a `state`,
-    // not an HTTP error, so both feed the same routeTokenFailure() classifier.
+    // (GET /connection probes both scopes). The probe reports a failure as a `state`
+    // string (not an HTTP error): a bad-token state raises the reconnect banner
+    // (which also closes this modal); anything else is transient.
     async loadTargetOptions() {
       this.servers = []
       this.sites = []
@@ -154,7 +163,11 @@ export default function ploiCache() {
       try {
         const data = await this.api('GET', '/connection')
         if (data.state && data.state !== 'ok') {
-          this.routeTokenFailure(data.state)
+          if (data.state === 'invalid' || data.state === 'missing_permission') {
+            this.requireReconnect(data.state)
+          } else {
+            this.toast('error', this.cfg.i18n.cannotReach)
+          }
           return
         }
         this.servers = data.servers || []
@@ -167,7 +180,7 @@ export default function ploiCache() {
           await this.loadSites()
         }
       } catch (e) {
-        this.routeTokenFailure(this.failureReason(e))
+        this.handleError(e)
       } finally {
         this.busy.servers = false
       }
@@ -213,7 +226,9 @@ export default function ploiCache() {
         this.token = ''
         this.toast('success', this.cfg.i18n.connected)
       } catch (e) {
-        this.handleError(e)
+        // A rejected token here is a fresh attempt, not a saved-token state — toast,
+        // never the reconnect banner.
+        this.toastFailure(e)
       } finally {
         this.busy.connect = false
       }
@@ -231,7 +246,7 @@ export default function ploiCache() {
         this.sites = []
         this.toast('success', this.cfg.i18n.disconnected)
       } catch (e) {
-        this.handleError(e)
+        this.toastFailure(e)
       } finally {
         this.busy.disconnect = false
       }
@@ -247,9 +262,10 @@ export default function ploiCache() {
         const data = await this.api('GET', `/servers/${encodeURIComponent(this.serverId)}/sites`)
         this.sites = data.sites || []
       } catch (e) {
-        // No stale options on failure; the failure is surfaced by routeTokenFailure.
+        // No stale options on failure; handleError raises the banner for a bad
+        // token (401/403) or toasts a transient failure.
         this.sites = []
-        this.routeTokenFailure(this.failureReason(e))
+        this.handleError(e)
       } finally {
         this.busy.sites = false
       }

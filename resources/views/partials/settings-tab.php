@@ -76,7 +76,7 @@ defined('ABSPATH') || exit;
                             <?php echo esc_html__('Currently flushing:', 'fastcgi-cache-for-ploi'); ?>
                             <strong x-text="`${saved.serverName || saved.serverId} → ${saved.siteDomain || saved.siteId}`"></strong>
                         </p>
-                        <span class="tw:text-[13px] tw:text-gray-500" x-show="!canFlush" x-text="flushDisabledReason"></span>
+                        <span class="tw:text-[13px] tw:text-gray-500" x-show="!canFlush && flushDisabledReason" x-text="flushDisabledReason"></span>
                         <button type="button" class="button-link" x-show="hasToken && !needsReconnect" @click="openTargetModal()" x-text="canFlush
                             ? '<?php echo esc_js(__('Change', 'fastcgi-cache-for-ploi')); ?>'
                             : '<?php echo esc_js(__('Choose target', 'fastcgi-cache-for-ploi')); ?>'"></button>

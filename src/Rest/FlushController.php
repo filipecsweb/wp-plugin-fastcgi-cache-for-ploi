@@ -58,7 +58,16 @@ final class FlushController extends PloiRestController
         }
 
         if (! $entry->success) {
-            return $this->error('flush_failed', $this->failureNotice($entry->httpCode, $entry->message), self::STATUS_UPSTREAM_FAILURE);
+            $notice = $this->failureNotice($entry->httpCode, $entry->message);
+
+            // Ploi rejected the saved token (401) or it lost a scope (403): surface
+            // the real status so the client raises the reconnect banner instead of
+            // a transient toast it would never tie to "your token went bad".
+            if ($this->isReconnectStatus($entry->httpCode)) {
+                return $this->error('ploi_error', $notice, $entry->httpCode);
+            }
+
+            return $this->error('flush_failed', $notice, self::STATUS_UPSTREAM_FAILURE);
         }
 
         return $this->respond([

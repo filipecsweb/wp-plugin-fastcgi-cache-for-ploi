@@ -84,7 +84,6 @@ final class AdminServiceProvider extends ServiceProvider
                 'genericError'   => __('Something went wrong. Please try again.', 'fastcgi-cache-for-ploi'),
                 'needToken'      => __('Add a Ploi API token first.', 'fastcgi-cache-for-ploi'),
                 'needTarget'     => __('Choose a server and site.', 'fastcgi-cache-for-ploi'),
-                'reconnectShort' => __('Re-enter your token to reconnect.', 'fastcgi-cache-for-ploi'),
                 'badDebounce'    => sprintf(
                     /* translators: 1: minimum seconds, 2: maximum seconds. */
                     __('Coalesce window must be a whole number between %1$d and %2$d seconds.', 'fastcgi-cache-for-ploi'),
@@ -95,9 +94,9 @@ final class AdminServiceProvider extends ServiceProvider
                 // Keys track ConnectionController's failure states + the decrypt
                 // failure (409), funnelled through store requireReconnect().
                 'reconnect'      => [
-                    'unreadable'         => __('Your saved token could not be read — your site\'s security keys may have changed. Re-enter your Ploi API token below and click Connect.', 'fastcgi-cache-for-ploi'),
-                    'invalid'            => __('Ploi rejected your saved token. Re-enter a valid Ploi API token below and click Connect.', 'fastcgi-cache-for-ploi'),
-                    'missing_permission' => __('Your saved token is missing a required permission. Re-enter a token with the Servers and Sites scopes below and click Connect.', 'fastcgi-cache-for-ploi'),
+                    'unreadable'         => __('Your saved token could not be read — your site\'s security keys may have changed. Re-enter your Ploi API token and click Connect.', 'fastcgi-cache-for-ploi'),
+                    'invalid'            => __('Ploi rejected your saved token. Re-enter a valid Ploi API token and click Connect.', 'fastcgi-cache-for-ploi'),
+                    'missing_permission' => __('Your saved token is missing a required permission. Re-enter a token with the Servers and Sites scopes and click Connect.', 'fastcgi-cache-for-ploi'),
                 ],
                 // Transient reachability failure (network / unexpected Ploi error).
                 'cannotReach'    => __('Couldn\'t reach Ploi right now. Try again in a moment.', 'fastcgi-cache-for-ploi'),
