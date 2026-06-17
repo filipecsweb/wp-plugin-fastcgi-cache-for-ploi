@@ -55,8 +55,10 @@ invalidate the stored token).
 - If the key changes (salt rotation) and the stored token can no longer be
   decrypted, the plugin clears the token and prompts the operator to reconnect —
   no white screen.
-- When salts are detected as DB-derived (no constants), the settings screen
-  shows a non-blocking warning recommending the hardening above.
+- When the token would be DB-decryptable — no dedicated `FASTCGI_CACHE_FOR_PLOI_KEY`
+  and the WP salts not pinned in `wp-config.php` (so `wp_salt()` sources them from
+  the database) — the settings screen shows a non-blocking warning recommending the
+  hardening above. A standard install with real salts is safe and sees nothing.
 
 ## Transport & access control
 
