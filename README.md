@@ -80,7 +80,7 @@ activate it.
    ln -s ~/dev/fastcgi-cache-for-ploi ~/Herd/mysite/wp-content/plugins/fastcgi-cache-for-ploi
    ```
 6. Visit `https://mysite.test/wp-admin/`, activate **FastCGI Cache for Ploi**, then
-   open **Settings → FastCGI Cache for Ploi**.
+   open **Settings → FastCGI Cache**.
 7. *(Recommended)* add a dedicated encryption key to the site's `wp-config.php`
    (see [Security](#security)):
    ```php
@@ -94,9 +94,10 @@ activate it.
 ## Configuration & usage
 
 1. **Paste your Ploi API token** and click **Connect**. A verified token
-   is **encrypted and saved automatically** — it is never shown again, only a
-   "token saved" indicator.
-2. **Pick a server, then a site** (the site list loads from the chosen server).
+   is **encrypted and saved automatically** — it is never shown again; the field
+   locks and the button becomes **Disconnect**.
+2. **Pick a server, then a site** in the **Select target** dialog (the site list
+   loads from the chosen server).
 3. **Choose which events** trigger an automatic flush; bursts are coalesced into a
    single flush automatically.
 4. **Save settings.** Use **Flush now** any time, and watch the **Recent flushes**
@@ -119,17 +120,19 @@ is a silent no-op (never an error).
 
 ## Security
 
-The API token is encrypted at rest with libsodium; the key is derived from your
-WordPress salts (or a dedicated `FASTCGI_CACHE_FOR_PLOI_KEY` constant) and lives on the
-**filesystem, not the database**. If the key changes (e.g. salt rotation) the
-stored token can no longer be decrypted — the plugin then **clears it and prompts
-you to reconnect** rather than erroring. Full details and the recommended
-hardening are in [`docs/security.md`](docs/security.md).
+The API token is encrypted at rest with libsodium. The key comes from a dedicated
+`FASTCGI_CACHE_FOR_PLOI_KEY` constant, or falls back to your WordPress salts — and when
+those are pinned in `wp-config.php` (the standard and Ploi-provisioned case) the key
+lives on the **filesystem, not the database**. The one at-risk case is a non-standard
+install with DB-stored salts, which the settings screen warns about. If the key changes
+(e.g. salt rotation) the stored token can no longer be decrypted — the plugin then
+**clears it and prompts you to reconnect** rather than erroring. Full details and the
+recommended hardening are in [`docs/security.md`](docs/security.md).
 
 ## Development & QA
 
 ```bash
-composer cs      # PHPCS — PSR-12 formatting + WordPress security/correctness sniffs
+composer cs      # PHPCS — PSR-12 + WordPress sniffs (not a substitute for Plugin Check)
 composer stan    # PHPStan at max level (with WordPress stubs)
 composer test    # Pest unit suite (Brain Monkey)
 composer qa      # all three
@@ -178,3 +181,6 @@ uninstall.php          Drops the table + options on uninstall
 ## License
 
 GPL-2.0-or-later.
+
+Ploi is a trademark of its respective owner. This plugin is not affiliated with or
+endorsed by Ploi.

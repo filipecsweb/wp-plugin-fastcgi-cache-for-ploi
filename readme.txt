@@ -1,6 +1,6 @@
 === FastCGI Cache for Ploi ===
 Contributors: filiprimo
-Tags: fastcgi-cache, cache, nginx, ploi, performance
+Tags: fastcgi-cache, cache, nginx, performance, purge
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 8.2
