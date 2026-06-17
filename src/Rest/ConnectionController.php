@@ -57,6 +57,14 @@ final class ConnectionController extends PloiRestController
                 'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
             ],
             [
+                'methods'             => 'POST',
+                'callback'            => [$this, 'connect'],
+                'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
+                'args'                => [
+                    'token' => ['type' => 'string', 'required' => true],
+                ],
+            ],
+            [
                 'methods'             => 'DELETE',
                 'callback'            => [$this, 'disconnect'],
                 'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
@@ -111,6 +119,30 @@ final class ConnectionController extends PloiRestController
                 ? __('Your token works and has the required permissions. Save your settings to apply it.', 'fastcgi-cache-for-ploi')
                 : __('Your saved token is still valid.', 'fastcgi-cache-for-ploi'),
         ]);
+    }
+
+    /**
+     * Connect: validate a token against BOTH required scopes and persist it ONLY
+     * if it passes, so a saved token is always known-good at save time. A bad or
+     * under-scoped token is rejected with its Ploi message and never stored.
+     */
+    public function connect(WP_REST_Request $request): WP_REST_Response|WP_Error
+    {
+        $token = trim($this->stringParam($request, 'token'));
+
+        if ($token === '') {
+            return $this->error('no_token', __('Enter a Ploi API token to connect.', 'fastcgi-cache-for-ploi'), 400);
+        }
+
+        $result = $this->probeToken($token);
+
+        if ($result['exception'] !== null) {
+            return $this->ploiError($result['exception']);
+        }
+
+        $this->settings->setToken($token);
+
+        return $this->respond($this->settings->toArray() + ['state' => self::STATE_OK]);
     }
 
     /**

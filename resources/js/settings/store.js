@@ -55,9 +55,8 @@ export default function ploiCache() {
 
     events: cfg.events || [],
     log: cfg.log || [],
-    busy: { test: false, servers: false, sites: false, save: false, flush: false, log: false, disconnect: false, target: false },
+    busy: { connect: false, servers: false, sites: false, save: false, flush: false, log: false, disconnect: false, target: false },
     notice: null,
-    confirmingDisconnect: false,
     targetModalOpen: false,
 
     init() {
@@ -203,47 +202,41 @@ export default function ploiCache() {
       return data
     },
 
-    // Validate ONLY — never persists the token and never loads the dropdowns.
-    // An empty field re-checks the saved token (POST {}); the server tailors the
-    // success message. Saving (below) is what actually stores the token.
-    async testToken() {
+    // Connect: validate the entered token (both scopes) and persist it only if it
+    // passes — the server rejects a bad or under-scoped token with a clear message,
+    // so a saved token is always known-good.
+    async connect() {
       const entered = this.token.trim()
-      if (!entered && !this.saved.hasToken) {
+      if (!entered) {
         this.setNotice('error', this.cfg.i18n.needToken)
         return
       }
-      this.busy.test = true
+      this.busy.connect = true
       this.notice = null
       try {
-        const data = await this.api('POST', '/connection/test', entered ? { token: entered } : {})
-        this.setNotice('success', data.message)
+        const data = await this.api('POST', '/connection', { token: entered })
+        this.adoptSaved(data)
+        this.connectionState = data.state || 'ok'
+        this.token = ''
+        this.setNotice('success', this.cfg.i18n.connected)
       } catch (e) {
         this.handleError(e)
       } finally {
-        this.busy.test = false
+        this.busy.connect = false
       }
     },
 
-    askDisconnect() {
-      this.confirmingDisconnect = true
-    },
-    cancelDisconnect() {
-      this.confirmingDisconnect = false
-    },
     async disconnect() {
       this.busy.disconnect = true
       this.notice = null
       try {
         const data = await this.api('DELETE', '/connection')
-        // Adopt the server's fresh snapshot (token + target now empty), exactly
-        // like save(), then clear the editable working copy + loaded lists.
         this.adoptSaved(data)
         this.token = ''
         this.serverId = ''
         this.siteId = ''
         this.servers = []
         this.sites = []
-        this.confirmingDisconnect = false
         this.setNotice('success', this.cfg.i18n.disconnected)
       } catch (e) {
         this.handleError(e)
@@ -316,6 +309,8 @@ export default function ploiCache() {
       }
     },
 
+    // Persist the event toggles + debounce window. The token (connect) and the
+    // flush target (saveTarget) own their own state, so this preserves them.
     async save() {
       if (!this.debounceValid) {
         this.setNotice('error', this.cfg.i18n.badDebounce)
@@ -324,9 +319,7 @@ export default function ploiCache() {
       this.busy.save = true
       this.notice = null
       try {
-        const submitted = this.token.trim()
-        const data = await this.api('POST', '/settings', {
-          token: submitted || undefined,
+        await this.api('POST', '/settings', {
           server_id: this.saved.serverId,
           site_id: this.saved.siteId,
           server_name: this.saved.serverName,
@@ -334,23 +327,7 @@ export default function ploiCache() {
           events: this.enabled,
           debounce: Number(this.debounce),
         })
-        this.adoptSaved(data)
-        this.token = ''
-        // Only a freshly entered token needs a live re-check; events/debounce
-        // changes don't touch the connection.
-        if (submitted) {
-          await this.refreshConnection()
-        }
-        // One coherent outcome: a token-health problem outranks a cleared target,
-        // which outranks success — never "Saved!" contradicted by a red/amber dot.
-        // refreshConnection() set connectionState; reuse its copy for the notice.
-        if (this.connectionState === 'invalid' || this.connectionState === 'missing_permission') {
-          this.setNotice('error', this.connectionMessage)
-        } else if (data.targetCleared) {
-          this.setNotice('warning', data.message)
-        } else {
-          this.setNotice('success', this.cfg.i18n.saved)
-        }
+        this.setNotice('success', this.cfg.i18n.saved)
       } catch (e) {
         this.handleError(e)
       } finally {

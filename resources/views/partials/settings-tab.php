@@ -19,7 +19,7 @@ defined('ABSPATH') || exit;
         <div class="inside">
             <div class="tw:flex tw:flex-col tw:gap-3">
                 <p class="description tw:m-0!">
-                    <?php echo esc_html__('Testing checks your token against Ploi without saving it. Click Save settings to store it (encrypted); a saved token is never shown again.', 'fastcgi-cache-for-ploi'); ?>
+                    <?php echo esc_html__('Connecting validates your token with Ploi and stores it encrypted; a saved token is never shown again. Disconnect to enter a different one.', 'fastcgi-cache-for-ploi'); ?>
                 </p>
 
                 <div class="tw:flex tw:flex-col tw:gap-3 tw:sm:flex-row tw:sm:items-end">
@@ -31,17 +31,27 @@ defined('ABSPATH') || exit;
                             autocomplete="off"
                             spellcheck="false"
                             x-model="token"
+                            :disabled="hasToken"
+                            @keydown.enter.prevent="hasToken || connect()"
                             :placeholder="hasToken
-                                ? '<?php echo esc_js(__('Token saved — enter a new one to replace it', 'fastcgi-cache-for-ploi')); ?>'
+                                ? '<?php echo esc_js(__('Connected — disconnect to enter a new token', 'fastcgi-cache-for-ploi')); ?>'
                                 : '<?php echo esc_js(__('Enter your Ploi API token', 'fastcgi-cache-for-ploi')); ?>'"
                         >
                     </label>
-                    <button type="button" class="button" @click="testToken()" :disabled="busy.test">
+                    <button type="button" class="button button-primary" x-show="!hasToken" @click="connect()" :disabled="busy.connect">
                         <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
-                            <span x-show="busy.test" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
-                            <span x-text="busy.test
-                                ? '<?php echo esc_js(__('Testing…', 'fastcgi-cache-for-ploi')); ?>'
-                                : '<?php echo esc_js(__('Test token', 'fastcgi-cache-for-ploi')); ?>'"></span>
+                            <span x-show="busy.connect" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
+                            <span x-text="busy.connect
+                                ? '<?php echo esc_js(__('Connecting…', 'fastcgi-cache-for-ploi')); ?>'
+                                : '<?php echo esc_js(__('Connect', 'fastcgi-cache-for-ploi')); ?>'"></span>
+                        </span>
+                    </button>
+                    <button type="button" class="button" x-show="hasToken" @click="disconnect()" :disabled="busy.disconnect">
+                        <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
+                            <span x-show="busy.disconnect" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
+                            <span x-text="busy.disconnect
+                                ? '<?php echo esc_js(__('Disconnecting…', 'fastcgi-cache-for-ploi')); ?>'
+                                : '<?php echo esc_js(__('Disconnect', 'fastcgi-cache-for-ploi')); ?>'"></span>
                         </span>
                     </button>
                 </div>
@@ -59,35 +69,12 @@ defined('ABSPATH') || exit;
                     ?>
                 </p>
 
-                <div class="tw:flex tw:flex-col tw:gap-3">
-                    <div class="tw:flex tw:items-center tw:gap-2 tw:text-sm">
-                        <span
-                            class="tw:inline-block tw:h-2 tw:w-2 tw:rounded-full"
-                            :class="connectionDot"
-                        ></span>
-                        <span class="tw:text-gray-600" x-text="connectionMessage"></span>
-                        <button
-                            type="button"
-                            class="button-link button-link-delete tw:ml-auto"
-                            x-show="hasToken && !confirmingDisconnect"
-                            @click="askDisconnect()"
-                        ><?php echo esc_html__('Disconnect', 'fastcgi-cache-for-ploi'); ?></button>
-                    </div>
-
-                    <div x-show="confirmingDisconnect" class="notice notice-warning inline tw:m-0!" role="alert">
-                        <p><?php echo esc_html__('Remove the saved token? Flushing will stop until you reconnect.', 'fastcgi-cache-for-ploi'); ?></p>
-                        <p class="tw:flex tw:items-center tw:gap-2">
-                            <button type="button" class="button button-small" @click="disconnect()" :disabled="busy.disconnect">
-                                <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
-                                    <span x-show="busy.disconnect" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
-                                    <span x-text="busy.disconnect
-                                        ? '<?php echo esc_js(__('Disconnecting…', 'fastcgi-cache-for-ploi')); ?>'
-                                        : '<?php echo esc_js(__('Yes, disconnect', 'fastcgi-cache-for-ploi')); ?>'"></span>
-                                </span>
-                            </button>
-                            <button type="button" class="button button-small" @click="cancelDisconnect()" :disabled="busy.disconnect"><?php echo esc_html__('Cancel', 'fastcgi-cache-for-ploi'); ?></button>
-                        </p>
-                    </div>
+                <div class="tw:flex tw:items-center tw:gap-2 tw:text-sm">
+                    <span
+                        class="tw:inline-block tw:h-2 tw:w-2 tw:rounded-full"
+                        :class="connectionDot"
+                    ></span>
+                    <span class="tw:text-gray-600" x-text="connectionMessage"></span>
                 </div>
 
                 <div class="tw:flex tw:flex-col tw:gap-2 tw:border-t tw:border-gray-100 tw:pt-4">
@@ -114,9 +101,6 @@ defined('ABSPATH') || exit;
             </div>
         </div>
     </section>
-    <div class="tw:flex tw:flex-wrap tw:items-center tw:gap-3">
-        <?php $this->partial('save-button'); ?>
-    </div>
 
     <section class="postbox tw:m-0!">
         <div class="postbox-header">
