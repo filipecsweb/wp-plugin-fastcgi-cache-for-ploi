@@ -51,6 +51,9 @@ context, not code — don't write it.
 - **Lifecycle:** one registrar for activate/deactivate; `uninstall.php` is canonical (it
   can't be a closure). Uninstall MUST purge everything the plugin created — encrypted secrets,
   the option row, and any custom tables (DROP them). No orphans left in the DB.
+- **Git branches:** never create or switch branches (`git branch`, `git checkout -b`,
+  `git switch`/`-c`) unless the user explicitly asks — work on the current branch and commit
+  there, even on the default branch.
 - **Hooks via attributes only.** Discovery runs once at boot through the compiled hook-map
   cache — never reflect on the hook-fire / front-end path. New hooks go through the registrar,
   not a raw `add_action`.
