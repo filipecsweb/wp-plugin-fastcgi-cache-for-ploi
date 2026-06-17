@@ -58,6 +58,11 @@ export default function ploiCache() {
     // True once a target probe has populated the server list, so the modal can tell
     // "loaded, none found" from "load failed" (the latter is surfaced via a toast).
     serversLoaded: false,
+    // Set when a target probe finds the saved server/site is gone from Ploi: gates
+    // canFlush so a deleted target is never advertised as flushable, and drives the
+    // in-modal notice. Re-derived on every probe; cleared on a fresh valid save.
+    targetStale: false,
+    targetNotice: '',
 
     init() {
       // Reflect tab changes in the URL hash (refresh-safe, shareable) without
@@ -80,7 +85,7 @@ export default function ploiCache() {
       return !!this.reconnectReason
     },
     get canFlush() {
-      return this.saved.hasToken && !!this.saved.serverId && !!this.saved.siteId && !this.needsReconnect
+      return this.saved.hasToken && !!this.saved.serverId && !!this.saved.siteId && !this.needsReconnect && !this.targetStale
     },
     get flushDisabledReason() {
       // When reconnect is required the persistent banner already says so — don't
@@ -147,6 +152,7 @@ export default function ploiCache() {
         siteDomain: data.siteDomain || '',
       }
       this.reconnectReason = data.needsReconnect ? 'unreadable' : ''
+      this.targetStale = false
     },
 
     // Load the server/site lists for the change-target modal in one round-trip
@@ -157,6 +163,7 @@ export default function ploiCache() {
       this.servers = []
       this.sites = []
       this.serversLoaded = false
+      this.targetNotice = ''
       this.busy.servers = true
       try {
         const data = await this.api('GET', '/connection')
@@ -170,17 +177,46 @@ export default function ploiCache() {
         }
         this.servers = data.servers || []
         this.serversLoaded = true
+
+        // The saved server is gone from Ploi: drop the now-invalid target so it can't
+        // be re-saved or flushed, and tell the user in the modal.
+        if (this.serverId && !this.servers.some((x) => String(x.id) === String(this.serverId))) {
+          this.markTargetGone('server')
+          return
+        }
+
         // Reuse the saved server's sites the probe already fetched; otherwise load
-        // them when the saved server is present in the list.
+        // them. The saved server is known-present at this point.
         if (data.sites && data.sites.length && this.serverId) {
           this.sites = data.sites
-        } else if (this.serverId && this.servers.some((x) => String(x.id) === String(this.serverId))) {
+        } else if (this.serverId) {
           await this.loadSites()
+        }
+
+        // Same reconciliation one level down: the saved site is missing from the list.
+        if (this.siteId && !this.sites.some((x) => String(x.id) === String(this.siteId))) {
+          this.markTargetGone('site')
         }
       } catch (e) {
         this.handleError(e)
       } finally {
         this.busy.servers = false
+      }
+    },
+
+    // A probe found the saved server/site no longer exists in Ploi. Clear the stale
+    // id(s) — so Save target stays disabled and canFlush goes false — and say why in
+    // the modal. A server that's gone takes its site (and the now-irrelevant list)
+    // with it; a gone site keeps the still-valid server and its live site list.
+    markTargetGone(level) {
+      this.targetStale = true
+      this.siteId = ''
+      if (level === 'server') {
+        this.serverId = ''
+        this.sites = []
+        this.targetNotice = this.cfg.i18n.targetGone.server
+      } else {
+        this.targetNotice = this.cfg.i18n.targetGone.site
       }
     },
 

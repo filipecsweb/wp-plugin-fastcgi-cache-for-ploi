@@ -12,6 +12,10 @@ declare(strict_types=1);
 defined('ABSPATH') || exit;
 ?>
 <div class="tw:flex tw:flex-col tw:gap-4">
+    <div class="notice notice-warning inline tw:m-0!" x-show="targetNotice">
+        <p x-text="targetNotice"></p>
+    </div>
+
     <div class="tw:grid tw:gap-4 tw:sm:grid-cols-2">
         <label class="tw:flex tw:flex-col tw:gap-1">
             <span class="tw:flex tw:items-center tw:gap-2 tw:text-sm tw:font-semibold">

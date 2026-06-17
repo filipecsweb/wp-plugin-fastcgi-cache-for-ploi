@@ -88,6 +88,12 @@ final class AdminServiceProvider extends ServiceProvider
                 ],
                 // Transient reachability failure (network / unexpected Ploi error).
                 'cannotReach'    => __('Couldn\'t reach Ploi right now. Try again in a moment.', 'fastcgi-cache-for-ploi'),
+                // Shown in the change-target modal when the saved server/site is no
+                // longer in Ploi's live list, so the user knows why the picker reset.
+                'targetGone'     => [
+                    'server' => __('The saved server no longer exists in Ploi. Choose a new server and site.', 'fastcgi-cache-for-ploi'),
+                    'site'   => __('The saved site no longer exists in Ploi. Choose another site.', 'fastcgi-cache-for-ploi'),
+                ],
             ],
         ];
     }

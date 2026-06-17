@@ -109,6 +109,7 @@ final class FlushLogEntry
     {
         return match ($httpCode) {
             401 => __('Ploi rejected the token as wrong or expired.', 'fastcgi-cache-for-ploi'),
+            404 => __('Ploi could not find the server or site — it may have been deleted.', 'fastcgi-cache-for-ploi'),
             422 => __('Ploi rejected the flush — FastCGI caching may not be enabled for this site.', 'fastcgi-cache-for-ploi'),
             default => null,
         };
