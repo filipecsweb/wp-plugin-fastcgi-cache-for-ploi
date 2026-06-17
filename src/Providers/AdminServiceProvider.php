@@ -80,7 +80,6 @@ final class AdminServiceProvider extends ServiceProvider
             'debounceMax'     => PloiSettings::DEBOUNCE_MAX,
             'debounceDefault' => PloiSettings::DEBOUNCE_DEFAULT,
             'i18n'        => [
-                'connected'      => __('Connection successful.', 'fastcgi-cache-for-ploi'),
                 'saved'          => __('Settings saved.', 'fastcgi-cache-for-ploi'),
                 'disconnected'   => __('Token removed. Add a new token to reconnect.', 'fastcgi-cache-for-ploi'),
                 'genericError'   => __('Something went wrong. Please try again.', 'fastcgi-cache-for-ploi'),

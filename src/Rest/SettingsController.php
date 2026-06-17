@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace FastCgiCacheForPloi\Rest;
 
+use FastCgiCacheForPloi\Ploi\PloiApiException;
+use FastCgiCacheForPloi\Ploi\PloiClient;
 use FastCgiCacheForPloi\Providers\RestServiceProvider;
 use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Security\Capability;
@@ -16,7 +18,10 @@ use WP_REST_Response;
  *
  * POST /settings persists target + events + debounce, and (re)saves the token if
  * a new one is supplied. The debounce value is clamped server-side (concern 6);
- * the token is never echoed back (concern 2) — only hasToken is reported.
+ * the token is never echoed back (concern 2) — only hasToken is reported. When a
+ * NEW token is saved, the just-saved target is re-validated against it (the
+ * "Test token" route is read-only and no longer does this), clearing a target
+ * the new token can't use so Flush can't fire at a stale, cross-account site.
  */
 final class SettingsController extends PloiRestController
 {
@@ -25,6 +30,7 @@ final class SettingsController extends PloiRestController
         Capability $capability,
         private readonly PloiSettings $settings,
         private readonly Sanitizer $sanitizer,
+        private readonly PloiClient $client,
     ) {
         parent::__construct($namespace, $capability);
     }
@@ -52,9 +58,10 @@ final class SettingsController extends PloiRestController
 
     public function save(WP_REST_Request $request): WP_REST_Response
     {
-        $token = trim($this->stringParam($request, 'token'));
+        $token    = trim($this->stringParam($request, 'token'));
+        $newToken = $token !== '';
 
-        if ($token !== '') {
+        if ($newToken) {
             $this->settings->setToken($token);
         }
 
@@ -71,6 +78,58 @@ final class SettingsController extends PloiRestController
         $debounce = $request->get_param('debounce');
         $this->settings->setDebounce(is_numeric($debounce) ? (int) $debounce : PloiSettings::DEBOUNCE_DEFAULT);
 
-        return $this->respond($this->settings->toArray());
+        // A freshly saved token must be able to reach the saved target. If it
+        // can't (scope downgrade, or a token from a different Ploi account whose
+        // server/site IDs simply don't exist there), clear the target so Flush
+        // disables instead of pointing at a stale, cross-account site.
+        $targetCleared = $newToken && ! $this->targetValidWith($token);
+
+        if ($targetCleared) {
+            $this->settings->clearTarget();
+        }
+
+        $data = $this->settings->toArray();
+
+        if ($targetCleared) {
+            $data['targetCleared'] = true;
+            $data['message']       = __(
+                'Saved, but the selected server and site aren\'t available with this token. Re-select your server and site.',
+                'fastcgi-cache-for-ploi'
+            );
+        }
+
+        return $this->respond($data);
+    }
+
+    /**
+     * True when the saved target is still usable with the given token. A 403
+     * (missing Sites scope) or 404 (the server/site doesn't exist for this
+     * token's account) means "no longer usable". A 401 (rejected token) or any
+     * transient/network failure is treated as "keep" — a token blip must not
+     * destroy a valid target, and a rejected token is surfaced separately.
+     */
+    private function targetValidWith(string $token): bool
+    {
+        $serverId = $this->settings->serverId();
+        $siteId   = $this->settings->siteId();
+
+        if ($serverId === '' || $siteId === '') {
+            return true;
+        }
+
+        try {
+            $sites = $this->client->sites($token, $serverId);
+        } catch (PloiApiException $exception) {
+            return ! in_array($exception->statusCode(), [403, 404], true);
+        }
+
+        foreach ($sites as $site) {
+            if (($site['id'] ?? null) === $siteId) {
+                return true;
+            }
+        }
+
+        // Server readable, but the saved site is gone from it.
+        return false;
     }
 }

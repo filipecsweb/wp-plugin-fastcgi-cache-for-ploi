@@ -72,8 +72,11 @@ test.describe('Settings screen — saving (§6)', () => {
   test('a saved connection hydrates the UI on reload (§6)', async ({ admin, rest }) => {
     await rest.seed({ debounce: 7 })
     await admin.reload()
+    // The saved snapshot (debounce + flush target) hydrates from the server. The
+    // seed token is a fake string, so the live token check flags it rejected —
+    // but a token IS saved (Disconnect offered) and the target still hydrates.
     await expect(admin.locator('#ploi-debounce')).toHaveValue('7')
-    await expect(admin.locator('.ploi-cache-admin')).toContainText('A token is saved.')
+    await expect(admin.getByRole('button', { name: 'Disconnect' })).toBeVisible()
     await expect(admin.locator('.ploi-cache-admin')).toContainText('Currently flushing:')
   })
 

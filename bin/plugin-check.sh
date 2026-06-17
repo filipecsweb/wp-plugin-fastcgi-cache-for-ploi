@@ -89,9 +89,13 @@ echo "==> [2/3] Force-installing $slug-$version.zip"
 wp_audit plugin install "$zip_path" --force
 
 # 3. Run Plugin Check and persist the report.
-#    When PCP finds nothing it prints a plain "Success:" line (not JSON), and it
-#    exits non-zero when it finds errors. Capture both so we always write valid
-#    JSON ([] when clean) and never let a findings exit code abort the script.
+#    PCP prints, PER FILE, a "FILE: <path>" header line followed by a single-line
+#    JSON array of that file's findings — so the combined stream is NOT one JSON
+#    document. A clean run prints a plain "Success:" line and no arrays. PCP also
+#    exits non-zero when it finds errors, so we capture without aborting, then
+#    parse the raw stream ourselves. (Counting the "type" markers in the raw text
+#    is header-agnostic, so it can never silently under-report like a brittle
+#    "does it start with [" check would.)
 echo "==> [3/3] Running Plugin Check"
 mkdir -p dist
 timestamp="$(date +%Y%m%d-%H%M%S)"
@@ -99,17 +103,38 @@ report="$repo_root/dist/plugin-check-$slug-$timestamp.json"
 
 set +e
 raw="$(wp_audit plugin check "$slug" --format=json 2>/dev/null)"
+
+# Merge the per-file arrays into one valid JSON document, tagging each finding
+# with its file, so the artifact is greppable JSON rather than the raw FILE:/array
+# stream. Falls back to the raw stream when jq is unavailable. A clean run yields [].
+if command -v jq >/dev/null 2>&1; then
+  printf '%s\n' "$raw" | awk '
+    /^FILE: /        { file = substr($0, 7); next }
+    /^[[:space:]]*\[/ { gsub(/"/, "\\\"", file); print "{\"file\":\"" file "\",\"items\":" $0 "}" }
+  ' | jq -s '[ .[] | .file as $f | .items[] | {file: $f} + . ]' > "$report"
+else
+  printf '%s\n' "$raw" > "$report"
+fi
+
+# Count the type markers in the RAW stream (works regardless of the FILE: headers).
+errors="$(printf '%s' "$raw" | grep -o '"type":"ERROR"' | wc -l | tr -d '[:space:]')"
+warnings="$(printf '%s' "$raw" | grep -o '"type":"WARNING"' | wc -l | tr -d '[:space:]')"
 set -e
-
-case "$raw" in
-  \[*|\{*) printf '%s\n' "$raw" > "$report" ;;   # real JSON findings
-  *)       printf '[]\n'        > "$report" ;;    # "Success:" / empty -> no findings
-esac
-
-errors="$(grep -o '"type":"ERROR"' "$report" | wc -l | tr -d '[:space:]')"
-warnings="$(grep -o '"type":"WARNING"' "$report" | wc -l | tr -d '[:space:]')"
 
 echo "==> Done"
 echo "    errors:   $errors"
 echo "    warnings: $warnings"
 echo "    report:   ${report#"$repo_root/"}"
+
+# Surface findings instead of hiding them, and fail the gate on ANY finding — the
+# WordPress.org bar this script mirrors is zero errors AND zero warnings.
+if [ "$errors" != "0" ] || [ "$warnings" != "0" ]; then
+  echo
+  echo "==> Findings (human-readable):"
+  wp_audit plugin check "$slug" 2>/dev/null || true
+  echo
+  echo "FAILED: Plugin Check reported $errors error(s) and $warnings warning(s)." >&2
+  exit 1
+fi
+
+echo "    result:   clean (0 errors, 0 warnings)"

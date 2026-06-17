@@ -56,6 +56,7 @@ final class RestServiceProvider extends ServiceProvider
             $container->make(Capability::class),
             $container->make(PloiSettings::class),
             $container->make(Sanitizer::class),
+            $container->make(PloiClient::class),
         ));
 
         $container->singleton(FlushController::class, static fn () => new FlushController(

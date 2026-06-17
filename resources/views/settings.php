@@ -36,13 +36,8 @@ defined('ABSPATH') || exit;
         <div x-show="needsReconnect" class="notice notice-warning inline tw:m-0!">
             <p>
                 <strong><?php echo esc_html__('Reconnect required.', 'fastcgi-cache-for-ploi'); ?></strong>
-                <?php echo esc_html__('Your saved token could not be read — your site\'s security keys may have changed. Re-enter your Ploi API token below and test the connection.', 'fastcgi-cache-for-ploi'); ?>
+                <?php echo esc_html__('Your saved token could not be read — your site\'s security keys may have changed. Re-enter your Ploi API token below, then test and save it.', 'fastcgi-cache-for-ploi'); ?>
             </p>
-        </div>
-
-        <!-- Setup banner -->
-        <div x-show="needsSetup" class="notice notice-info inline tw:m-0!">
-            <p><?php echo esc_html__('Finish setup: add a Ploi API token, choose a server and site, then save your settings.', 'fastcgi-cache-for-ploi'); ?></p>
         </div>
 
         <!-- Key-source warning -->
@@ -79,7 +74,7 @@ defined('ABSPATH') || exit;
             <div class="inside">
                 <div class="tw:flex tw:flex-col tw:gap-3">
                     <p class="description tw:m-0!">
-                        <?php echo esc_html__('Testing a token verifies it against Ploi and saves it (encrypted) automatically. A saved token is never shown again.', 'fastcgi-cache-for-ploi'); ?>
+                        <?php echo esc_html__('Testing checks your token against Ploi without saving it. Click Save settings to store it (encrypted); a saved token is never shown again.', 'fastcgi-cache-for-ploi'); ?>
                     </p>
 
                     <div class="tw:flex tw:flex-col tw:gap-3 tw:sm:flex-row tw:sm:items-end">
@@ -96,12 +91,12 @@ defined('ABSPATH') || exit;
                                     : '<?php echo esc_js(__('Enter your Ploi API token', 'fastcgi-cache-for-ploi')); ?>'"
                             >
                         </label>
-                        <button type="button" class="button" @click="testConnection()" :disabled="busy.test">
+                        <button type="button" class="button" @click="testToken()" :disabled="busy.test">
                             <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
                                 <span x-show="busy.test" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
                                 <span x-text="busy.test
                                     ? '<?php echo esc_js(__('Testing…', 'fastcgi-cache-for-ploi')); ?>'
-                                    : '<?php echo esc_js(__('Test connection', 'fastcgi-cache-for-ploi')); ?>'"></span>
+                                    : '<?php echo esc_js(__('Test token', 'fastcgi-cache-for-ploi')); ?>'"></span>
                             </span>
                         </button>
                     </div>
@@ -121,10 +116,15 @@ defined('ABSPATH') || exit;
 
                     <div class="tw:flex tw:flex-col tw:gap-3">
                         <div class="tw:flex tw:items-center tw:gap-2 tw:text-sm">
-                            <span class="tw:inline-block tw:h-2 tw:w-2 tw:rounded-full" :class="hasToken ? 'tw:bg-green-500' : 'tw:bg-gray-300'"></span>
-                            <span class="tw:text-gray-600" x-text="hasToken
-                                ? '<?php echo esc_js(__('A token is saved.', 'fastcgi-cache-for-ploi')); ?>'
-                                : '<?php echo esc_js(__('No token saved yet.', 'fastcgi-cache-for-ploi')); ?>'"></span>
+                            <span
+                                class="tw:inline-block tw:h-2 tw:w-2 tw:rounded-full"
+                                :class="!hasToken ? 'tw:bg-gray-300' : (tokenRejected ? 'tw:bg-amber-500' : 'tw:bg-green-500')"
+                            ></span>
+                            <span class="tw:text-gray-600" x-text="!hasToken
+                                ? '<?php echo esc_js(__('No token saved yet.', 'fastcgi-cache-for-ploi')); ?>'
+                                : (tokenRejected
+                                    ? '<?php echo esc_js(__('Token saved, but Ploi rejected it — test your token again.', 'fastcgi-cache-for-ploi')); ?>'
+                                    : '<?php echo esc_js(__('A token is saved.', 'fastcgi-cache-for-ploi')); ?>')"></span>
                             <button
                                 type="button"
                                 class="button-link button-link-delete tw:ml-auto"
@@ -172,7 +172,7 @@ defined('ABSPATH') || exit;
                             </template>
                         </select>
                         <span class="tw:text-[13px] tw:text-gray-500" x-show="!busy.servers && servers.length === 0" x-text="hasToken
-                            ? '<?php echo esc_js(__('No servers loaded. Test the connection to refresh.', 'fastcgi-cache-for-ploi')); ?>'
+                            ? '<?php echo esc_js(__('No servers loaded. Save your settings to refresh.', 'fastcgi-cache-for-ploi')); ?>'
                             : '<?php echo esc_js(__('Add a token to load your servers.', 'fastcgi-cache-for-ploi')); ?>'"></span>
                     </label>
 

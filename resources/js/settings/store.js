@@ -34,6 +34,9 @@ export default function ploiCache() {
     },
     needsReconnect: !!s.needsReconnect,
     keyWarning: !!cfg.keyWarning,
+    // A saved token that Ploi rejected on a live call (401/403). Presence ≠ validity:
+    // hasToken means "a token is stored", this means "stored but unusable right now".
+    tokenRejected: false,
 
     events: cfg.events || [],
     log: cfg.log || [],
@@ -42,10 +45,8 @@ export default function ploiCache() {
     confirmingDisconnect: false,
 
     init() {
-      // Populate the dropdowns from the saved target when we have a usable token.
-      if (this.saved.hasToken && !this.needsReconnect) {
-        this.loadServers()
-      }
+      // Single reconcile path: load the dropdowns to match the saved connection.
+      this.refreshConnection()
     },
 
     // --- derived state ---
@@ -60,9 +61,6 @@ export default function ploiCache() {
       if (!this.saved.hasToken) return this.cfg.i18n.needToken
       if (!this.saved.serverId || !this.saved.siteId) return this.cfg.i18n.needTarget
       return ''
-    },
-    get needsSetup() {
-      return !this.canFlush && !this.needsReconnect
     },
     get enabledCount() {
       return Object.values(this.enabled).filter(Boolean).length
@@ -98,6 +96,19 @@ export default function ploiCache() {
         siteDomain: data.siteDomain || '',
       }
       this.needsReconnect = !!data.needsReconnect
+      // Fresh snapshot adopted; any prior rejection is re-derived by the next load.
+      this.tokenRejected = false
+    },
+
+    // The single place that reconciles the fetched server/site lists with the
+    // saved connection. Called whenever the token state may have changed (init,
+    // save), so the dropdowns can never silently drift from the saved token.
+    async refreshConnection() {
+      this.servers = []
+      this.sites = []
+      if (this.saved.hasToken && !this.needsReconnect) {
+        await this.loadServers() // loads sites too when the saved serverId matches
+      }
     },
 
     // --- REST ---
@@ -126,7 +137,10 @@ export default function ploiCache() {
     },
 
     // --- actions ---
-    async testConnection() {
+    // Validate ONLY — never persists the token and never loads the dropdowns.
+    // An empty field re-checks the saved token (POST {}); the server tailors the
+    // success message. Saving (below) is what actually stores the token.
+    async testToken() {
       const entered = this.token.trim()
       if (!entered && !this.saved.hasToken) {
         this.setNotice('error', this.cfg.i18n.needToken)
@@ -136,27 +150,7 @@ export default function ploiCache() {
       this.notice = null
       try {
         const data = await this.api('POST', '/connection/test', entered ? { token: entered } : {})
-        this.servers = data.servers || []
-        if (entered) {
-          this.saved.hasToken = true
-          this.needsReconnect = false
-          this.token = ''
-        }
-        // The server cleared a now-unreadable target (the new token lacks the
-        // Sites scope): adopt the fresh snapshot so Flush now disables, and warn
-        // instead of silently keeping a stale, flushable target.
-        if (data.settings) {
-          this.adoptSaved(data.settings)
-          this.serverId = ''
-          this.siteId = ''
-          this.sites = []
-          this.setNotice('warning', data.message)
-          return
-        }
-        if (this.serverId && this.servers.some((x) => String(x.id) === String(this.serverId))) {
-          await this.loadSites()
-        }
-        this.setNotice('success', data.message || this.cfg.i18n.connected)
+        this.setNotice('success', data.message)
       } catch (e) {
         this.handleError(e)
       } finally {
@@ -198,10 +192,16 @@ export default function ploiCache() {
       try {
         const data = await this.api('GET', '/servers')
         this.servers = data.servers || []
+        this.tokenRejected = false
         if (this.serverId && this.servers.some((x) => String(x.id) === String(this.serverId))) {
           await this.loadSites()
         }
       } catch (e) {
+        // A failed fetch must not leave stale options behind — empty the
+        // dropdowns and, on an auth failure, mark the saved token rejected.
+        this.servers = []
+        this.sites = []
+        if (e.status === 401 || e.status === 403) this.tokenRejected = true
         this.handleError(e)
       } finally {
         this.busy.servers = false
@@ -218,6 +218,8 @@ export default function ploiCache() {
         const data = await this.api('GET', `/servers/${encodeURIComponent(this.serverId)}/sites`)
         this.sites = data.sites || []
       } catch (e) {
+        this.sites = []
+        if (e.status === 401 || e.status === 403) this.tokenRejected = true
         this.handleError(e)
       } finally {
         this.busy.sites = false
@@ -247,8 +249,9 @@ export default function ploiCache() {
       this.busy.save = true
       this.notice = null
       try {
+        const submitted = this.token.trim()
         const data = await this.api('POST', '/settings', {
-          token: this.token.trim() || undefined,
+          token: submitted || undefined,
           server_id: this.serverId,
           site_id: this.siteId,
           server_name: this.selectedServerName(),
@@ -258,7 +261,28 @@ export default function ploiCache() {
         })
         this.adoptSaved(data)
         this.token = ''
-        this.setNotice('success', this.cfg.i18n.saved)
+        // Server cleared a target the new token can't use (downgrade / different
+        // account): drop the now-invalid working selection too.
+        if (data.targetCleared) {
+          this.serverId = ''
+          this.siteId = ''
+          this.sites = []
+        }
+        // Reconcile the dropdowns with the (possibly new) saved token. The guard
+        // skips a needless Ploi refetch when only events/debounce changed.
+        if (submitted || this.servers.length === 0) {
+          await this.refreshConnection()
+        }
+        // One coherent outcome: a rejection (notice already set by the failed
+        // reload) outranks the target-cleared warning, which outranks success —
+        // never "Saved!" immediately contradicted by an error.
+        if (this.tokenRejected) {
+          // refreshConnection() surfaced the rejection notice; leave it.
+        } else if (data.targetCleared) {
+          this.setNotice('warning', data.message)
+        } else {
+          this.setNotice('success', this.cfg.i18n.saved)
+        }
       } catch (e) {
         this.handleError(e)
       } finally {

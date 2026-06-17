@@ -37,23 +37,6 @@ use WPForge\Plugin;
 
 defined('ABSPATH') || exit;
 
-$fastcgi_cache_for_ploi_autoload = __DIR__ . '/vendor/autoload.php';
-
-if (! is_file($fastcgi_cache_for_ploi_autoload)) {
-    add_action('admin_notices', static function (): void {
-        echo '<div class="notice notice-error"><p>';
-        echo esc_html__(
-            'FastCGI Cache for Ploi: dependencies are missing. Run "composer install" in the plugin directory.',
-            'fastcgi-cache-for-ploi'
-        );
-        echo '</p></div>';
-    });
-
-    return;
-}
-
-require $fastcgi_cache_for_ploi_autoload;
-
 /**
  * Boot the plugin on top of the WPForge Foundation.
  *
@@ -62,29 +45,52 @@ require $fastcgi_cache_for_ploi_autoload;
  *     withProviders(), plus activation/deactivation via withLifecycle() — wired
  *     synchronously here (never in a provider), because WordPress fires
  *     activation hooks without re-running plugins_loaded.
+ *
+ * Wrapped in an immediately-invoked closure so the bootstrap locals never enter
+ * the global scope (WordPress.org Plugin Check flags global-scope plugin vars).
  */
-$fastcgi_cache_for_ploi = Plugin::create(__FILE__);
+(static function (): void {
+    $autoload = __DIR__ . '/vendor/autoload.php';
 
-// Always-on services: core bindings, REST routes, and the flush/event engine.
-$fastcgi_cache_for_ploi->withProviders([
-    CoreServiceProvider::class,
-    RestServiceProvider::class,
-    FlushServiceProvider::class,
-]);
+    if (! is_file($autoload)) {
+        add_action('admin_notices', static function (): void {
+            echo '<div class="notice notice-error"><p>';
+            echo esc_html__(
+                'FastCGI Cache for Ploi: dependencies are missing. Run "composer install" in the plugin directory.',
+                'fastcgi-cache-for-ploi'
+            );
+            echo '</p></div>';
+        });
 
-// Admin settings screen — loads only in wp-admin.
-$fastcgi_cache_for_ploi->withModule(new AdminUiModule([
-    AdminServiceProvider::class,
-]));
+        return;
+    }
 
-// Activation/deactivation must be wired synchronously, before the plugins_loaded
-// deferral, because WordPress fires activation hooks without re-running it.
-$fastcgi_cache_for_ploi->withLifecycle(static function (Lifecycle $lifecycle) use ($fastcgi_cache_for_ploi): void {
-    $prefix = $fastcgi_cache_for_ploi->optionPrefix();
-    $lifecycle->onActivate(static fn () => Activator::activate($prefix));
-    $lifecycle->onDeactivate(static fn () => Deactivator::deactivate());
-});
+    require $autoload;
 
-add_action('plugins_loaded', static function () use ($fastcgi_cache_for_ploi): void {
-    $fastcgi_cache_for_ploi->boot();
-});
+    $plugin = Plugin::create(__FILE__);
+
+    // Always-on services: core bindings, REST routes, and the flush/event engine.
+    $plugin->withProviders([
+        CoreServiceProvider::class,
+        RestServiceProvider::class,
+        FlushServiceProvider::class,
+    ]);
+
+    // Admin settings screen — loads only in wp-admin.
+    $plugin->withModule(new AdminUiModule([
+        AdminServiceProvider::class,
+    ]));
+
+    // Activation/deactivation must be wired synchronously, before the
+    // plugins_loaded deferral, because WordPress fires activation hooks without
+    // re-running it.
+    $plugin->withLifecycle(static function (Lifecycle $lifecycle) use ($plugin): void {
+        $prefix = $plugin->optionPrefix();
+        $lifecycle->onActivate(static fn () => Activator::activate($prefix));
+        $lifecycle->onDeactivate(static fn () => Deactivator::deactivate());
+    });
+
+    add_action('plugins_loaded', static function () use ($plugin): void {
+        $plugin->boot();
+    });
+})();
