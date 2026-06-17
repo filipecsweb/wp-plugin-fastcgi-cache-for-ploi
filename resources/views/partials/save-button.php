@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 defined('ABSPATH') || exit;
 ?>
-<button type="button" class="button button-primary" @click="save()" :disabled="busy.save || !debounceValid">
+<button type="button" class="button button-primary" @click="save()" :disabled="busy.save">
     <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
         <span x-show="busy.save" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
         <span x-text="busy.save

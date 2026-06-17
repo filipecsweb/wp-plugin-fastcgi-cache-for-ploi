@@ -18,17 +18,12 @@ use WPForge\Settings\Options;
  */
 final class PloiSettings
 {
-    public const DEBOUNCE_MIN     = 0;
-    public const DEBOUNCE_MAX     = 60;
-    public const DEBOUNCE_DEFAULT = 5;
-
     private const KEY_TOKEN       = 'token';
     private const KEY_SERVER_ID   = 'server_id';
     private const KEY_SERVER_NAME = 'server_name';
     private const KEY_SITE_ID     = 'site_id';
     private const KEY_SITE_DOMAIN = 'site_domain';
     private const KEY_EVENTS      = 'events';
-    private const KEY_DEBOUNCE    = 'debounce';
     private const KEY_RECONNECT   = 'needs_reconnect';
 
     private bool $tokenLoaded = false;
@@ -46,8 +41,7 @@ final class PloiSettings
     public static function defaults(): array
     {
         return [
-            self::KEY_EVENTS   => FlushEvents::defaults(),
-            self::KEY_DEBOUNCE => self::DEBOUNCE_DEFAULT,
+            self::KEY_EVENTS => FlushEvents::defaults(),
         ];
     }
 
@@ -110,8 +104,8 @@ final class PloiSettings
      * Tear down the saved connection: delete the encrypted token and the saved
      * target, and clear the reconnect flag. A deliberate disconnect lands in a
      * clean "no token" state — NOT the decrypt-failure "needs reconnect" state —
-     * so the reconnect flag is reset rather than raised. Event toggles and the
-     * debounce window are user preferences and are deliberately preserved.
+     * so the reconnect flag is reset rather than raised. Event toggles are a user
+     * preference and are deliberately preserved.
      */
     public function disconnect(): void
     {
@@ -202,21 +196,6 @@ final class PloiSettings
         $this->options->set(self::KEY_EVENTS, $clean);
     }
 
-    public function debounce(): int
-    {
-        return $this->clampDebounce($this->options->getInt(self::KEY_DEBOUNCE, self::DEBOUNCE_DEFAULT));
-    }
-
-    public function setDebounce(int $seconds): void
-    {
-        $this->options->set(self::KEY_DEBOUNCE, $this->clampDebounce($seconds));
-    }
-
-    private function clampDebounce(int $seconds): int
-    {
-        return max(self::DEBOUNCE_MIN, min(self::DEBOUNCE_MAX, $seconds));
-    }
-
     /**
      * Full readiness check; decrypts the token (not for hot paths).
      */
@@ -249,7 +228,6 @@ final class PloiSettings
             'siteId'         => $this->siteId(),
             'siteDomain'     => $this->siteDomain(),
             'enabledEvents'  => $this->events(),
-            'debounce'       => $this->debounce(),
             'isConfigured'   => $this->isConfigured(),
         ];
     }

@@ -12,9 +12,9 @@ use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * /settings persists ONLY the event toggles and debounce window. The Ploi token is
- * owned by /connection and the flush target by /target, so neither is writable here —
- * each piece of state has a single writer.
+ * /settings persists ONLY the event toggles. The Ploi token is owned by /connection
+ * and the flush target by /target, so neither is writable here — each piece of state
+ * has a single writer.
  */
 final class SettingsController extends PloiRestController
 {
@@ -74,9 +74,6 @@ final class SettingsController extends PloiRestController
     {
         $events = $request->get_param('events');
         $this->settings->setEvents(is_array($events) ? $events : []);
-
-        $debounce = $request->get_param('debounce');
-        $this->settings->setDebounce(is_numeric($debounce) ? (int) $debounce : PloiSettings::DEBOUNCE_DEFAULT);
 
         return $this->respond($this->settings->toArray());
     }

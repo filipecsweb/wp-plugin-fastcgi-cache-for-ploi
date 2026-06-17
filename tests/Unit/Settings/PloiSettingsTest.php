@@ -47,16 +47,6 @@ it('clears the token and flags reconnect when decryption fails', function (): vo
         ->and($rotated->hasStoredToken())->toBeFalse();
 });
 
-it('clamps the debounce window to 0..60', function (): void {
-    $settings = ($this->make)();
-
-    $settings->setDebounce(999);
-    expect($settings->debounce())->toBe(60);
-
-    $settings->setDebounce(-5);
-    expect($settings->debounce())->toBe(0);
-});
-
 it('normalises event toggles to the known keys', function (): void {
     $settings = ($this->make)();
     $settings->setEvents(['theme' => true, 'unknown' => true]);
@@ -68,12 +58,11 @@ it('normalises event toggles to the known keys', function (): void {
         ->and($settings->isEventEnabled('post_save'))->toBeFalse();
 });
 
-it('disconnect deletes the token + target, resets reconnect, and keeps events + debounce', function (): void {
+it('disconnect deletes the token + target, resets reconnect, and keeps events', function (): void {
     $settings = ($this->make)();
     $settings->setToken('secret-token');
     $settings->setTarget('7', '42', 'srv', 'site.test');
     $settings->setEvents(['post_save' => true, 'menu' => true]);
-    $settings->setDebounce(12);
 
     $settings->disconnect();
 
@@ -93,8 +82,7 @@ it('disconnect deletes the token + target, resets reconnect, and keeps events + 
         ->and($settings->siteDomain())->toBe('');
 
     expect($settings->isEventEnabled('post_save'))->toBeTrue()
-        ->and($settings->isEventEnabled('menu'))->toBeTrue()
-        ->and($settings->debounce())->toBe(12);
+        ->and($settings->isEventEnabled('menu'))->toBeTrue();
 
     expect($settings->toArray())
         ->toMatchArray([

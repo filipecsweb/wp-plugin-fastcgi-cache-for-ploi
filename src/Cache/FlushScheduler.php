@@ -4,18 +4,13 @@ declare(strict_types=1);
 
 namespace FastCgiCacheForPloi\Cache;
 
-use FastCgiCacheForPloi\Settings\PloiSettings;
-
 /**
  * Coalesces bursts of content changes into a SINGLE flush.
  *
- * A debounce lock (transient) plus a single one-off WP-Cron event: the first
- * trigger schedules one cron event `debounce` seconds out and records the
- * reason; every further trigger inside the window sees the event already
- * scheduled and does nothing. When the event fires, exactly one flush runs.
- *
- * debounce = 0 means "no added delay" — the event is scheduled for now and
- * fires on the next cron tick (still one flush per burst within a request).
+ * A pending-flush lock (transient) plus a single one-off WP-Cron event: the first
+ * trigger schedules one cron event COALESCE_SECONDS out and records the reason;
+ * every further trigger inside the window sees the event already scheduled and does
+ * nothing. When the event fires, exactly one flush runs.
  */
 final class FlushScheduler
 {
@@ -28,8 +23,14 @@ final class FlushScheduler
      */
     public const LOCK = 'fastcgi_cache_for_ploi_pending';
 
+    /**
+     * Fixed window (seconds) the first trigger schedules the single flush out by, so
+     * a burst coalesces into one flush. A small constant, not a setting — coalescing
+     * comes from the LOCK + wp_next_scheduled gate, not from this value.
+     */
+    public const COALESCE_SECONDS = 5;
+
     public function __construct(
-        private readonly PloiSettings $settings,
         private readonly CacheFlusher $flusher,
     ) {
     }
@@ -41,7 +42,7 @@ final class FlushScheduler
         }
 
         if (! wp_next_scheduled(self::CRON_HOOK)) {
-            wp_schedule_single_event(time() + $this->settings->debounce(), self::CRON_HOOK);
+            wp_schedule_single_event(time() + self::COALESCE_SECONDS, self::CRON_HOOK);
         }
     }
 

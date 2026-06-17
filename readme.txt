@@ -17,7 +17,7 @@ FastCGI Cache for Ploi keeps your Ploi-hosted site fast *and* fresh. When you pu
 **What it does**
 
 * Flushes the FastCGI cache automatically on the events you choose: post publish/update, post deletion, comments, theme switch, Customizer saves, and navigation-menu changes.
-* Coalesces bursts of changes into a single flush (a configurable debounce window) so a bulk edit doesn't hammer the API.
+* Coalesces bursts of changes into a single flush so a bulk edit doesn't hammer the API.
 * One-click **Flush now** button for manual purges.
 * A **Recent flushes** log so you can see what triggered each flush and whether it succeeded.
 * Stores your Ploi API token encrypted at rest.
@@ -34,7 +34,7 @@ This plugin connects to the **Ploi API** (https://ploi.io), a third-party servic
 
 **When data is sent to Ploi**
 
-* When you click **Test connection** — to validate your token and list your servers.
+* When you click **Connect** — to validate your token and list your servers.
 * When you select a server — to list that server's sites.
 * When a flush runs — either automatically (on a content change you enabled) or manually (the **Flush now** button).
 
@@ -56,7 +56,7 @@ Your use of the Ploi service is governed by Ploi's legal terms:
 1. Upload the plugin to `/wp-content/plugins/fastcgi-cache-for-ploi/`, or install it from the **Plugins → Add New** screen in your WordPress admin.
 2. Activate the plugin through the **Plugins** menu.
 3. Go to **Settings → FastCGI Cache**.
-4. Paste a **Ploi API token** (create one at https://ploi.io/profile/api-keys) and click **Test connection**. A valid token is saved (encrypted) automatically.
+4. Paste a **Ploi API token** (create one at https://ploi.io/profile/api-keys) and click **Connect**. A valid token is saved (encrypted) automatically.
 5. Choose the **server** and **site** whose FastCGI cache should be flushed.
 6. Pick which **events** should trigger an automatic flush, then click **Save settings**.
 

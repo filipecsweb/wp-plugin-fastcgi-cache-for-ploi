@@ -71,9 +71,6 @@ final class AdminServiceProvider extends ServiceProvider
                 $log->recent(FlushLogRepository::RECENT_LIMIT)
             ),
             'keyWarning'      => $this->keyIsDatabaseDerived(),
-            'debounceMin'     => PloiSettings::DEBOUNCE_MIN,
-            'debounceMax'     => PloiSettings::DEBOUNCE_MAX,
-            'debounceDefault' => PloiSettings::DEBOUNCE_DEFAULT,
             'i18n'        => [
                 'saved'          => __('Settings saved.', 'fastcgi-cache-for-ploi'),
                 'connected'      => __('Connected to Ploi. Now choose a flush target.', 'fastcgi-cache-for-ploi'),
@@ -82,12 +79,6 @@ final class AdminServiceProvider extends ServiceProvider
                 'genericError'   => __('Something went wrong. Please try again.', 'fastcgi-cache-for-ploi'),
                 'needToken'      => __('Add a Ploi API token first.', 'fastcgi-cache-for-ploi'),
                 'needTarget'     => __('Choose a server and site.', 'fastcgi-cache-for-ploi'),
-                'badDebounce'    => sprintf(
-                    /* translators: 1: minimum seconds, 2: maximum seconds. */
-                    __('Coalesce window must be a whole number between %1$d and %2$d seconds.', 'fastcgi-cache-for-ploi'),
-                    PloiSettings::DEBOUNCE_MIN,
-                    PloiSettings::DEBOUNCE_MAX
-                ),
                 // Reconnect-banner body, keyed by why the saved token is unusable.
                 // Keys track ConnectionController's failure states + the decrypt
                 // failure (409), funnelled through store requireReconnect().
@@ -103,8 +94,12 @@ final class AdminServiceProvider extends ServiceProvider
     }
 
     /**
-     * Key falls back to DB-stored salts when no dedicated/wp-config constant is
-     * set; see docs/security.md.
+     * True ONLY when the stored token is genuinely DB-decryptable: no dedicated
+     * FASTCGI_CACHE_FOR_PLOI_KEY AND the WP salts Crypto falls back to are not pinned
+     * in wp-config.php (undefined or left as the shipped placeholder), so wp_salt()
+     * sources them from the database. Mirrors WordPress's own wp_salt() fallback, so
+     * the warning flags only the at-risk install — a standard install with real salts
+     * is safe and sees nothing.
      */
     private function keyIsDatabaseDerived(): bool
     {

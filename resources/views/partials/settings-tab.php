@@ -110,23 +110,6 @@ defined('ABSPATH') || exit;
                     </label>
                 </template>
             </div>
-
-            <div class="tw:mt-4 tw:flex tw:flex-wrap tw:items-center tw:gap-2">
-                <label class="tw:text-sm tw:font-semibold" for="ploi-debounce"><?php echo esc_html__('Coalesce bursts within', 'fastcgi-cache-for-ploi'); ?></label>
-                <input
-                    id="ploi-debounce"
-                    type="number"
-                    class="small-text"
-                    :min="cfg.debounceMin"
-                    :max="cfg.debounceMax"
-                    step="1"
-                    x-model.number="debounce"
-                    :class="debounceValid ? '' : 'tw:border-red-400!'"
-                >
-                <span class="tw:text-sm tw:text-gray-500"><?php echo esc_html__('seconds', 'fastcgi-cache-for-ploi'); ?></span>
-                <span class="tw:basis-full tw:text-[13px] tw:text-gray-500"><?php echo esc_html__('0 = flush as soon as possible (no added delay). A burst of changes still triggers a single flush.', 'fastcgi-cache-for-ploi'); ?></span>
-                <span class="tw:basis-full tw:text-[13px] tw:text-red-600" x-show="!debounceValid" x-text="cfg.i18n.badDebounce"></span>
-            </div>
         </div>
     </section>
     <div class="tw:flex tw:flex-wrap tw:items-center tw:gap-3">

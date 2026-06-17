@@ -16,12 +16,12 @@ every one of its primitives.
   comment moderation, theme switch, Customizer save, and nav-menu updates. Each
   is an independent toggle.
 - **Burst coalescing** — a flurry of changes (bulk edits, autosaves, multiple
-  hooks in one request) collapses into a **single** flush via a debounce lock +
+  hooks in one request) collapses into a **single** flush via a coalescing lock +
   one-off WP-Cron event.
 - **Encrypted token at rest** — the Ploi API token is sealed with libsodium; the
   key lives off the database (see [Security](#security)).
 - **Live settings screen** — server/site dropdowns populated from the Ploi API,
-  "Test connection", manual "Flush now", and a recent-flush log.
+  one-click Connect/Disconnect, manual "Flush now", and a recent-flush log.
 - **REST-based admin** — all admin actions go through authenticated REST routes
   (nonce + capability), never `admin-ajax`.
 
@@ -93,12 +93,12 @@ activate it.
 
 ## Configuration & usage
 
-1. **Paste your Ploi API token** and click **Test connection**. A verified token
+1. **Paste your Ploi API token** and click **Connect**. A verified token
    is **encrypted and saved automatically** — it is never shown again, only a
    "token saved" indicator.
 2. **Pick a server, then a site** (the site list loads from the chosen server).
-3. **Choose which events** trigger an automatic flush, and the **coalesce window**
-   (0–60 seconds; `0` = flush as soon as possible, still one flush per burst).
+3. **Choose which events** trigger an automatic flush; bursts are coalesced into a
+   single flush automatically.
 4. **Save settings.** Use **Flush now** any time, and watch the **Recent flushes**
    log (when, trigger, target, status + HTTP code, duration).
 

@@ -30,7 +30,6 @@ export default function ploiCache() {
     serverId: s.serverId || '',
     siteId: s.siteId || '',
     enabled: { ...(s.enabledEvents || {}) },
-    debounce: s.debounce ?? cfg.debounceDefault,
 
     // Loaded from Ploi (GET /connection) only when the change-target modal opens.
     servers: [],
@@ -90,10 +89,6 @@ export default function ploiCache() {
       if (!this.saved.hasToken) return this.cfg.i18n.needToken
       if (!this.saved.serverId || !this.saved.siteId) return this.cfg.i18n.needTarget
       return ''
-    },
-    get debounceValid() {
-      const n = Number(this.debounce)
-      return Number.isInteger(n) && n >= this.cfg.debounceMin && n <= this.cfg.debounceMax
     },
 
     // Transient confirmation/failure that needn't persist. Delegates to the shared
@@ -299,7 +294,7 @@ export default function ploiCache() {
     },
 
     // Persist ONLY the target (its own route), so changing the flush target never
-    // touches the token, events, or debounce.
+    // touches the token or events.
     async saveTarget() {
       this.busy.target = true
       try {
@@ -322,14 +317,13 @@ export default function ploiCache() {
       }
     },
 
-    // Persist ONLY the event toggles + debounce. The token (/connection) and the
-    // flush target (/target) each own their own state and route.
+    // Persist ONLY the event toggles. The token (/connection) and the flush target
+    // (/target) each own their own state and route.
     async save() {
       this.busy.save = true
       try {
         await this.api('POST', '/settings', {
           events: this.enabled,
-          debounce: Number(this.debounce),
         })
         this.toast('success', this.cfg.i18n.saved)
       } catch (e) {

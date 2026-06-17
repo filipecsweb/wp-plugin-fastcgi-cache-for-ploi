@@ -36,7 +36,7 @@ function ccs_make_scheduler(PloiSettings $settings): FlushScheduler
 {
     $flusher = new CacheFlusher($settings, new PloiClient(new HttpClient()), new FlushLogRepository(), new Logger('test'));
 
-    return new FlushScheduler($settings, $flusher);
+    return new FlushScheduler($flusher);
 }
 
 beforeEach(function (): void {
