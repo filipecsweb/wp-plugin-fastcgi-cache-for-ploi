@@ -11,19 +11,22 @@ beforeEach(function (): void {
     Functions\when('__')->returnArg(1);
 });
 
-it('maps 401 and 422 to a tense-neutral gloss and returns null for everything else', function (): void {
+it('maps 401, 404 and 422 to a tense-neutral gloss and returns null for everything else', function (): void {
     expect(FlushLogEntry::failureHint(401))
         ->toBe('Ploi rejected the token as wrong or expired.');
+    expect(FlushLogEntry::failureHint(404))
+        ->toBe('Ploi could not find the server or site — it may have been deleted.');
     expect(FlushLogEntry::failureHint(422))
         ->toBe('Ploi rejected the flush — FastCGI caching may not be enabled for this site.');
 
-    foreach ([0, 200, 403, 404, 500] as $code) {
+    foreach ([0, 200, 403, 500] as $code) {
         expect(FlushLogEntry::failureHint($code))->toBeNull();
     }
 });
 
 it('phrases the gloss as a diagnostic, never a stale time-stamp or instruction', function (): void {
     expect(FlushLogEntry::failureHint(401))->not->toContain('At the time');
+    expect(FlushLogEntry::failureHint(404))->not->toContain('At the time');
     expect(FlushLogEntry::failureHint(422))->not->toContain('At the time');
 });
 

@@ -82,9 +82,15 @@ final class AdminServiceProvider extends ServiceProvider
                 // Keys track ConnectionController's failure states + the decrypt
                 // failure (409), funnelled through store requireReconnect().
                 'reconnect'      => [
-                    'unreadable'         => __('Your saved token could not be read — your site\'s security keys may have changed. Re-enter your Ploi API token and click Connect.', 'fastcgi-cache-for-ploi'),
+                    'unreadable'         => __(
+                        'Your saved token could not be read — your site\'s security keys may have changed. Re-enter your Ploi API token and click Connect.',
+                        'fastcgi-cache-for-ploi'
+                    ),
                     'invalid'            => __('Ploi rejected your saved token. Re-enter a valid Ploi API token and click Connect.', 'fastcgi-cache-for-ploi'),
-                    'missing_permission' => __('Your saved token is missing a required permission. Re-enter a token with the Servers and Sites scopes and click Connect.', 'fastcgi-cache-for-ploi'),
+                    'missing_permission' => __(
+                        'Your saved token is missing a required permission. Re-enter a token with the Servers and Sites scopes and click Connect.',
+                        'fastcgi-cache-for-ploi'
+                    ),
                 ],
                 // Transient reachability failure (network / unexpected Ploi error).
                 'cannotReach'    => __('Couldn\'t reach Ploi right now. Try again in a moment.', 'fastcgi-cache-for-ploi'),
