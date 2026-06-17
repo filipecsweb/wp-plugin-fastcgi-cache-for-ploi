@@ -6,6 +6,10 @@
  * actually use) from the editable working copy, and surfaces both Ploi API errors
  * and the decrypt-failed reconnect path (HTTP 409 / code "needs_reconnect").
  */
+import createApiClient from './api.js'
+import createNotifier from './notifier.js'
+import { createErrorRouter, RECONNECT_REASON } from './errors.js'
+
 // Resolve the tab to open on load: the URL hash if it names a known tab (so a
 // refresh / shared link reopens it), else the first tab. cfg.tabs is the valid
 // key list from SettingsPage::tabKeys().
@@ -18,6 +22,12 @@ function initialTab(cfg) {
 export default function ploiCache() {
   const cfg = window.PloiCacheConfig || {}
   const s = cfg.settings || {}
+
+  const api = createApiClient(cfg)
+  const notifier = createNotifier(cfg)
+  // Wired in init() (not here) so the error router's reconnect effect can drive this
+  // live component's reactive state.
+  let handleError
 
   return {
     cfg,
@@ -48,7 +58,7 @@ export default function ploiCache() {
     // (via the needsReconnect getter) whether the banner shows at all — single
     // source. Seeded from PHP only for the decrypt-failure case; runtime probes set
     // the rest.
-    reconnectReason: s.needsReconnect ? 'unreadable' : '',
+    reconnectReason: s.needsReconnect ? RECONNECT_REASON.UNREADABLE : '',
     keyWarning: !!cfg.keyWarning,
 
     events: cfg.events || [],
@@ -65,6 +75,11 @@ export default function ploiCache() {
     targetNotice: '',
 
     init() {
+      handleError = createErrorRouter({
+        requireReconnect: (reason) => this.requireReconnect(reason),
+        notifyFailure: notifier.notifyFailure,
+      })
+
       // Reflect tab changes in the URL hash (refresh-safe, shareable) without
       // adding history entries or jumping the scroll position.
       this.$watch('activeTab', (tab) => {
@@ -95,12 +110,6 @@ export default function ploiCache() {
       return ''
     },
 
-    // Transient confirmation/failure that needn't persist. Delegates to the shared
-    // toast store so any screen raises toasts the same way.
-    toast(type, text, opts = {}) {
-      this.$store.toasts.add(type, text, opts)
-    },
-
     // The saved token can't be used until reconnected. The single entry point for
     // every such condition (decrypt-fail, invalid, missing scope): raises the
     // persistent banner with reason-specific copy and dismisses any open modal.
@@ -108,37 +117,6 @@ export default function ploiCache() {
       this.reconnectReason = reason
       this.saved.hasToken = false
       this.targetModalOpen = false
-    },
-
-    // The reconnect reason an HTTP error implies (token rejected/under-scoped/
-    // unreadable), or null when it's a transient failure that mustn't touch the
-    // saved token. GOTCHA: gate the 401/403 cases on the Ploi error code — WP's own
-    // nonce/capability guard also returns 401/403, and an expired nonce must NOT
-    // tear down a healthy saved token.
-    tokenFailureReason(e) {
-      if (e.code === 'needs_reconnect' || e.status === 409) return 'unreadable'
-      if (e.code === 'ploi_error' && e.status === 401) return 'invalid'
-      if (e.code === 'ploi_error' && e.status === 403) return 'missing_permission'
-      return null
-    },
-
-    // Show a transient failure as a toast. Prefer Ploi's own message when the
-    // request reached the server; fall back to one shared "couldn't reach Ploi"
-    // line for network failures (which carry only a raw browser error).
-    toastFailure(e) {
-      this.toast('error', e.status ? e.message : this.cfg.i18n.cannotReach)
-    },
-
-    // A saved-token-backed action failed: a token-auth failure raises the single
-    // persistent reconnect banner; anything else is transient → toast. NOT used by
-    // connect(), where a rejected token is a fresh attempt, not a saved-token state.
-    handleError(e) {
-      const reason = this.tokenFailureReason(e)
-      if (reason) {
-        this.requireReconnect(reason)
-        return
-      }
-      this.toastFailure(e)
     },
 
     // Adopt a server settings snapshot as the SAVED state (what flushing uses).
@@ -151,7 +129,7 @@ export default function ploiCache() {
         siteId: data.siteId || '',
         siteDomain: data.siteDomain || '',
       }
-      this.reconnectReason = data.needsReconnect ? 'unreadable' : ''
+      this.reconnectReason = data.needsReconnect ? RECONNECT_REASON.UNREADABLE : ''
       this.targetStale = false
     },
 
@@ -166,12 +144,12 @@ export default function ploiCache() {
       this.targetNotice = ''
       this.busy.servers = true
       try {
-        const data = await this.api('GET', '/connection')
+        const data = await api.request('GET', '/connection')
         if (data.state && data.state !== 'ok') {
-          if (data.state === 'invalid' || data.state === 'missing_permission') {
+          if (data.state === RECONNECT_REASON.INVALID || data.state === RECONNECT_REASON.MISSING_PERMISSION) {
             this.requireReconnect(data.state)
           } else {
-            this.toast('error', this.cfg.i18n.cannotReach)
+            notifier.notify('error', this.cfg.i18n.cannotReach)
           }
           return
         }
@@ -198,7 +176,7 @@ export default function ploiCache() {
           this.markTargetGone('site')
         }
       } catch (e) {
-        this.handleError(e)
+        handleError(e)
       } finally {
         this.busy.servers = false
       }
@@ -220,49 +198,25 @@ export default function ploiCache() {
       }
     },
 
-    async api(method, path, body) {
-      const res = await fetch(`${this.cfg.restUrl}${path}`, {
-        method,
-        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': this.cfg.nonce },
-        body: body ? JSON.stringify(body) : undefined,
-      })
-
-      let data = {}
-      try {
-        data = await res.json()
-      } catch (e) {
-        data = {}
-      }
-
-      if (!res.ok) {
-        const err = new Error(data.message || this.cfg.i18n.genericError)
-        err.code = data.code || ''
-        err.status = res.status
-        throw err
-      }
-
-      return data
-    },
-
     // Connect: validate the entered token (both scopes) and persist it only if it
     // passes — the server rejects a bad or under-scoped token with a clear message,
     // so a saved token is always known-good.
     async connect() {
       const entered = this.token.trim()
       if (!entered) {
-        this.toast('error', this.cfg.i18n.needToken)
+        notifier.notify('error', this.cfg.i18n.needToken)
         return
       }
       this.busy.connect = true
       try {
-        const data = await this.api('POST', '/connection', { token: entered })
+        const data = await api.request('POST', '/connection', { token: entered })
         this.adoptSaved(data)
         this.token = ''
-        this.toast('success', this.cfg.i18n.connected)
+        notifier.notify('success', this.cfg.i18n.connected)
       } catch (e) {
         // A rejected token here is a fresh attempt, not a saved-token state — toast,
         // never the reconnect banner.
-        this.toastFailure(e)
+        notifier.notifyFailure(e)
       } finally {
         this.busy.connect = false
       }
@@ -271,16 +225,16 @@ export default function ploiCache() {
     async disconnect() {
       this.busy.disconnect = true
       try {
-        const data = await this.api('DELETE', '/connection')
+        const data = await api.request('DELETE', '/connection')
         this.adoptSaved(data)
         this.token = ''
         this.serverId = ''
         this.siteId = ''
         this.servers = []
         this.sites = []
-        this.toast('success', this.cfg.i18n.disconnected)
+        notifier.notify('success', this.cfg.i18n.disconnected)
       } catch (e) {
-        this.toastFailure(e)
+        notifier.notifyFailure(e)
       } finally {
         this.busy.disconnect = false
       }
@@ -293,13 +247,13 @@ export default function ploiCache() {
       }
       this.busy.sites = true
       try {
-        const data = await this.api('GET', `/servers/${encodeURIComponent(this.serverId)}/sites`)
+        const data = await api.request('GET', `/servers/${encodeURIComponent(this.serverId)}/sites`)
         this.sites = data.sites || []
       } catch (e) {
         // No stale options on failure; handleError raises the banner for a bad
         // token (401/403) or toasts a transient failure.
         this.sites = []
-        this.handleError(e)
+        handleError(e)
       } finally {
         this.busy.sites = false
       }
@@ -333,7 +287,7 @@ export default function ploiCache() {
     async saveTarget() {
       this.busy.target = true
       try {
-        const data = await this.api('POST', '/target', {
+        const data = await api.request('POST', '/target', {
           server_id: this.serverId,
           site_id: this.siteId,
           server_name: this.selectedServerName(),
@@ -342,11 +296,11 @@ export default function ploiCache() {
         this.adoptSaved(data)
         this.targetModalOpen = false
         // A decrypt-flake on save raises needsReconnect; let the page banner own it.
-        if (!this.needsReconnect) this.toast('success', this.cfg.i18n.targetSaved)
+        if (!this.needsReconnect) notifier.notify('success', this.cfg.i18n.targetSaved)
       } catch (e) {
         // Keep the modal open on a transient failure so the user can retry; a
         // token-unusable error (handled in handleError) closes it for the banner.
-        this.handleError(e)
+        handleError(e)
       } finally {
         this.busy.target = false
       }
@@ -357,12 +311,12 @@ export default function ploiCache() {
     async save() {
       this.busy.save = true
       try {
-        await this.api('POST', '/settings', {
+        await api.request('POST', '/settings', {
           events: this.enabled,
         })
-        this.toast('success', this.cfg.i18n.saved)
+        notifier.notify('success', this.cfg.i18n.saved)
       } catch (e) {
-        this.handleError(e)
+        handleError(e)
       } finally {
         this.busy.save = false
       }
@@ -371,12 +325,12 @@ export default function ploiCache() {
     async flushNow() {
       this.busy.flush = true
       try {
-        const data = await this.api('POST', '/flush', {})
+        const data = await api.request('POST', '/flush', {})
         // CONTRACT: FlushController always returns data.message on success, so no client fallback.
-        this.toast('success', data.message)
+        notifier.notify('success', data.message)
         await this.loadLog()
       } catch (e) {
-        this.handleError(e)
+        handleError(e)
       } finally {
         this.busy.flush = false
       }
@@ -385,10 +339,10 @@ export default function ploiCache() {
     async loadLog() {
       this.busy.log = true
       try {
-        const data = await this.api('GET', '/log')
+        const data = await api.request('GET', '/log')
         this.log = data.entries || []
       } catch (e) {
-        this.handleError(e)
+        handleError(e)
       } finally {
         this.busy.log = false
       }
