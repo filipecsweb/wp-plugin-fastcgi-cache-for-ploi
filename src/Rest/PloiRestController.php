@@ -19,7 +19,7 @@ use WP_Error;
 abstract class PloiRestController extends RestController
 {
     /**
-     * HTTP status for an upstream Ploi failure we can't map to a client status.
+     * 502 for Ploi failures with no client-mappable status.
      */
     protected const STATUS_UPSTREAM_FAILURE = 502;
 

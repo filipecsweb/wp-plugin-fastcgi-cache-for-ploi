@@ -84,9 +84,6 @@ final class FlushLogRepository
         return $entries;
     }
 
-    /**
-     * Keep only the newest $keep rows.
-     */
     public function prune(int $keep): void
     {
         /** @var \wpdb $wpdb */

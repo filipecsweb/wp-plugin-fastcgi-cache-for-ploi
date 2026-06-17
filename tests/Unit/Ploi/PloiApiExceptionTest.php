@@ -25,9 +25,7 @@ it('falls back to the transport error when there is no API message', function ()
 });
 
 it('falls back to a translated HTTP-status line when neither message nor error is present', function (): void {
-    // The narrow fallback CacheFlusher previously stored as a bare "HTTP %d"; it
-    // now shares PloiApiException's translated, more legible string. This is the
-    // one behaviour change in the dedup, so it is pinned here explicitly.
+    // Pins the one behaviour change in the dedup: fallback went from bare "HTTP %d" to the translated string.
     $response = new Response(502, '');
 
     expect(PloiApiException::messageFromResponse($response))->toBe('The Ploi API request failed (HTTP 502).');

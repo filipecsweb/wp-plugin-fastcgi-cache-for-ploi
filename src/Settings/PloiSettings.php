@@ -51,8 +51,6 @@ final class PloiSettings
         ];
     }
 
-    // --- Token -------------------------------------------------------------
-
     public function token(): ?string
     {
         if ($this->tokenLoaded) {
@@ -69,7 +67,7 @@ final class PloiSettings
         $plain = $this->crypto->decrypt($stored);
 
         if ($plain === null) {
-            // Undecryptable (likely rotated salts): clear + flag reconnect.
+            // Decrypt failure usually means rotated WP salts; recover by clearing + flagging reconnect.
             $this->options->forget(self::KEY_TOKEN);
             $this->options->set(self::KEY_RECONNECT, true);
 
@@ -131,8 +129,6 @@ final class PloiSettings
         $this->tokenPlain  = null;
     }
 
-    // --- Target ------------------------------------------------------------
-
     public function serverId(): string
     {
         return $this->options->getString(self::KEY_SERVER_ID, '');
@@ -179,8 +175,6 @@ final class PloiSettings
         ]);
     }
 
-    // --- Events ------------------------------------------------------------
-
     /**
      * @return array<string, bool>
      */
@@ -217,8 +211,6 @@ final class PloiSettings
         $this->options->set(self::KEY_EVENTS, $clean);
     }
 
-    // --- Debounce ----------------------------------------------------------
-
     public function debounce(): int
     {
         return $this->clampDebounce($this->options->getInt(self::KEY_DEBOUNCE, self::DEBOUNCE_DEFAULT));
@@ -234,10 +226,8 @@ final class PloiSettings
         return max(self::DEBOUNCE_MIN, min(self::DEBOUNCE_MAX, $seconds));
     }
 
-    // --- Readiness ---------------------------------------------------------
-
     /**
-     * Full readiness (decrypts the token): used by manual flush + the UI.
+     * Full readiness check; decrypts the token (not for hot paths).
      */
     public function isConfigured(): bool
     {
@@ -245,7 +235,7 @@ final class PloiSettings
     }
 
     /**
-     * Cheap readiness (no decryption): used by the per-request auto-flush gate.
+     * Hot-path readiness check; avoids decryption.
      */
     public function isReadyForAutoFlush(): bool
     {
@@ -256,8 +246,6 @@ final class PloiSettings
     }
 
     /**
-     * The shape consumed by the settings screen and the REST /settings route.
-     *
      * @return array<string, mixed>
      */
     public function toArray(): array

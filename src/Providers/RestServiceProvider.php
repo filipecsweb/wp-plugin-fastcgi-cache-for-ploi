@@ -17,9 +17,8 @@ use WPForge\Security\Capability;
 use WPForge\Security\Sanitizer;
 
 /**
- * Registers the REST controllers (all extend the Foundation RestController and
- * enforce nonce + capability via guard()). The base controller takes the REST
- * namespace as a constructor string, so each controller is bound explicitly.
+ * Controllers take the REST namespace as a constructor string, so each is bound
+ * explicitly (no autowire).
  */
 final class RestServiceProvider extends ServiceProvider
 {

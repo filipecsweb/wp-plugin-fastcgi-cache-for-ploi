@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 defined('ABSPATH') || exit;
 ?>
-<!-- Reconnect banner (decrypt failed) -->
 <div x-show="needsReconnect" class="notice notice-warning inline tw:m-0!">
     <p>
         <strong><?php echo esc_html__('Reconnect required.', 'fastcgi-cache-for-ploi'); ?></strong>
@@ -25,7 +24,6 @@ defined('ABSPATH') || exit;
     </p>
 </div>
 
-<!-- Key-source warning -->
 <div x-show="keyWarning" class="notice notice-info inline tw:m-0!">
     <p>
     <?php
@@ -37,7 +35,6 @@ defined('ABSPATH') || exit;
     </p>
 </div>
 
-<!-- Notice -->
 <template x-if="notice">
     <div
         class="notice inline is-dismissible tw:m-0!"

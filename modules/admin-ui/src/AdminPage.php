@@ -5,15 +5,8 @@ declare(strict_types=1);
 namespace WPForge\Module\AdminUi;
 
 /**
- * Reusable base for an admin screen.
- *
- * Placement is decided by parentSlug():
- *   - return null            => a top-level menu (add_menu_page)
- *   - return 'options-general.php' (etc.) => a submenu (add_submenu_page)
- *
- * So the SAME page class works as either a top-level menu or a submenu without
- * code changes. register() captures the resulting hook suffix so
- * assets can be scoped to exactly this screen.
+ * One subclass works as either top-level menu or submenu purely via
+ * parentSlug()'s return.
  */
 abstract class AdminPage
 {
@@ -32,16 +25,13 @@ abstract class AdminPage
         return 'manage_options';
     }
 
-    /**
-     * Parent menu slug for a submenu, or null for a top-level menu.
-     */
     protected function parentSlug(): ?string
     {
         return null;
     }
 
     /**
-     * Dashicon for a top-level menu (ignored for submenus).
+     * Silently ignored for submenus (add_submenu_page takes no icon).
      */
     protected function icon(): string
     {
@@ -95,8 +85,7 @@ abstract class AdminPage
     }
 
     /**
-     * The admin-page hook suffix (e.g. "settings_page_fastcgi-cache-for-ploi").
-     * Only populated after register() has run on the admin_menu hook.
+     * Empty until register() runs on admin_menu.
      */
     public function hookSuffix(): string
     {

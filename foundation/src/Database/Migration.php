@@ -7,10 +7,8 @@ namespace WPForge\Database;
 use wpdb;
 
 /**
- * A single, idempotent schema migration applied through dbDelta().
- *
- * version() must be a stable, unique identifier; the Migrator records it so the
- * migration runs exactly once.
+ * version() must be stable and unique: the Migrator keys off it to run each
+ * migration exactly once.
  */
 abstract class Migration
 {

@@ -64,7 +64,6 @@ final class CoreServiceProvider extends ServiceProvider
             static fn (): Migrator => new Migrator(OptionNames::migrations($prefix))
         );
 
-        // Autowired from the bindings above + Foundation primitives.
         $container->singleton(PloiSettings::class);
         $container->singleton(PloiClient::class);
         $container->singleton(FlushLogRepository::class);

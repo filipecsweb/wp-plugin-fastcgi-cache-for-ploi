@@ -77,8 +77,7 @@ it('disconnect deletes the token + target, resets reconnect, and keeps events + 
 
     $settings->disconnect();
 
-    // Token gone from storage (no decryption needed to tell), and the same on a
-    // fresh instance reading straight from the option row.
+    // hasStoredToken probes the raw option row, so it proves removal without decrypting.
     expect($settings->hasStoredToken())->toBeFalse()
         ->and($settings->token())->toBeNull()
         ->and($settings->hasToken())->toBeFalse()
@@ -93,12 +92,10 @@ it('disconnect deletes the token + target, resets reconnect, and keeps events + 
         ->and($settings->siteId())->toBe('')
         ->and($settings->siteDomain())->toBe('');
 
-    // Preferences preserved.
     expect($settings->isEventEnabled('post_save'))->toBeTrue()
         ->and($settings->isEventEnabled('menu'))->toBeTrue()
         ->and($settings->debounce())->toBe(12);
 
-    // The wire shape the UI re-syncs from reports a fully disconnected state.
     expect($settings->toArray())
         ->toMatchArray([
             'hasToken'       => false,

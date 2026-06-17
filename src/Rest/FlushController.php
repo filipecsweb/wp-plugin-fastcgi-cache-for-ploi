@@ -15,9 +15,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * Manual "Flush now". Flushes the SAVED target synchronously (no debounce) and
- * returns the resulting log entry. Refuses cleanly when not configured / when a
- * reconnect is required (concern 3 + 4).
+ * Flushes synchronously, bypassing the debounce that the event-driven path uses.
  */
 final class FlushController extends PloiRestController
 {

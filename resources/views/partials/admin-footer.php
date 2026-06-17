@@ -1,14 +1,6 @@
 <?php
 
 /**
- * Shared footer for the plugin's admin pages.
- *
- * Rendered full-width below all page content via SettingsPage::renderFooter(),
- * so it executes in the page object's scope ($this is the AdminPage). A subtle
- * top border separates it from the content; small muted text reuses the same
- * `tw:` tokens as the rest of the admin UI. Carries the plugin name + version
- * and the trademark/affiliation disclaimer required for wordpress.org.
- *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
 

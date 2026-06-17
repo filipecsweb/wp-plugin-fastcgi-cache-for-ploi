@@ -9,13 +9,8 @@ use WPForge\Contracts\ServiceProviderInterface;
 use WPForge\Hooks\HookRegistrar;
 
 /**
- * Base service provider.
- *
- * Subclasses bind services in register() and may attach hooks in boot().
- * Any class listed in $subscribers is resolved from the container during
- * boot() and scanned by the HookRegistrar for #[Action] / #[Filter]
- * attributes — this is how attribute-driven hooks get wired without manual
- * add_action() calls. Subclasses overriding boot() should call parent::boot().
+ * Subclasses overriding boot() MUST call parent::boot() or $subscribers'
+ * attribute hooks won't wire.
  */
 abstract class ServiceProvider implements ServiceProviderInterface
 {

@@ -7,9 +7,6 @@ namespace FastCgiCacheForPloi\Database\Migrations;
 use FastCgiCacheForPloi\Log\FlushLogRepository;
 use WPForge\Database\Migration;
 
-/**
- * Creates the flush-log table via the Foundation's dbDelta wrapper.
- */
 final class CreateFlushLogTable extends Migration
 {
     public function version(): string

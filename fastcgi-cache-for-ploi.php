@@ -69,14 +69,12 @@ defined('ABSPATH') || exit;
 
     $plugin = Plugin::create(__FILE__);
 
-    // Always-on services: core bindings, REST routes, and the flush/event engine.
     $plugin->withProviders([
         CoreServiceProvider::class,
         RestServiceProvider::class,
         FlushServiceProvider::class,
     ]);
 
-    // Admin settings screen — loads only in wp-admin.
     $plugin->withModule(new AdminUiModule([
         AdminServiceProvider::class,
     ]));

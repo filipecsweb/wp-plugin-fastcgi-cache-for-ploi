@@ -15,10 +15,6 @@ use WPForge\Plugin;
 use WPForge\Provider\ServiceProvider;
 use WPForge\Security\Nonce;
 
-/**
- * Registers the Settings → FastCGI Cache for Ploi screen and enqueues its bundle,
- * hydrating the Alpine app with the real saved settings and recent flush log.
- */
 final class AdminServiceProvider extends ServiceProvider
 {
     public function register(): void
@@ -112,8 +108,8 @@ final class AdminServiceProvider extends ServiceProvider
     }
 
     /**
-     * True when the encryption key falls back to DB-stored salts (no dedicated
-     * constant and no wp-config salt constants) — see docs/security.md.
+     * Key falls back to DB-stored salts when no dedicated/wp-config constant is
+     * set; see docs/security.md.
      */
     private function keyIsDatabaseDerived(): bool
     {

@@ -21,11 +21,7 @@ use WPForge\Security\Nonce;
 use WPForge\Security\Sanitizer;
 
 /**
- * The plugin kernel.
- *
- * Owns the container, exposes plugin metadata (read from the plugin header,
- * never hardcoded), pre-binds the Foundation primitives, and runs the
- * register() -> boot() service-provider lifecycle.
+ * Plugin metadata is read from the plugin header at runtime, never hardcoded.
  */
 final class Plugin
 {
@@ -100,17 +96,11 @@ final class Plugin
         return $domain !== '' ? $domain : sanitize_key(basename($this->file, '.php'));
     }
 
-    /**
-     * A snake_case slug suitable for option keys, cron hooks and transients.
-     */
     public function optionPrefix(): string
     {
         return str_replace('-', '_', $this->textDomain());
     }
 
-    /**
-     * Read a single plugin-header field via get_file_data().
-     */
     public function header(string $key, string $default = ''): string
     {
         if ($this->headers === null) {
@@ -169,8 +159,8 @@ final class Plugin
     }
 
     /**
-     * Register an opt-in module. Its providers are merged in at boot() only when
-     * the module reports it is enabled for the current request.
+     * Module providers are merged in at boot() only if isEnabled() is true for
+     * this request.
      */
     public function withModule(ModuleInterface $module): self
     {
@@ -203,7 +193,6 @@ final class Plugin
 
         $this->registerFoundation();
 
-        // Merge in providers from every enabled module before the lifecycle runs.
         foreach ($this->modules as $module) {
             if ($module->isEnabled($this->container)) {
                 $this->providers = array_values(array_merge($this->providers, $module->providers()));
@@ -238,9 +227,8 @@ final class Plugin
     }
 
     /**
-     * Bind the plugin-agnostic Foundation primitives. Plugin-specific
-     * primitives (Options, Migrator, SettingsRepository) are bound by the
-     * plugin's own service providers because they need plugin-specific names.
+     * Plugin-specific primitives (Options, Migrator, SettingsRepository) live in
+     * plugin providers because they need plugin-specific names.
      */
     private function registerFoundation(): void
     {

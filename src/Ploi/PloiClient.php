@@ -78,8 +78,6 @@ final class PloiClient
     }
 
     /**
-     * Map a Ploi "{ data: [...] }" collection to id + label rows.
-     *
      * @param array<mixed> $payload
      *
      * @return list<array<string, string>>

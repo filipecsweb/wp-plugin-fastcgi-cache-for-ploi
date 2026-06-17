@@ -9,11 +9,7 @@ use WPForge\Contracts\ModuleInterface;
 use WPForge\Contracts\ServiceProviderInterface;
 
 /**
- * The admin-ui module.
- *
- * Ships the reusable AdminPage / AdminAssets machinery and declares the
- * service providers that build admin screens. Loads only in the admin context,
- * so its menu/asset work never runs on front-end requests.
+ * Gated to is_admin() so menu/asset work never runs on front-end requests.
  */
 final class AdminUiModule implements ModuleInterface
 {

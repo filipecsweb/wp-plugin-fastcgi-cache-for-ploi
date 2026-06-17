@@ -11,9 +11,6 @@ use WPForge\Security\Capability;
 use WP_REST_Request;
 use WP_REST_Response;
 
-/**
- * GET /log — the most recent flush-log entries for the "Recent flushes" table.
- */
 final class LogController extends PloiRestController
 {
     public function __construct(

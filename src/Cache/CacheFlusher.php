@@ -12,10 +12,7 @@ use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Logging\LoggerInterface;
 
 /**
- * Performs a single flush: calls the Ploi API, times it, and records the result.
- *
- * If the plugin is not fully configured (no usable token / server / site) the
- * flush is a clean no-op — it logs a debug line and returns null, never errors.
+ * CONTRACT: returns null (no error) when token/server/site are unconfigured.
  */
 final class CacheFlusher
 {

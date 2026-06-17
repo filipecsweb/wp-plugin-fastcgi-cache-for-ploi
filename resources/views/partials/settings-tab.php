@@ -1,11 +1,8 @@
 <?php
 
 /**
- * "Settings" tab body: Connection, Target, the auto-flush events + coalesce
- * window. Each card carries its own "Save settings" button (shared save-button
- * partial); "Flush now" lives only in the Target card. Rendered inside the shared Alpine
- * `x-data="ploiCache"` root (see settings.php), so every binding below resolves
- * against that one component. The panel is shown via `activeTab`.
+ * Bindings below resolve against the ambient x-data="ploiCache" root
+ * (settings.php); this partial defines no x-data of its own.
  *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
@@ -15,7 +12,6 @@ declare(strict_types=1);
 defined('ABSPATH') || exit;
 ?>
 <div x-show="activeTab === '<?php echo esc_js($this::TAB_SETTINGS); ?>'" role="tabpanel" class="tw:flex tw:flex-col tw:gap-5">
-    <!-- Connection -->
     <section class="postbox tw:m-0!">
         <div class="postbox-header">
             <h2 class="hndle tw:m-0! tw:px-4 tw:py-3 tw:text-sm! tw:font-semibold"><?php echo esc_html__('Connection', 'fastcgi-cache-for-ploi'); ?></h2>
@@ -78,7 +74,6 @@ defined('ABSPATH') || exit;
                         ><?php echo esc_html__('Disconnect', 'fastcgi-cache-for-ploi'); ?></button>
                     </div>
 
-                    <!-- Inline destructive confirm (no native dialog) -->
                     <div x-show="confirmingDisconnect" class="notice notice-warning inline tw:m-0!" role="alert">
                         <p><?php echo esc_html__('Remove the saved token? Flushing will stop until you reconnect.', 'fastcgi-cache-for-ploi'); ?></p>
                         <p class="tw:flex tw:items-center tw:gap-2">
@@ -101,7 +96,6 @@ defined('ABSPATH') || exit;
         <?php $this->partial('save-button'); ?>
     </div>
 
-    <!-- Target server / site -->
     <section class="postbox tw:m-0!">
         <div class="postbox-header">
             <h2 class="hndle tw:m-0! tw:px-4 tw:py-3 tw:text-sm! tw:font-semibold"><?php echo esc_html__('Target', 'fastcgi-cache-for-ploi'); ?></h2>
@@ -161,7 +155,6 @@ defined('ABSPATH') || exit;
         <?php $this->partial('save-button'); ?>
     </div>
 
-    <!-- Auto-flush events -->
     <section class="postbox tw:m-0!">
         <div class="postbox-header">
             <h2 class="hndle tw:m-0! tw:px-4 tw:py-3 tw:text-sm! tw:font-semibold"><?php echo esc_html__('Flush automatically when…', 'fastcgi-cache-for-ploi'); ?></h2>

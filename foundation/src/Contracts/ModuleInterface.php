@@ -21,7 +21,7 @@ use WPForge\Container\Container;
 interface ModuleInterface
 {
     /**
-     * A unique, stable module slug (e.g. "admin-ui").
+     * Must be unique and stable across releases (used as a persisted key).
      */
     public function name(): string;
 
@@ -32,8 +32,5 @@ interface ModuleInterface
      */
     public function providers(): array;
 
-    /**
-     * Whether the module should load for the current request/context.
-     */
     public function isEnabled(Container $container): bool;
 }

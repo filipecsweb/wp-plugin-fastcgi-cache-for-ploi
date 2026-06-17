@@ -1,18 +1,8 @@
 <?php
 
 /**
- * Settings → FastCGI Cache for Ploi screen.
- *
- * Server-rendered shell. Dynamic state is hydrated from window.PloiCacheConfig
- * and driven by the `ploiCache` Alpine component. Chrome reuses WordPress's own
- * admin classes so it blends into wp-admin: cards are `.postbox`/`.inside`,
- * alerts are `.notice` variants, the log is a `.wp-list-table`, and inputs use
- * `.large-text`/`.small-text`. The `.inline` on each notice is REQUIRED: wp-admin's
- * common.js hoists every `.notice:not(.inline)` out to just below the page <h1>,
- * which would yank our Alpine-bound banners out of the `x-data` scope. `tw:`-prefixed
- * utilities handle only layout/spacing on our own elements. Where a `.notice`/
- * `.postbox` margin fights our flex-gap layout, the v4 important variant wins
- * surgically (e.g. tw:m-0!), so the flex `gap` is the single source of spacing.
+ * GOTCHA: each notice MUST keep .inline — wp-admin common.js hoists
+ * .notice:not(.inline) below the <h1>, out of the Alpine x-data scope.
  *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */

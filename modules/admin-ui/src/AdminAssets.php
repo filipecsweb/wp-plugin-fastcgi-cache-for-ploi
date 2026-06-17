@@ -21,8 +21,6 @@ final class AdminAssets
     }
 
     /**
-     * Enqueue the entry ONLY when the current admin screen matches the page.
-     *
      * @param array<string, mixed> $localize Data exposed to JS as a global object.
      */
     public function enqueueOnScreen(

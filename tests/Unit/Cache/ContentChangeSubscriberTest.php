@@ -93,7 +93,7 @@ it('does not schedule when the toggle is off (gated)', function (): void {
 
 it('does not schedule (silent no-op) when no target is configured', function (): void {
     $settings = ccs_make_settings();
-    $settings->setEvents(['theme' => true]); // enabled, but no token/server/site
+    $settings->setEvents(['theme' => true]);
 
     (new ContentChangeSubscriber($settings, ccs_make_scheduler($settings)))->onSwitchTheme();
 

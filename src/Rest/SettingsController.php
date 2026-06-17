@@ -14,14 +14,8 @@ use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * Read + persist the plugin settings.
- *
- * POST /settings persists target + events + debounce, and (re)saves the token if
- * a new one is supplied. The debounce value is clamped server-side (concern 6);
- * the token is never echoed back (concern 2) — only hasToken is reported. When a
- * NEW token is saved, the just-saved target is re-validated against it (the
- * "Test token" route is read-only and no longer does this), clearing a target
- * the new token can't use so Flush can't fire at a stale, cross-account site.
+ * Saving a new token re-validates the saved target against it and clears it on
+ * mismatch, so Flush can't fire at a stale cross-account site.
  */
 final class SettingsController extends PloiRestController
 {

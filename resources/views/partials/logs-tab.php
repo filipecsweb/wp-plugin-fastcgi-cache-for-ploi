@@ -1,10 +1,8 @@
 <?php
 
 /**
- * "Logs" tab body: the recent-flushes table and its Refresh button. Rendered
- * inside the shared Alpine `x-data="ploiCache"` root (see settings.php), so it
- * stays bound to the same `log` state — a "Flush now" on the Settings tab updates
- * this table live even while hidden. The panel is shown via `activeTab`.
+ * GOTCHA: shares the ploiCache root's `log` state, so a Settings-tab flush
+ * updates this table even while hidden.
  *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
@@ -14,7 +12,6 @@ declare(strict_types=1);
 defined('ABSPATH') || exit;
 ?>
 <div x-show="activeTab === '<?php echo esc_js($this::TAB_LOGS); ?>'" role="tabpanel" class="tw:flex tw:flex-col tw:gap-5">
-    <!-- Recent flushes -->
     <section class="postbox tw:m-0!">
         <div class="postbox-header">
             <h2 class="hndle tw:m-0! tw:px-4 tw:py-3 tw:text-sm! tw:font-semibold"><?php echo esc_html__('Recent flushes', 'fastcgi-cache-for-ploi'); ?></h2>

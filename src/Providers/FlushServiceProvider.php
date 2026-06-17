@@ -9,9 +9,8 @@ use FastCgiCacheForPloi\Events\ContentChangeSubscriber;
 use WPForge\Provider\ServiceProvider;
 
 /**
- * Wires the content-change subscriber (its #[Action] hooks are registered by the
- * base provider via $subscribers) and the cron callback that runs the coalesced
- * flush.
+ * Cron callback can't be an #[Action], so it's wired manually here unlike the
+ * $subscribers hooks.
  */
 final class FlushServiceProvider extends ServiceProvider
 {

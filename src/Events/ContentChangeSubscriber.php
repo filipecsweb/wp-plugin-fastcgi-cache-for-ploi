@@ -27,8 +27,6 @@ final class ContentChangeSubscriber
     ) {
     }
 
-    // --- post_save toggle --------------------------------------------------
-
     #[Action('save_post', priority: 10, acceptedArgs: 3)]
     public function onSavePost(int $postId, WP_Post $post, bool $update): void
     {
@@ -62,8 +60,6 @@ final class ContentChangeSubscriber
         $this->trigger(FlushReason::PostSave);
     }
 
-    // --- post_delete toggle ------------------------------------------------
-
     #[Action('deleted_post', priority: 10, acceptedArgs: 2)]
     public function onDeletedPost(int $postId, WP_Post $post): void
     {
@@ -73,8 +69,6 @@ final class ContentChangeSubscriber
 
         $this->trigger(FlushReason::PostDelete);
     }
-
-    // --- comment toggle ----------------------------------------------------
 
     #[Action('comment_post', priority: 10, acceptedArgs: 2)]
     public function onNewComment(int $commentId, int|string $approved): void
@@ -99,8 +93,6 @@ final class ContentChangeSubscriber
         $this->trigger(FlushReason::Comment);
     }
 
-    // --- theme / customizer / menu toggles ---------------------------------
-
     #[Action('switch_theme', priority: 10, acceptedArgs: 0)]
     public function onSwitchTheme(): void
     {
@@ -118,8 +110,6 @@ final class ContentChangeSubscriber
     {
         $this->trigger(FlushReason::Menu);
     }
-
-    // --- gate --------------------------------------------------------------
 
     private function trigger(FlushReason $reason): void
     {

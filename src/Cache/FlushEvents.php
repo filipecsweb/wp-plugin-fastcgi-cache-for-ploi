@@ -5,21 +5,13 @@ declare(strict_types=1);
 namespace FastCgiCacheForPloi\Cache;
 
 /**
- * The content-change events that can trigger a cache flush, as the settings UI
- * sees them: key + label + description + default-enabled flag.
- *
- * The event KEYS and LABELS are owned by FlushReason (the canonical enum);
- * FlushEvents derives them via FlushReason::autoCases()/label() so the two can
- * never drift. FlushEvents itself owns only the per-event description text and
- * the default-enabled flag. keys()/defaults() are translation-free so they are
- * safe before the init action (e.g. building option defaults during
- * plugins_loaded); all() and description() call __() and must only run at/after
- * init.
+ * GOTCHA: keys()/defaults() are __()-free (safe pre-init); all()/description()
+ * call __() and require init.
  */
 final class FlushEvents
 {
     /**
-     * The event keys (= the FlushReason auto-case values). Translation-free.
+     * i18n: __()-free, safe before init.
      *
      * @return list<string>
      */
@@ -29,8 +21,7 @@ final class FlushEvents
     }
 
     /**
-     * Default enabled-state map (key => bool); every event defaults to enabled.
-     * Translation-free.
+     * i18n: __()-free, safe before init.
      *
      * @return array<string, bool>
      */
@@ -40,9 +31,7 @@ final class FlushEvents
     }
 
     /**
-     * The labelled list for the settings UI. Reads keys + labels from FlushReason
-     * and adds this plugin's per-event descriptions. Calls __(), so only safe
-     * at/after init.
+     * i18n: calls __(), only safe at/after init.
      *
      * @return list<array{key: string, label: string, description: string, default: bool}>
      */
@@ -63,8 +52,7 @@ final class FlushEvents
     }
 
     /**
-     * The settings-UI description for an event. Calls __(), so only safe at/after
-     * init. Manual has no toggle and therefore no description.
+     * i18n: calls __(), only safe at/after init; Manual has no toggle so returns ''.
      */
     private static function description(FlushReason $reason): string
     {

@@ -10,12 +10,8 @@ use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * Base REST controller.
- *
- * Concrete controllers implement registerRoutes() and use guard() as their
- * permission_callback. guard() enforces BOTH a valid 'wp_rest' nonce (sent by
- * the admin UI as the X-WP-Nonce header) and a capability check — so every
- * admin AJAX route gets nonce + capability protection in one place.
+ * guard() expects the 'wp_rest' nonce in the X-WP-Nonce header (how the admin
+ * UI sends it).
  */
 abstract class RestController
 {
@@ -25,9 +21,6 @@ abstract class RestController
     ) {
     }
 
-    /**
-     * Attach this controller's routes to the REST API.
-     */
     public function hook(): void
     {
         add_action('rest_api_init', [$this, 'registerRoutes']);

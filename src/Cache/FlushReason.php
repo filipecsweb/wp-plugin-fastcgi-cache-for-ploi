@@ -21,9 +21,8 @@ enum FlushReason: string
     case Manual     = 'manual';
 
     /**
-     * The content-change cases that map to a FlushEvents toggle — every case
-     * except Manual. The canonical list FlushEvents reads from, so the event
-     * keys can never drift from the enum.
+     * Canonical event-key source FlushEvents reads from, so keys can't drift from
+     * the enum.
      *
      * @return list<self>
      */

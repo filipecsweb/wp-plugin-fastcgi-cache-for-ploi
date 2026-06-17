@@ -1,17 +1,8 @@
 import { test as base, expect } from '@playwright/test'
 import { E2E_SUBSCRIBER, wp, wpAvailable, wpTry } from './wp-cli.js'
 
-/**
- * The single shared e2e setup. Every spec does `import { test, expect } from
- * './fixtures.js'` instead of '@playwright/test', so login, the REST client, and
- * state reset are defined ONCE here — no per-file plumbing, no drift.
- *
- * Fixtures:
- *   admin       — a logged-in admin sitting on the settings screen.
- *   rest        — a nonce-bound REST client for the admin page; auto-resets the
- *                 saved connection after each test so the next starts clean.
- *   subscriber  — a logged-in non-admin (created via WP-CLI by global-setup).
- */
+// Shared test base: defines login/REST/state-reset once so specs can't drift;
+// rest fixture auto-resets connection per test.
 
 const WP_PREFIX = process.env.WP_PATH_PREFIX || ''
 const ADMIN = { login: process.env.WP_ADMIN_USER || 'admin', pass: process.env.WP_ADMIN_PASS || 'password' }
@@ -27,11 +18,6 @@ async function loginAs(page, { login, pass }) {
   await expect(page).toHaveURL(/wp-admin/)
 }
 
-/**
- * REST client bound to the page's localized restUrl + wp_rest nonce, carrying the
- * page's session cookies (page.request). The one place tests hit the plugin REST
- * API or seed/reset connection state.
- */
 export class RestClient {
   constructor(page, restUrl, nonce) {
     this.page = page

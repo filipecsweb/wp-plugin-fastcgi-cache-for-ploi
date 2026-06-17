@@ -7,10 +7,7 @@ namespace WPForge\Hooks;
 use Attribute;
 
 /**
- * Declares that the target method should be registered with add_filter().
- *
- * Repeatable, so one method can bind to several filters. The method must
- * return the (possibly modified) filtered value.
+ * CONTRACT: the target method must return the (possibly modified) filtered value.
  */
 #[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 final class Filter

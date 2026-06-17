@@ -8,9 +8,6 @@ use FastCgiCacheForPloi\Cache\FlushScheduler;
 use FastCgiCacheForPloi\Log\FlushLogRepository;
 use FastCgiCacheForPloi\Settings\OptionNames;
 
-/**
- * Uninstall handler. Drops the custom table and removes all plugin data.
- */
 final class Uninstaller
 {
     public static function uninstall(string $optionPrefix): void

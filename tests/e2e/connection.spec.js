@@ -22,8 +22,7 @@ const siteSelect = (admin) => admin.locator('.ploi-cache-admin select').nth(1)
 // call the same save()), so target the first to stay unambiguous.
 const saveButton = (admin) => admin.getByRole('button', { name: 'Save settings' }).first()
 
-// Save the good token, then pick its first server + first site, then save again —
-// the two-step flow the validate-only split produces. Leaves a flushable config.
+// validate-only split forces a two-step save (token, then target) before config is flushable.
 async function configureWithGoodToken(admin) {
   await tokenInput(admin).fill(GOOD_TOKEN)
   await saveButton(admin).click()
@@ -59,7 +58,6 @@ test.describe('Test token — validate only, never saves (§2)', () => {
     await admin.getByRole('button', { name: 'Test token' }).click()
 
     await expect(admin.locator('.ploi-cache-admin .notice-success')).toContainText(/works and has the required permissions/i)
-    // Validate-only: nothing persisted, dropdown not loaded, field kept for Save.
     await expect(admin.locator('.ploi-cache-admin')).toContainText('No token saved yet.')
     await expect(serverSelect(admin)).toBeDisabled()
     await expect(tokenInput(admin)).toHaveValue(GOOD_TOKEN)
@@ -153,8 +151,7 @@ test.describe('Save persists the token and the UI reacts without reload (§2/§3
   test('saving a no-permission token reports a missing permission (§3)', async ({ admin, rest }) => {
     test.skip(!NO_SCOPE_TOKEN, 'needs PLOI_API_TOKEN_BAD_NO_SCOPE_AT_ALL')
 
-    // No target selected — the token alone saves, then the live check finds no
-    // usable scope: amber badge + a missing-permission notice (never "rejected").
+    // No-scope token still saves; the live check reports a missing permission, never "rejected" (that's 401).
     await tokenInput(admin).fill(NO_SCOPE_TOKEN)
     await saveButton(admin).click()
 
@@ -211,7 +208,6 @@ test.describe('Disconnect — remove the saved token (§11b)', () => {
     await expect(admin.locator('.ploi-cache-admin')).toContainText('No token saved yet.')
     await expect(admin.getByRole('button', { name: 'Flush now' })).toBeDisabled()
 
-    // Gone from storage (not just the UI), target cleared, raw token absent.
     const after = await rest.settings()
     expect(after.hasToken).toBe(false)
     expect(after.needsReconnect).toBe(false)

@@ -1,11 +1,8 @@
 <?php
 
 /**
- * The "Save settings" button, rendered at the bottom of each Settings-tab card.
- * Every instance calls the same `save()` on the shared `ploiCache` Alpine root
- * (see settings.php), so it persists ALL settings in one REST call regardless of
- * which card it sits under. Defined once here to keep its classes/bindings a
- * single source of truth.
+ * Every instance calls the shared ploiCache save(), persisting ALL settings in
+ * one REST call regardless of which card it sits under.
  *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */

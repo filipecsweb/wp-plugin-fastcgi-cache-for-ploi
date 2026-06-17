@@ -33,7 +33,6 @@ export default function ploiCache() {
     // and kept in sync with it (see init), so refresh + shared links are stable.
     activeTab: initialTab(cfg),
 
-    // Editable working copy.
     token: '',
     serverId: s.serverId || '',
     siteId: s.siteId || '',
@@ -45,7 +44,8 @@ export default function ploiCache() {
     servers: savedOption(s.serverId, 'name', s.serverName),
     sites: savedOption(s.siteId, 'domain', s.siteDomain),
 
-    // Saved snapshot (what flushing uses).
+    // WHY: separate from the working copy because flushing reads the persisted
+    // snapshot, not edits in progress.
     saved: {
       hasToken: !!s.hasToken,
       serverId: s.serverId || '',
@@ -82,7 +82,6 @@ export default function ploiCache() {
       })
     },
 
-    // --- derived state ---
     get hasToken() {
       return this.saved.hasToken
     },
@@ -114,7 +113,6 @@ export default function ploiCache() {
       )
     },
 
-    // --- notices ---
     setNotice(type, text) {
       this.notice = { type, text }
     },
@@ -199,7 +197,6 @@ export default function ploiCache() {
       }
     },
 
-    // --- REST ---
     async api(method, path, body) {
       const res = await fetch(`${this.cfg.restUrl}${path}`, {
         method,
@@ -224,7 +221,6 @@ export default function ploiCache() {
       return data
     },
 
-    // --- actions ---
     // Validate ONLY — never persists the token and never loads the dropdowns.
     // An empty field re-checks the saved token (POST {}); the server tailors the
     // success message. Saving (below) is what actually stores the token.
@@ -246,7 +242,6 @@ export default function ploiCache() {
       }
     },
 
-    // Two-step destructive confirm for removing the saved token.
     askDisconnect() {
       this.confirmingDisconnect = true
     },
@@ -376,7 +371,7 @@ export default function ploiCache() {
       this.notice = null
       try {
         const data = await this.api('POST', '/flush', {})
-        // FlushController always returns a success message; no client fallback.
+        // CONTRACT: FlushController always returns data.message on success, so no client fallback.
         this.setNotice('success', data.message)
         await this.loadLog()
       } catch (e) {

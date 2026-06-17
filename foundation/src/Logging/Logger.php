@@ -7,10 +7,8 @@ namespace WPForge\Logging;
 use Stringable;
 
 /**
- * Lightweight logger that writes interpolated lines to the PHP error log.
- *
- * Honours a minimum level so production noise can be tuned. Context values are
- * interpolated into {placeholders} PSR-3 style.
+ * minLevel gates output so production noise can be tuned; context is
+ * interpolated PSR-3 {placeholder} style.
  */
 final class Logger implements LoggerInterface
 {

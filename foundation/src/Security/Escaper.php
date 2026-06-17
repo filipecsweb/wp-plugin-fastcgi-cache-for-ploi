@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace WPForge\Security;
 
-/**
- * Output escaping wrappers.
- */
 final class Escaper
 {
     public function html(string $value): string

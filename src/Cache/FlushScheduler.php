@@ -45,9 +45,6 @@ final class FlushScheduler
         }
     }
 
-    /**
-     * Cron callback: run the coalesced flush once.
-     */
     public function runScheduled(): void
     {
         $stored = get_transient(self::LOCK);

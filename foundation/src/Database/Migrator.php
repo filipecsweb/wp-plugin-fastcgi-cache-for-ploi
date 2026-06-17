@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace WPForge\Database;
 
-/**
- * Runs migrations once and tracks applied versions in a dedicated option.
- */
 final class Migrator
 {
     public function __construct(private readonly string $versionsOption)

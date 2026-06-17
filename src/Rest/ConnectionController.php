@@ -14,19 +14,8 @@ use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * Connection + resource listing routes.
- *
- * POST   /connection/test     validate a token (provided or saved) — read-only.
- *                             (Concern 2: persistence happens on Save, not here.)
- * GET    /connection          live status of the SAVED connection: probe both
- *                             required scopes and report a state the settings
- *                             badge reacts to (on load + after Save). Returns the
- *                             servers (+ saved server's sites) so the dropdowns
- *                             hydrate without a second round-trip.
- * DELETE /connection          disconnect: delete the saved token + target and
- *                             reset the reconnect flag. (Inverse of token save;
- *                             event toggles + debounce are preserved.)
- * GET    /servers/{server}/sites list a server's sites
+ * test() validates without persisting; persistence and dropdown hydration happen
+ * on Save (Concern 2).
  */
 final class ConnectionController extends PloiRestController
 {
@@ -156,9 +145,8 @@ final class ConnectionController extends PloiRestController
     }
 
     /**
-     * Disconnect: delete the saved token + target (idempotent). Returns the fresh
-     * settings snapshot so the client re-syncs to the empty state, exactly like a
-     * save. Goes through the same guard() (nonce + manage_options) as every route.
+     * Returns the post-disconnect settings snapshot so the client re-syncs like a
+     * save.
      */
     public function disconnect(WP_REST_Request $request): WP_REST_Response
     {
@@ -234,9 +222,8 @@ final class ConnectionController extends PloiRestController
     }
 
     /**
-     * Resolve the saved token (or bail to the reconnect error) and run $fn with
-     * it inside the shared Ploi-error handler. The single home for the
-     * null-token -> reconnect gate and the PloiApiException -> error mapping.
+     * Shared null-token -> reconnect gate + PloiApiException mapping for the
+     * saved-token routes.
      *
      * @param callable(string): WP_REST_Response $fn
      */
@@ -261,9 +248,8 @@ final class ConnectionController extends PloiRestController
     }
 
     /**
-     * Map a Ploi failure to the saved-connection health state: 401 is an invalid
-     * token, 403 is a valid token missing a required scope, anything else (5xx,
-     * network blip) is "couldn't verify" — never reported as invalid.
+     * Non-auth failures (5xx, network) map to UNKNOWN, never INVALID — don't tell
+     * users to re-enter a good token.
      */
     private function stateFor(PloiApiException $exception): string
     {

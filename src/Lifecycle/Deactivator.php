@@ -6,9 +6,6 @@ namespace FastCgiCacheForPloi\Lifecycle;
 
 use FastCgiCacheForPloi\Cache\FlushScheduler;
 
-/**
- * Deactivation handler: clear any pending coalesced flush.
- */
 final class Deactivator
 {
     public static function deactivate(): void

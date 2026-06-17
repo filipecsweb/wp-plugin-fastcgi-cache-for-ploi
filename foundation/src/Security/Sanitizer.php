@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace WPForge\Security;
 
-/**
- * Input sanitisation wrappers.
- */
 final class Sanitizer
 {
     public function text(string $value): string

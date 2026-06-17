@@ -1,9 +1,5 @@
 import { test, expect } from './fixtures.js'
 
-// UI of the settings screen: shell, event toggles, the coalesce window, saving +
-// persistence, and the native-styling smoke test. Connection/disconnect lives in
-// connection.spec.js; permissions in security.spec.js; auto-flush in autoflush.spec.js.
-
 test.describe('Settings screen — unconfigured', () => {
   test('renders the live Alpine shell (§1)', async ({ admin }) => {
     await expect(admin.getByRole('heading', { name: 'FastCGI Cache for Ploi' })).toBeVisible()
@@ -49,19 +45,17 @@ test.describe('Settings screen — saving (§6)', () => {
     const root = admin.locator('.ploi-cache-admin')
 
     await root.getByRole('button', { name: 'Disable all' }).click()
-    await admin.locator('.ploi-cache-admin input[type="checkbox"]').first().check() // post_save
+    await admin.locator('.ploi-cache-admin input[type="checkbox"]').first().check() // first checkbox is post_save (event order is fixed by localized config)
     const debounce = admin.locator('#ploi-debounce')
     await debounce.fill('0')
     await debounce.blur()
     await admin.getByRole('button', { name: /Save settings/i }).click()
     await expect(root).toContainText('Settings saved.')
 
-    // Persisted server-side…
     const saved = await rest.settings()
     expect(saved.debounce).toBe(0)
     expect(saved.enabledEvents.post_save).toBe(true)
 
-    // …and survives a full reload.
     await admin.reload()
     await expect(admin.locator('#ploi-debounce')).toHaveValue('0')
     await expect(admin.locator('.ploi-cache-admin input[type="checkbox"]').first()).toBeChecked()
@@ -92,22 +86,18 @@ test.describe('Settings screen — tabs', () => {
     const recentFlushes = admin.getByRole('heading', { name: 'Recent flushes' })
     const tokenField = root.locator('input[type="password"]')
 
-    // Settings is active by default: its content shows, the Logs content is hidden.
     await expect(tokenField).toBeVisible()
     await expect(recentFlushes).toBeHidden()
 
-    // Switch to Logs: its content shows, Settings hides, and the hash reflects it.
     await admin.getByRole('tab', { name: 'Logs' }).click()
     await expect(recentFlushes).toBeVisible()
     await expect(tokenField).toBeHidden()
     await expect(admin).toHaveURL(/#logs$/)
 
-    // The active tab survives a full reload (read back from the hash).
     await admin.reload()
     await expect(admin.getByRole('heading', { name: 'Recent flushes' })).toBeVisible()
     await expect(admin.locator('.ploi-cache-admin input[type="password"]')).toBeHidden()
 
-    // Back to Settings.
     await admin.getByRole('tab', { name: 'Settings' }).click()
     await expect(admin.locator('.ploi-cache-admin input[type="password"]')).toBeVisible()
     await expect(admin).toHaveURL(/#settings$/)
@@ -123,7 +113,6 @@ test.describe('Settings screen — tabs', () => {
     await admin.getByRole('button', { name: /Save settings/i }).click()
     await expect(root).toContainText('Settings saved.')
 
-    // Still on Settings: its content is visible and the tab is marked active.
     await expect(debounce).toBeVisible()
     await expect(admin.getByRole('tab', { name: 'Settings' })).toHaveClass(/nav-tab-active/)
   })

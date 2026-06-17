@@ -9,8 +9,7 @@ use FastCgiCacheForPloi\Settings\OptionNames;
 use WPForge\Database\Migrator;
 
 /**
- * Activation handler. Self-contained (no container) because activation runs
- * before the plugin's providers boot.
+ * No container: activation fires before the plugin's providers boot.
  */
 final class Activator
 {

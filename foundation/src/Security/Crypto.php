@@ -36,11 +36,8 @@ final class Crypto
     }
 
     /**
-     * Encrypt a plaintext string.
-     *
-     * Note: $plaintext is received by value, so sodium_memzero() scrubs only
-     * this transient copy. Callers own the lifetime of their own secret (and of
-     * any WordPress option cache holding it); Crypto cannot wipe those.
+     * sodium_memzero scrubs only this by-value copy; callers own their secret's
+     * (and the option cache's) lifetime.
      */
     public function encrypt(string $plaintext): string
     {

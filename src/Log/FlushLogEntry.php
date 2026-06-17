@@ -7,10 +7,7 @@ namespace FastCgiCacheForPloi\Log;
 use FastCgiCacheForPloi\Cache\FlushReason;
 
 /**
- * One row of the flush log.
- *
- * Locked column shape: timestamp, trigger (event key or "manual"), server, site,
- * status, HTTP code, duration, and an optional message.
+ * Column order is locked: it backs the on-disk table schema.
  */
 final class FlushLogEntry
 {

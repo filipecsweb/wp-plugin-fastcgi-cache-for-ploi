@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace WPForge\Security;
 
-/**
- * Wrappers around the WordPress nonce functions.
- */
 final class Nonce
 {
     public function create(string $action): string

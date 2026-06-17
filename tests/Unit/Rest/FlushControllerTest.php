@@ -14,12 +14,7 @@ beforeEach(function (): void {
     Functions\when('__')->returnArg(1);
 });
 
-/**
- * failureNotice() is private and touches no instance state, so we drive it directly
- * via reflection on a constructor-less instance. The point of these tests is the seam
- * the change is about: the immediate "Flush now" banner must derive its wording from
- * the single-source FlushLogEntry::failureHint(), never from an inline copy.
- */
+// Private and stateless, so reflection on a constructor-less instance is safe.
 function invokeFailureNotice(int $httpCode, ?string $raw): string
 {
     $controller = (new ReflectionClass(FlushController::class))->newInstanceWithoutConstructor();
@@ -33,9 +28,9 @@ it('composes the banner from the single-source hint plus the raw Ploi message', 
     $notice = invokeFailureNotice(422, 'The given data was invalid.');
 
     expect($notice)
-        ->toContain(FlushLogEntry::failureHint(422)) // pulled from the shared source
-        ->toContain('The given data was invalid.')   // raw Ploi message still appended
-        ->not->toContain('At the time');             // proves the reworded source is what renders
+        ->toContain(FlushLogEntry::failureHint(422))
+        ->toContain('The given data was invalid.')
+        ->not->toContain('At the time'); // proves the reworded source is what renders
 });
 
 it('shows the bare hint when Ploi returns no raw message', function (): void {

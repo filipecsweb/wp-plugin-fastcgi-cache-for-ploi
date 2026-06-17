@@ -30,7 +30,7 @@ function siteRoot() {
 
 let available = null
 
-/** True if WP-CLI is installed and can bootstrap the site. Cached per process. */
+/** Result is cached per process after the first probe. */
 export function wpAvailable() {
   if (available !== null) return available
   const root = siteRoot()
@@ -44,7 +44,6 @@ export function wpAvailable() {
   return available
 }
 
-/** Run a WP-CLI command against the site; returns trimmed stdout. Throws on failure. */
 export function wp(args) {
   const root = siteRoot()
   if (!root) {
