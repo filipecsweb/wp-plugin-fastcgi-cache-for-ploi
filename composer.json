@@ -1,5 +1,5 @@
 {
-    "name": "filipeseabra/fastcgi-cache-for-ploi",
+    "name": "filipecsweb/fastcgi-cache-for-ploi",
     "description": "Automatically flush a Ploi-managed site's FastCGI cache when content changes. Built on the WPForge plugin Foundation.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
