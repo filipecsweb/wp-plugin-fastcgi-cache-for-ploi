@@ -45,9 +45,10 @@ export default function ploiCache() {
       siteId: s.siteId || '',
       siteDomain: s.siteDomain || '',
     },
-    needsReconnect: !!s.needsReconnect,
-    // Why the saved token is unusable, selecting the reconnect banner's copy.
-    // Seeded from PHP only for the decrypt-failure case; runtime probes set the rest.
+    // Why the saved token is unusable, selecting the reconnect banner's copy AND
+    // (via the needsReconnect getter) whether the banner shows at all — single
+    // source. Seeded from PHP only for the decrypt-failure case; runtime probes set
+    // the rest.
     reconnectReason: s.needsReconnect ? 'unreadable' : '',
     keyWarning: !!cfg.keyWarning,
 
@@ -73,6 +74,11 @@ export default function ploiCache() {
 
     get hasToken() {
       return this.saved.hasToken
+    },
+    // The saved token is unusable until reconnected; derived from the reason so the
+    // two never drift.
+    get needsReconnect() {
+      return !!this.reconnectReason
     },
     get canFlush() {
       return this.saved.hasToken && !!this.saved.serverId && !!this.saved.siteId && !this.needsReconnect
@@ -101,7 +107,6 @@ export default function ploiCache() {
     // persistent banner with reason-specific copy and dismisses any open modal.
     requireReconnect(reason) {
       this.reconnectReason = reason
-      this.needsReconnect = true
       this.saved.hasToken = false
       this.targetModalOpen = false
     },
@@ -147,7 +152,6 @@ export default function ploiCache() {
         siteId: data.siteId || '',
         siteDomain: data.siteDomain || '',
       }
-      this.needsReconnect = !!data.needsReconnect
       this.reconnectReason = data.needsReconnect ? 'unreadable' : ''
     },
 
@@ -318,16 +322,12 @@ export default function ploiCache() {
       }
     },
 
-    // Persist the event toggles + debounce window. The token (connect) and the
-    // flush target (saveTarget) own their own state, so this preserves them.
+    // Persist ONLY the event toggles + debounce. The token (/connection) and the
+    // flush target (/target) each own their own state and route.
     async save() {
       this.busy.save = true
       try {
         await this.api('POST', '/settings', {
-          server_id: this.saved.serverId,
-          site_id: this.saved.siteId,
-          server_name: this.saved.serverName,
-          site_domain: this.saved.siteDomain,
           events: this.enabled,
           debounce: Number(this.debounce),
         })
@@ -363,12 +363,6 @@ export default function ploiCache() {
       } finally {
         this.busy.log = false
       }
-    },
-
-    setAllEvents(value) {
-      this.events.forEach((event) => {
-        this.enabled[event.key] = value
-      })
     },
   }
 }

@@ -13,23 +13,18 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
-/**
- * test() validates without persisting; persistence and dropdown hydration happen
- * on Save.
- */
 final class ConnectionController extends PloiRestController
 {
     /**
-     * Saved-connection health states. These string values are a contract with the
-     * admin JS: invalid/missing_permission route to the persistent reconnect banner
-     * (requireReconnect) and anything else to a transient toast, so they must stay
-     * in lockstep.
+     * Saved-connection health states, a contract with the admin JS: invalid and
+     * missing_permission route to the persistent reconnect banner (requireReconnect);
+     * ok and unknown (any other non-auth failure, or no saved token) go to a transient
+     * toast, so they must stay in lockstep.
      */
     private const STATE_OK                 = 'ok';
     private const STATE_INVALID            = 'invalid';
     private const STATE_MISSING_PERMISSION = 'missing_permission';
     private const STATE_UNKNOWN            = 'unknown';
-    private const STATE_ABSENT             = 'absent';
 
     public function __construct(
         string $namespace,
@@ -42,15 +37,6 @@ final class ConnectionController extends PloiRestController
 
     public function registerRoutes(): void
     {
-        $this->registerRoute('/connection/test', [
-            'methods'             => 'POST',
-            'callback'            => [$this, 'test'],
-            'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
-            'args'                => [
-                'token' => ['type' => 'string', 'required' => false],
-            ],
-        ]);
-
         $this->registerRoute('/connection', [
             [
                 'methods'             => 'GET',
@@ -83,46 +69,6 @@ final class ConnectionController extends PloiRestController
     }
 
     /**
-     * Validate a token — read-only. NEVER persists the token and never loads the
-     * dropdowns (Save does both). Verifies BOTH scopes the plugin needs via the
-     * shared probe. Returns a single message the client surfaces as a dismissible
-     * notice; the token is stored only on Save.
-     */
-    public function test(WP_REST_Request $request): WP_REST_Response|WP_Error
-    {
-        $provided = trim($this->stringParam($request, 'token'));
-        $token    = $provided !== '' ? $provided : $this->settings->token();
-
-        if ($token === null || $token === '') {
-            return $this->error('no_token', __('Enter a Ploi API token to test.', 'fastcgi-cache-for-ploi'), 400);
-        }
-
-        // Re-check the saved server when testing the saved token; for a freshly
-        // entered token probe its OWN first server (the saved one may be another
-        // account) — probeToken() falls back to the first server when this is ''.
-        $result = $this->probeToken($token, $provided === '' ? $this->settings->serverId() : '');
-
-        if ($result['exception'] !== null) {
-            return $this->ploiError($result['exception']);
-        }
-
-        if ($result['servers'] === []) {
-            // Valid token, but the account has no servers: nothing to flush yet.
-            return $this->respond([
-                'success' => true,
-                'message' => __('Your token works, but this Ploi account has no servers yet — there\'s nothing to flush.', 'fastcgi-cache-for-ploi'),
-            ]);
-        }
-
-        return $this->respond([
-            'success' => true,
-            'message' => $provided !== ''
-                ? __('Your token works and has the required permissions. Save your settings to apply it.', 'fastcgi-cache-for-ploi')
-                : __('Your saved token is still valid.', 'fastcgi-cache-for-ploi'),
-        ]);
-    }
-
-    /**
      * Connect: validate a token against BOTH required scopes and persist it ONLY
      * if it passes, so a saved token is always known-good at save time. A bad or
      * under-scoped token is rejected with its Ploi message and never stored.
@@ -147,10 +93,9 @@ final class ConnectionController extends PloiRestController
     }
 
     /**
-     * Live status of the SAVED connection — the single source the settings badge
-     * reacts to. Probes both scopes with the same probeToken() the Test route
-     * uses, so "is this token healthy" is defined once. Testing never reaches
-     * here, which is why testing can't change the badge.
+     * Live health of the SAVED connection: probes both scopes and returns the state
+     * plus the servers (and the saved server's sites) so the client hydrates the
+     * target dropdowns without a second round-trip.
      */
     public function status(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
@@ -162,7 +107,7 @@ final class ConnectionController extends PloiRestController
             // there is simply no saved token.
             return $this->settings->needsReconnect()
                 ? $this->reconnectError()
-                : $this->respond(['state' => self::STATE_ABSENT, 'servers' => [], 'sites' => []]);
+                : $this->respond(['state' => self::STATE_UNKNOWN, 'servers' => [], 'sites' => []]);
         }
 
         $serverId = $this->settings->serverId();
@@ -200,7 +145,7 @@ final class ConnectionController extends PloiRestController
     /**
      * Probe a token against the two scopes the plugin needs: read Servers, then
      * read Sites (against $preferServerId, else the account's first server). The
-     * single definition of "is this token healthy", shared by test() and
+     * single definition of "is this token healthy", used by connect() and
      * status().
      *
      * Never throws — a PloiApiException is mapped to a state and returned, so both

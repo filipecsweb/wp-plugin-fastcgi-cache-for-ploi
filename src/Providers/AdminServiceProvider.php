@@ -56,7 +56,6 @@ final class AdminServiceProvider extends ServiceProvider
      */
     private function config(SettingsPage $page): array
     {
-        $plugin   = $this->container->make(Plugin::class);
         $nonce    = $this->container->make(Nonce::class);
         $settings = $this->container->make(PloiSettings::class);
         $log      = $this->container->make(FlushLogRepository::class);
@@ -64,7 +63,6 @@ final class AdminServiceProvider extends ServiceProvider
         return [
             'restUrl'     => esc_url_raw(rest_url(RestServiceProvider::NAMESPACE)),
             'nonce'       => $nonce->create('wp_rest'),
-            'version'     => $plugin->version(),
             'tabs'        => $page->tabKeys(),
             'events'      => FlushEvents::all(),
             'settings'    => $settings->toArray(),

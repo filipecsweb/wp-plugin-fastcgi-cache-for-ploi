@@ -97,10 +97,6 @@ defined('ABSPATH') || exit;
     <section class="postbox tw:m-0!">
         <div class="postbox-header">
             <h2 class="hndle tw:m-0! tw:px-4 tw:py-3 tw:text-sm! tw:font-semibold"><?php echo esc_html__('Flush automatically when…', 'fastcgi-cache-for-ploi'); ?></h2>
-            <div class="handle-actions tw:flex tw:items-center tw:gap-3 tw:pr-2">
-                <button type="button" class="button-link" @click="setAllEvents(true)"><?php echo esc_html__('Enable all', 'fastcgi-cache-for-ploi'); ?></button>
-                <button type="button" class="button-link" @click="setAllEvents(false)"><?php echo esc_html__('Disable all', 'fastcgi-cache-for-ploi'); ?></button>
-            </div>
         </div>
         <div class="inside">
             <div class="tw:flex tw:flex-col tw:gap-3">

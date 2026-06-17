@@ -154,17 +154,6 @@ final class PloiSettings
     }
 
     /**
-     * Clear the saved flush target (server + site), keeping the token, event
-     * toggles and debounce. Used when a newly-saved token can no longer read the
-     * configured site, so the UI stops presenting a stale, unverifiable — yet
-     * still flushable — target.
-     */
-    public function clearTarget(): void
-    {
-        $this->options->fill(self::blankTarget());
-    }
-
-    /**
      * @return array<string, string>
      */
     private static function blankTarget(): array
