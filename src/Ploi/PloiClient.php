@@ -25,6 +25,8 @@ final class PloiClient
      */
     private const PER_PAGE = 100;
 
+    private const TIMEOUT_SECONDS = 20;
+
     public function __construct(private readonly HttpClient $http)
     {
     }
@@ -40,7 +42,7 @@ final class PloiClient
             throw PloiApiException::fromResponse($response);
         }
 
-        return $this->mapList($response->array(), 'name', 'name');
+        return $this->mapList($response->array(), 'name');
     }
 
     /**
@@ -57,7 +59,7 @@ final class PloiClient
             throw PloiApiException::fromResponse($response);
         }
 
-        return $this->mapList($response->array(), 'domain', 'domain');
+        return $this->mapList($response->array(), 'domain');
     }
 
     public function flush(string $serverId, string $siteId, string $token): Response
@@ -74,7 +76,7 @@ final class PloiClient
         return $this->http
             ->withBaseUrl(self::BASE_URL)
             ->withToken($token)
-            ->withTimeout(20);
+            ->withTimeout(self::TIMEOUT_SECONDS);
     }
 
     /**
@@ -82,7 +84,7 @@ final class PloiClient
      *
      * @return list<array<string, string>>
      */
-    private function mapList(array $payload, string $labelKey, string $outKey): array
+    private function mapList(array $payload, string $key): array
     {
         $rows = isset($payload['data']) && is_array($payload['data']) ? $payload['data'] : $payload;
         $out  = [];
@@ -93,9 +95,9 @@ final class PloiClient
             }
 
             $id    = (string) $row['id'];
-            $label = isset($row[$labelKey]) && is_scalar($row[$labelKey]) ? (string) $row[$labelKey] : $id;
+            $label = isset($row[$key]) && is_scalar($row[$key]) ? (string) $row[$key] : $id;
 
-            $out[] = ['id' => $id, $outKey => $label];
+            $out[] = ['id' => $id, $key => $label];
         }
 
         return $out;

@@ -115,13 +115,7 @@ final class PloiSettings
      */
     public function disconnect(): void
     {
-        $this->options->fill([
-            self::KEY_SERVER_ID   => '',
-            self::KEY_SERVER_NAME => '',
-            self::KEY_SITE_ID     => '',
-            self::KEY_SITE_DOMAIN => '',
-            self::KEY_RECONNECT   => false,
-        ]);
+        $this->options->fill(self::blankTarget() + [self::KEY_RECONNECT => false]);
 
         $this->options->forget(self::KEY_TOKEN);
 
@@ -167,12 +161,20 @@ final class PloiSettings
      */
     public function clearTarget(): void
     {
-        $this->options->fill([
+        $this->options->fill(self::blankTarget());
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function blankTarget(): array
+    {
+        return [
             self::KEY_SERVER_ID   => '',
             self::KEY_SERVER_NAME => '',
             self::KEY_SITE_ID     => '',
             self::KEY_SITE_DOMAIN => '',
-        ]);
+        ];
     }
 
     /**

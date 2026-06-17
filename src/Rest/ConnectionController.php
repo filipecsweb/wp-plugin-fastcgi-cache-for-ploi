@@ -15,7 +15,7 @@ use WP_REST_Response;
 
 /**
  * test() validates without persisting; persistence and dropdown hydration happen
- * on Save (Concern 2).
+ * on Save.
  */
 final class ConnectionController extends PloiRestController
 {

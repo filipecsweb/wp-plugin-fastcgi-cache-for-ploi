@@ -103,15 +103,4 @@ final class FlushLogRepository
             }
         }
     }
-
-    public function count(): int
-    {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Counting rows in our own custom log table (prepared with %i); intentionally uncached.
-        $count = $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i', $this->table));
-
-        return is_numeric($count) ? (int) $count : 0;
-    }
 }

@@ -91,9 +91,4 @@ abstract class AdminPage
     {
         return $this->hookSuffix;
     }
-
-    public function slugName(): string
-    {
-        return $this->slug();
-    }
 }
