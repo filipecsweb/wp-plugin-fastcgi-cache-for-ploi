@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Providers;
+namespace FastCgiCacheForPloi\Providers;
 
-use Ploi\FastCgiCache\Admin\SettingsPage;
-use Ploi\FastCgiCache\Cache\FlushEvents;
-use Ploi\FastCgiCache\Log\FlushLogEntry;
-use Ploi\FastCgiCache\Log\FlushLogRepository;
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Admin\SettingsPage;
+use FastCgiCacheForPloi\Cache\FlushEvents;
+use FastCgiCacheForPloi\Log\FlushLogEntry;
+use FastCgiCacheForPloi\Log\FlushLogRepository;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Assets\Vite;
 use WPForge\Module\AdminUi\AdminAssets;
 use WPForge\Plugin;
@@ -48,7 +48,7 @@ final class AdminServiceProvider extends ServiceProvider
                 $page->hookSuffix(),
                 $hookSuffix,
                 'resources/js/admin.js',
-                'ploi-fastcgi-cache-admin',
+                'fastcgi-cache-for-ploi-admin',
                 'PloiCacheConfig',
                 $this->config()
             );
@@ -80,16 +80,16 @@ final class AdminServiceProvider extends ServiceProvider
             'debounceMax'     => PloiSettings::DEBOUNCE_MAX,
             'debounceDefault' => PloiSettings::DEBOUNCE_DEFAULT,
             'i18n'        => [
-                'connected'      => __('Connection successful.', 'ploi-fastcgi-cache'),
-                'saved'          => __('Settings saved.', 'ploi-fastcgi-cache'),
-                'disconnected'   => __('Token removed. Add a new token to reconnect.', 'ploi-fastcgi-cache'),
-                'genericError'   => __('Something went wrong. Please try again.', 'ploi-fastcgi-cache'),
-                'needToken'      => __('Add a Ploi API token first.', 'ploi-fastcgi-cache'),
-                'needTarget'     => __('Choose a server and site, then save.', 'ploi-fastcgi-cache'),
-                'reconnectShort' => __('Re-enter your token to reconnect.', 'ploi-fastcgi-cache'),
+                'connected'      => __('Connection successful.', 'fastcgi-cache-for-ploi'),
+                'saved'          => __('Settings saved.', 'fastcgi-cache-for-ploi'),
+                'disconnected'   => __('Token removed. Add a new token to reconnect.', 'fastcgi-cache-for-ploi'),
+                'genericError'   => __('Something went wrong. Please try again.', 'fastcgi-cache-for-ploi'),
+                'needToken'      => __('Add a Ploi API token first.', 'fastcgi-cache-for-ploi'),
+                'needTarget'     => __('Choose a server and site, then save.', 'fastcgi-cache-for-ploi'),
+                'reconnectShort' => __('Re-enter your token to reconnect.', 'fastcgi-cache-for-ploi'),
                 'badDebounce'    => sprintf(
                     /* translators: 1: minimum seconds, 2: maximum seconds. */
-                    __('Coalesce window must be a whole number between %1$d and %2$d seconds.', 'ploi-fastcgi-cache'),
+                    __('Coalesce window must be a whole number between %1$d and %2$d seconds.', 'fastcgi-cache-for-ploi'),
                     PloiSettings::DEBOUNCE_MIN,
                     PloiSettings::DEBOUNCE_MAX
                 ),

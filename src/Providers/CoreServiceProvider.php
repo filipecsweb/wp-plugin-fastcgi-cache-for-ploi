@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Providers;
+namespace FastCgiCacheForPloi\Providers;
 
-use Ploi\FastCgiCache\Cache\CacheFlusher;
-use Ploi\FastCgiCache\Cache\FlushScheduler;
-use Ploi\FastCgiCache\Log\FlushLogRepository;
-use Ploi\FastCgiCache\Ploi\PloiClient;
-use Ploi\FastCgiCache\Settings\OptionNames;
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Cache\CacheFlusher;
+use FastCgiCacheForPloi\Cache\FlushScheduler;
+use FastCgiCacheForPloi\Log\FlushLogRepository;
+use FastCgiCacheForPloi\Ploi\PloiClient;
+use FastCgiCacheForPloi\Settings\OptionNames;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Database\Migrator;
 use WPForge\Plugin;
 use WPForge\Provider\ServiceProvider;
@@ -31,7 +31,7 @@ final class CoreServiceProvider extends ServiceProvider
      * AdminServiceProvider (to decide whether to show the "DB-derived key"
      * warning), so the two checks can never test different constant names.
      */
-    public const KEY_CONSTANT = 'PLOI_FASTCGI_CACHE_KEY';
+    public const KEY_CONSTANT = 'FASTCGI_CACHE_FOR_PLOI_KEY';
 
     public function register(): void
     {

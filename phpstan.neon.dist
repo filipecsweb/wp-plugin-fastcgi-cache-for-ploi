@@ -8,10 +8,10 @@ parameters:
         - foundation/src
         - modules/admin-ui/src
         - src
-        - ploi-fastcgi-cache.php
+        - fastcgi-cache-for-ploi.php
         - uninstall.php
     treatPhpDocTypesAsCertain: false
     dynamicConstantNames:
-        - PLOI_FASTCGI_CACHE_KEY
+        - FASTCGI_CACHE_FOR_PLOI_KEY
         - WP_DEBUG
         - DOING_AUTOSAVE

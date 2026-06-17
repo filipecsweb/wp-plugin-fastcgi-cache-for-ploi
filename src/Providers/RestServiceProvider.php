@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Providers;
+namespace FastCgiCacheForPloi\Providers;
 
-use Ploi\FastCgiCache\Cache\CacheFlusher;
-use Ploi\FastCgiCache\Log\FlushLogRepository;
-use Ploi\FastCgiCache\Ploi\PloiClient;
-use Ploi\FastCgiCache\Rest\ConnectionController;
-use Ploi\FastCgiCache\Rest\FlushController;
-use Ploi\FastCgiCache\Rest\LogController;
-use Ploi\FastCgiCache\Rest\SettingsController;
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Cache\CacheFlusher;
+use FastCgiCacheForPloi\Log\FlushLogRepository;
+use FastCgiCacheForPloi\Ploi\PloiClient;
+use FastCgiCacheForPloi\Rest\ConnectionController;
+use FastCgiCacheForPloi\Rest\FlushController;
+use FastCgiCacheForPloi\Rest\LogController;
+use FastCgiCacheForPloi\Rest\SettingsController;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Provider\ServiceProvider;
 use WPForge\Security\Capability;
 use WPForge\Security\Sanitizer;
@@ -23,7 +23,7 @@ use WPForge\Security\Sanitizer;
  */
 final class RestServiceProvider extends ServiceProvider
 {
-    public const NAMESPACE = 'ploi-fastcgi-cache/v1';
+    public const NAMESPACE = 'fastcgi-cache-for-ploi/v1';
 
     /**
      * The capability required to manage this plugin. Single source for every REST

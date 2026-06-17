@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Rest;
+namespace FastCgiCacheForPloi\Rest;
 
-use Ploi\FastCgiCache\Log\FlushLogEntry;
-use Ploi\FastCgiCache\Log\FlushLogRepository;
-use Ploi\FastCgiCache\Providers\RestServiceProvider;
+use FastCgiCacheForPloi\Log\FlushLogEntry;
+use FastCgiCacheForPloi\Log\FlushLogRepository;
+use FastCgiCacheForPloi\Providers\RestServiceProvider;
 use WPForge\Security\Capability;
 use WP_REST_Request;
 use WP_REST_Response;

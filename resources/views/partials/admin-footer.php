@@ -9,7 +9,7 @@
  * `tw:` tokens as the rest of the admin UI. Carries the plugin name + version
  * and the trademark/affiliation disclaimer required for wordpress.org.
  *
- * @var \Ploi\FastCgiCache\Admin\SettingsPage $this
+ * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
 
 declare(strict_types=1);
@@ -23,12 +23,12 @@ defined('ABSPATH') || exit;
         <?php
         printf(
             /* translators: %s: plugin version number. */
-            esc_html__('Version %s', 'ploi-fastcgi-cache'),
+            esc_html__('Version %s', 'fastcgi-cache-for-ploi'),
             esc_html($this->footerVersion())
         );
         ?>
     </p>
     <p class="tw:m-0 tw:mt-1">
-        <?php echo esc_html__('Ploi is a trademark of its respective owner. This plugin is not affiliated with or endorsed by Ploi.', 'ploi-fastcgi-cache'); ?>
+        <?php echo esc_html__('Ploi is a trademark of its respective owner. This plugin is not affiliated with or endorsed by Ploi.', 'fastcgi-cache-for-ploi'); ?>
     </p>
 </footer>

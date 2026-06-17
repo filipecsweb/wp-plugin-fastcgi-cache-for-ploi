@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Rest;
+namespace FastCgiCacheForPloi\Rest;
 
 use WPForge\Rest\RestController;
 use WP_Error;
@@ -33,7 +33,7 @@ abstract class PloiRestController extends RestController
     {
         return $this->error(
             'needs_reconnect',
-            __('Your saved token could not be read. Please re-enter your Ploi API token.', 'ploi-fastcgi-cache'),
+            __('Your saved token could not be read. Please re-enter your Ploi API token.', 'fastcgi-cache-for-ploi'),
             409
         );
     }

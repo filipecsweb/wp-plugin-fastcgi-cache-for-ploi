@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Ploi;
+namespace FastCgiCacheForPloi\Ploi;
 
 use RuntimeException;
 use WPForge\Http\Response;
@@ -28,7 +28,7 @@ final class PloiApiException extends RuntimeException
 
         if ($status === 401 || $status === 403) {
             return new self(
-                __('Your Ploi API token was rejected. Check the token and try again.', 'ploi-fastcgi-cache'),
+                __('Your Ploi API token was rejected. Check the token and try again.', 'fastcgi-cache-for-ploi'),
                 $status
             );
         }
@@ -53,7 +53,7 @@ final class PloiApiException extends RuntimeException
 
         return $response->error() ?? sprintf(
             /* translators: %d: HTTP status code. */
-            __('The Ploi API request failed (HTTP %d).', 'ploi-fastcgi-cache'),
+            __('The Ploi API request failed (HTTP %d).', 'fastcgi-cache-for-ploi'),
             $response->status()
         );
     }

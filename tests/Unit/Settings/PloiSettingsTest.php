@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Tests\Unit\Settings;
+namespace FastCgiCacheForPloi\Tests\Unit\Settings;
 
 use Brain\Monkey\Functions;
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Security\Crypto;
 use WPForge\Settings\Options;
 
@@ -24,7 +24,7 @@ beforeEach(function (): void {
 
     $this->key = str_repeat('a', SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
     $this->make = fn (?string $key = null): PloiSettings => new PloiSettings(
-        new Options('ploi_fastcgi_cache_settings', PloiSettings::defaults()),
+        new Options('fastcgi_cache_for_ploi_settings', PloiSettings::defaults()),
         new Crypto($key ?? $this->key)
     );
 });

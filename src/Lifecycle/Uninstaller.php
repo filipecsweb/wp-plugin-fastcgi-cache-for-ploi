@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Lifecycle;
+namespace FastCgiCacheForPloi\Lifecycle;
 
-use Ploi\FastCgiCache\Cache\FlushScheduler;
-use Ploi\FastCgiCache\Log\FlushLogRepository;
-use Ploi\FastCgiCache\Settings\OptionNames;
+use FastCgiCacheForPloi\Cache\FlushScheduler;
+use FastCgiCacheForPloi\Log\FlushLogRepository;
+use FastCgiCacheForPloi\Settings\OptionNames;
 
 /**
  * Uninstall handler. Drops the custom table and removes all plugin data.

@@ -53,7 +53,7 @@ Your use of the Ploi service is governed by Ploi's legal terms:
 
 == Installation ==
 
-1. Upload the plugin to `/wp-content/plugins/ploi-fastcgi-cache/`, or install it from the **Plugins → Add New** screen in your WordPress admin.
+1. Upload the plugin to `/wp-content/plugins/fastcgi-cache-for-ploi/`, or install it from the **Plugins → Add New** screen in your WordPress admin.
 2. Activate the plugin through the **Plugins** menu.
 3. Go to **Settings → FastCGI Cache**.
 4. Paste a **Ploi API token** (create one at https://ploi.io/profile/api-keys) and click **Test connection**. A valid token is saved (encrypted) automatically.
@@ -62,7 +62,7 @@ Your use of the Ploi service is governed by Ploi's legal terms:
 
 **Optional, recommended:** define a dedicated encryption key in `wp-config.php` so the stored token is encrypted with a key independent of your database:
 
-`define( 'PLOI_FASTCGI_CACHE_KEY', 'a-long-random-string' );`
+`define( 'FASTCGI_CACHE_FOR_PLOI_KEY', 'a-long-random-string' );`
 
 == Frequently Asked Questions ==
 
@@ -80,7 +80,7 @@ Ploi can only flush FastCGI cache for a site that has it enabled. Enable FastCGI
 
 = Is my API token stored securely? =
 
-Yes. The token is encrypted at rest and is never displayed again after it is saved. For the strongest protection, define `PLOI_FASTCGI_CACHE_KEY` in `wp-config.php` (see Installation) so the encryption key is independent of your database.
+Yes. The token is encrypted at rest and is never displayed again after it is saved. For the strongest protection, define `FASTCGI_CACHE_FOR_PLOI_KEY` in `wp-config.php` (see Installation) so the encryption key is independent of your database.
 
 = Can I flush the cache manually? =
 

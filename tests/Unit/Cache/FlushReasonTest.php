@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Tests\Unit\Cache;
+namespace FastCgiCacheForPloi\Tests\Unit\Cache;
 
 use Brain\Monkey\Functions;
-use Ploi\FastCgiCache\Cache\FlushEvents;
-use Ploi\FastCgiCache\Cache\FlushReason;
+use FastCgiCacheForPloi\Cache\FlushEvents;
+use FastCgiCacheForPloi\Cache\FlushReason;
 
 beforeEach(function (): void {
     Functions\when('__')->returnArg(1);

@@ -2,7 +2,7 @@
 
 This plugin is built on the **WPForge** base: a reusable kernel in `foundation/`
 (namespace `WPForge\`), opt-in features in `modules/`, and this plugin's own code in
-`src/` (namespace `Ploi\FastCgiCache\`). Read this before changing anything. When a rule here
+`src/` (namespace `FastCgiCacheForPloi\`). Read this before changing anything. When a rule here
 conflicts with a habit or a quick shortcut, the rule wins.
 
 ## Code principles

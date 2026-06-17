@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Rest;
+namespace FastCgiCacheForPloi\Rest;
 
-use Ploi\FastCgiCache\Providers\RestServiceProvider;
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Providers\RestServiceProvider;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Security\Capability;
 use WPForge\Security\Sanitizer;
 use WP_REST_Request;

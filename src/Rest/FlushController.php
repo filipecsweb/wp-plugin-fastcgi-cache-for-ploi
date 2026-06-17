@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Rest;
+namespace FastCgiCacheForPloi\Rest;
 
-use Ploi\FastCgiCache\Cache\CacheFlusher;
-use Ploi\FastCgiCache\Cache\FlushReason;
-use Ploi\FastCgiCache\Log\FlushLogEntry;
-use Ploi\FastCgiCache\Providers\RestServiceProvider;
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Cache\CacheFlusher;
+use FastCgiCacheForPloi\Cache\FlushReason;
+use FastCgiCacheForPloi\Log\FlushLogEntry;
+use FastCgiCacheForPloi\Providers\RestServiceProvider;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Security\Capability;
 use WP_Error;
 use WP_REST_Request;
@@ -48,7 +48,7 @@ final class FlushController extends PloiRestController
 
             return $this->error(
                 'not_configured',
-                __('Add a token, then choose a server and site before flushing.', 'ploi-fastcgi-cache'),
+                __('Add a token, then choose a server and site before flushing.', 'fastcgi-cache-for-ploi'),
                 400
             );
         }
@@ -56,7 +56,7 @@ final class FlushController extends PloiRestController
         $entry = $this->flusher->flush(FlushReason::Manual);
 
         if ($entry === null) {
-            return $this->error('not_configured', __('Nothing to flush — the plugin is not configured.', 'ploi-fastcgi-cache'), 400);
+            return $this->error('not_configured', __('Nothing to flush — the plugin is not configured.', 'fastcgi-cache-for-ploi'), 400);
         }
 
         if (! $entry->success) {
@@ -65,7 +65,7 @@ final class FlushController extends PloiRestController
 
         return $this->respond([
             'success' => true,
-            'message' => __('FastCGI cache flushed.', 'ploi-fastcgi-cache'),
+            'message' => __('FastCGI cache flushed.', 'fastcgi-cache-for-ploi'),
             'entry'   => $entry->toArray(),
         ]);
     }
@@ -84,12 +84,12 @@ final class FlushController extends PloiRestController
         $hint = FlushLogEntry::failureHint($httpCode);
 
         if ($hint === null) {
-            return $raw ?? __('The flush request failed.', 'ploi-fastcgi-cache');
+            return $raw ?? __('The flush request failed.', 'fastcgi-cache-for-ploi');
         }
 
         return $raw === null ? $hint : sprintf(
             /* translators: 1: friendly explanation, 2: raw message from the Ploi API. */
-            __('%1$s (Ploi: %2$s)', 'ploi-fastcgi-cache'),
+            __('%1$s (Ploi: %2$s)', 'fastcgi-cache-for-ploi'),
             $hint,
             $raw
         );

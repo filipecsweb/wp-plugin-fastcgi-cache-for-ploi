@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Tests\Unit\Foundation;
+namespace FastCgiCacheForPloi\Tests\Unit\Foundation;
 
 use WPForge\Security\Crypto;
 

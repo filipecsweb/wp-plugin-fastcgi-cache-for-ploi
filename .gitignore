@@ -9,7 +9,7 @@
 /dist/
 
 # Generated translation template (regenerate with:
-#   wp i18n make-pot . languages/ploi-fastcgi-cache.pot --exclude=dist)
+#   wp i18n make-pot . languages/fastcgi-cache-for-ploi.pot --exclude=dist)
 /languages/*.pot
 
 # Tooling caches

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Tests\Unit\Rest;
+namespace FastCgiCacheForPloi\Tests\Unit\Rest;
 
 use Brain\Monkey\Functions;
-use Ploi\FastCgiCache\Log\FlushLogEntry;
-use Ploi\FastCgiCache\Rest\FlushController;
+use FastCgiCacheForPloi\Log\FlushLogEntry;
+use FastCgiCacheForPloi\Rest\FlushController;
 use ReflectionClass;
 use ReflectionMethod;
 

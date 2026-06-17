@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Ploi;
+namespace FastCgiCacheForPloi\Ploi;
 
 use WPForge\Http\HttpClient;
 use WPForge\Http\Response;

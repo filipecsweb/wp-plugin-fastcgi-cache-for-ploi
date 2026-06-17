@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Lifecycle;
+namespace FastCgiCacheForPloi\Lifecycle;
 
-use Ploi\FastCgiCache\Database\Migrations\CreateFlushLogTable;
-use Ploi\FastCgiCache\Settings\OptionNames;
+use FastCgiCacheForPloi\Database\Migrations\CreateFlushLogTable;
+use FastCgiCacheForPloi\Settings\OptionNames;
 use WPForge\Database\Migrator;
 
 /**

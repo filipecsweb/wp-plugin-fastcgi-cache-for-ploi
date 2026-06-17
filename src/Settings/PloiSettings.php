@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Settings;
+namespace FastCgiCacheForPloi\Settings;
 
-use Ploi\FastCgiCache\Cache\FlushEvents;
+use FastCgiCacheForPloi\Cache\FlushEvents;
 use WPForge\Security\Crypto;
 use WPForge\Settings\Options;
 

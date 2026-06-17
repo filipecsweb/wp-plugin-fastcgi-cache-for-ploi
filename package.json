@@ -1,5 +1,5 @@
 {
-    "name": "ploi-fastcgi-cache",
+    "name": "fastcgi-cache-for-ploi",
     "version": "1.0.0",
     "description": "Admin UI (Alpine + Tailwind v4) and E2E tooling for the Ploi FastCGI Cache plugin.",
     "license": "GPL-2.0-or-later",

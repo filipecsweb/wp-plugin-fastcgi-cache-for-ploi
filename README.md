@@ -40,7 +40,7 @@ Three concentric layers, one installable plugin:
 |------|------|-----------|------|
 | **Foundation** (reusable kernel) | `foundation/src/` | `WPForge\` | DI container, attribute hooks, lifecycle, typed Options, dbDelta migrations, HTTP wrapper, security (incl. sodium Crypto), PSR-3 logger, REST base, Vite enqueuer, i18n |
 | **admin-ui module** (opt-in) | `modules/admin-ui/src/` | `WPForge\Module\AdminUi\` | Reusable admin-screen machinery (top-level or submenu, screen-scoped assets, Tailwind v4 isolation) |
-| **Ploi plugin** (this proof) | `src/` | `Ploi\FastCgiCache\` | Settings, Ploi client, flush engine, event subscriber, REST controllers, flush-log table |
+| **Ploi plugin** (this proof) | `src/` | `FastCgiCacheForPloi\` | Settings, Ploi client, flush engine, event subscriber, REST controllers, flush-log table |
 
 Copying `foundation/` alone gives a clean kernel with **zero modules attached**.
 See [`modules/README.md`](modules/README.md) for the module contract and the
@@ -67,24 +67,24 @@ activate it.
 2. In **DBngin**, start a MySQL instance (default port `3306`).
 3. **Create a WordPress site** under Herd's sites directory, e.g. `~/Herd/mysite`,
    and point its `wp-config.php` at the DBngin database.
-4. **Clone this plugin** somewhere outside the site, e.g. `~/dev/ploi-fastcgi-cache`,
+4. **Clone this plugin** somewhere outside the site, e.g. `~/dev/fastcgi-cache-for-ploi`,
    and build it:
    ```bash
-   cd ~/dev/ploi-fastcgi-cache
+   cd ~/dev/fastcgi-cache-for-ploi
    composer install
    npm install
    npm run build
    ```
 5. **Symlink** it into the site's plugins directory:
    ```bash
-   ln -s ~/dev/ploi-fastcgi-cache ~/Herd/mysite/wp-content/plugins/ploi-fastcgi-cache
+   ln -s ~/dev/fastcgi-cache-for-ploi ~/Herd/mysite/wp-content/plugins/fastcgi-cache-for-ploi
    ```
 6. Visit `https://mysite.test/wp-admin/`, activate **FastCGI Cache for Ploi**, then
    open **Settings → FastCGI Cache for Ploi**.
 7. *(Recommended)* add a dedicated encryption key to the site's `wp-config.php`
    (see [Security](#security)):
    ```php
-   define( 'PLOI_FASTCGI_CACHE_KEY', '<a long random string>' );
+   define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '<a long random string>' );
    ```
 
 **Hot-reloading the admin UI:** run `npm run dev` — Vite writes a `hot` file into
@@ -120,7 +120,7 @@ is a silent no-op (never an error).
 ## Security
 
 The API token is encrypted at rest with libsodium; the key is derived from your
-WordPress salts (or a dedicated `PLOI_FASTCGI_CACHE_KEY` constant) and lives on the
+WordPress salts (or a dedicated `FASTCGI_CACHE_FOR_PLOI_KEY` constant) and lives on the
 **filesystem, not the database**. If the key changes (e.g. salt rotation) the
 stored token can no longer be decrypted — the plugin then **clears it and prompts
 you to reconnect** rather than erroring. Full details and the recommended
@@ -149,7 +149,7 @@ Playwright. Copy `.claude/.env.example` to `.claude/.env` (auto-loaded) and set:
 WP_BASE_URL=https://your-site.test        # the WordPress under test
 WP_ADMIN_USER=admin                       # an admin login
 WP_ADMIN_PASS=password
-WP_PLUGIN_PATH=/abs/path/to/site/wp-content/plugins/ploi-fastcgi-cache
+WP_PLUGIN_PATH=/abs/path/to/site/wp-content/plugins/fastcgi-cache-for-ploi
                                           # symlink to this checkout; the preflight
                                           # refuses to run against a stale copy
 
@@ -171,7 +171,7 @@ resources/             Alpine + Tailwind v4 sources (built into public/build/)
 tests/Unit/            Pest unit tests
 tests/e2e/             Playwright E2E
 docs/security.md       Encryption key management & residual risk
-ploi-fastcgi-cache.php Plugin bootstrap (version = single source of truth)
+fastcgi-cache-for-ploi.php Plugin bootstrap (version = single source of truth)
 uninstall.php          Drops the table + options on uninstall
 ```
 

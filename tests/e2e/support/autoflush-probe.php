@@ -23,13 +23,13 @@ defined('ABSPATH') || exit;
 $action = $args[0] ?? '';
 $eventKey = $args[1] ?? '';
 
-$events = array_fill_keys(\Ploi\FastCgiCache\Cache\FlushEvents::keys(), false);
+$events = array_fill_keys(\FastCgiCacheForPloi\Cache\FlushEvents::keys(), false);
 if (array_key_exists($eventKey, $events)) {
     $events[$eventKey] = true;
 }
 
 $crypto = new \WPForge\Security\Crypto();
-update_option('ploi_fastcgi_cache_settings', [
+update_option('fastcgi_cache_for_ploi_settings', [
     'token' => $crypto->encrypt('seed-token-e2e'),
     'server_id' => '7',
     'site_id' => '42',
@@ -41,8 +41,8 @@ update_option('ploi_fastcgi_cache_settings', [
 ]);
 
 $reset = static function (): void {
-    delete_transient('ploi_fastcgi_cache_pending');
-    wp_clear_scheduled_hook('ploi_fastcgi_cache_flush');
+    delete_transient('fastcgi_cache_for_ploi_pending');
+    wp_clear_scheduled_hook('fastcgi_cache_for_ploi_flush');
 };
 $reset();
 
@@ -97,21 +97,21 @@ switch ($action) {
         break;
 }
 
-$scheduled = (bool) wp_next_scheduled('ploi_fastcgi_cache_flush');
-$reason = get_transient('ploi_fastcgi_cache_pending');
+$scheduled = (bool) wp_next_scheduled('fastcgi_cache_for_ploi_flush');
+$reason = get_transient('fastcgi_cache_for_ploi_pending');
 $loggedReason = null;
 
 if ($scheduled) {
-    do_action('ploi_fastcgi_cache_flush'); // runScheduled → flush → log (real Ploi call; logs the reason regardless of result)
+    do_action('fastcgi_cache_for_ploi_flush'); // runScheduled → flush → log (real Ploi call; logs the reason regardless of result)
     global $wpdb;
-    $loggedReason = $wpdb->get_var("SELECT reason FROM {$wpdb->prefix}ploi_flush_log ORDER BY id DESC LIMIT 1");
+    $loggedReason = $wpdb->get_var("SELECT reason FROM {$wpdb->prefix}fastcgi_cache_for_ploi_flush_log ORDER BY id DESC LIMIT 1");
 }
 
 $reset();
 foreach ($cleanup as $fn) {
     $fn();
 }
-delete_option('ploi_fastcgi_cache_settings');
+delete_option('fastcgi_cache_for_ploi_settings');
 
 echo wp_json_encode([
     'scheduled' => $scheduled,

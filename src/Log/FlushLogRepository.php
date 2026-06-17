@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Log;
+namespace FastCgiCacheForPloi\Log;
 
 /**
  * Reads and writes flush-log rows in the custom table created by the migration.
@@ -12,7 +12,7 @@ namespace Ploi\FastCgiCache\Log;
  */
 final class FlushLogRepository
 {
-    public const TABLE = 'ploi_flush_log';
+    public const TABLE = 'fastcgi_cache_for_ploi_flush_log';
 
     /**
      * How many recent rows the "Recent flushes" table shows. Single source for

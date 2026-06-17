@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Tests\Unit\Cache;
+namespace FastCgiCacheForPloi\Tests\Unit\Cache;
 
 use Brain\Monkey\Functions;
-use Ploi\FastCgiCache\Cache\CacheFlusher;
-use Ploi\FastCgiCache\Cache\FlushScheduler;
-use Ploi\FastCgiCache\Events\ContentChangeSubscriber;
-use Ploi\FastCgiCache\Log\FlushLogRepository;
-use Ploi\FastCgiCache\Ploi\PloiClient;
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Cache\CacheFlusher;
+use FastCgiCacheForPloi\Cache\FlushScheduler;
+use FastCgiCacheForPloi\Events\ContentChangeSubscriber;
+use FastCgiCacheForPloi\Log\FlushLogRepository;
+use FastCgiCacheForPloi\Ploi\PloiClient;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Http\HttpClient;
 use WPForge\Logging\Logger;
 use WPForge\Security\Crypto;
@@ -27,7 +27,7 @@ if (! defined('MINUTE_IN_SECONDS')) {
 function ccs_make_settings(): PloiSettings
 {
     return new PloiSettings(
-        new Options('ploi_fastcgi_cache_settings', PloiSettings::defaults()),
+        new Options('fastcgi_cache_for_ploi_settings', PloiSettings::defaults()),
         new Crypto(str_repeat('a', SODIUM_CRYPTO_SECRETBOX_KEYBYTES))
     );
 }

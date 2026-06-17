@@ -117,8 +117,8 @@ jobs:
 
       - name: Symlink the plugin and activate
         run: |
-          ln -s "$GITHUB_WORKSPACE" "$WP_DIR/wp-content/plugins/ploi-fastcgi-cache"
-          wp plugin activate ploi-fastcgi-cache --path="$WP_DIR"
+          ln -s "$GITHUB_WORKSPACE" "$WP_DIR/wp-content/plugins/fastcgi-cache-for-ploi"
+          wp plugin activate fastcgi-cache-for-ploi --path="$WP_DIR"
 
       - name: Start the PHP server
         run: |
@@ -139,7 +139,7 @@ jobs:
       - name: Run E2E
         run: npm run e2e
         env:
-          WP_PLUGIN_PATH: ${{ env.WP_DIR }}/wp-content/plugins/ploi-fastcgi-cache
+          WP_PLUGIN_PATH: ${{ env.WP_DIR }}/wp-content/plugins/fastcgi-cache-for-ploi
           WP_CLI_CWD: ${{ env.WP_DIR }}
           WP_ADMIN_USER: admin
           WP_ADMIN_PASS: password

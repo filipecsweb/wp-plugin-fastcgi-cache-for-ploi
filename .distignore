@@ -2,7 +2,7 @@
 # This is the SINGLE source of truth for what the shipped archive omits — there is
 # deliberately no second mechanism (no .gitattributes export-ignore) to drift from.
 #
-# The shipped ZIP = runtime PHP (ploi-fastcgi-cache.php, uninstall.php, src/,
+# The shipped ZIP = runtime PHP (fastcgi-cache-for-ploi.php, uninstall.php, src/,
 # foundation/, modules/, resources/views/) + the production Composer autoloader
 # (vendor/, installed with --no-dev) + built front-end assets (public/build/) +
 # the compiled translations template (languages/). Everything below is

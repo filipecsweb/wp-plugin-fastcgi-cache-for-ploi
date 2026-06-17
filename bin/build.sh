@@ -28,7 +28,9 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-slug="ploi-fastcgi-cache"
+# Slug = the repo directory name (also the plugin folder name and the ZIP basename).
+# Single-sourced from the directory so build.sh and plugin-check.sh can never disagree.
+slug="$(basename "$repo_root")"
 main_file="$slug.php"
 restore=1
 

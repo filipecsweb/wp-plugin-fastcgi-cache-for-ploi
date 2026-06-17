@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Cache;
+namespace FastCgiCacheForPloi\Cache;
 
 /**
  * Why a flush happened, and the single source of truth for which auto-flush
@@ -38,13 +38,13 @@ enum FlushReason: string
     public function label(): string
     {
         return match ($this) {
-            self::PostSave   => __('Post published or updated', 'ploi-fastcgi-cache'),
-            self::PostDelete => __('Post deleted', 'ploi-fastcgi-cache'),
-            self::Comment    => __('Comment posted or moderated', 'ploi-fastcgi-cache'),
-            self::Theme      => __('Theme switched', 'ploi-fastcgi-cache'),
-            self::Customizer => __('Customizer changes published', 'ploi-fastcgi-cache'),
-            self::Menu       => __('Navigation menu updated', 'ploi-fastcgi-cache'),
-            self::Manual     => __('Manual flush', 'ploi-fastcgi-cache'),
+            self::PostSave   => __('Post published or updated', 'fastcgi-cache-for-ploi'),
+            self::PostDelete => __('Post deleted', 'fastcgi-cache-for-ploi'),
+            self::Comment    => __('Comment posted or moderated', 'fastcgi-cache-for-ploi'),
+            self::Theme      => __('Theme switched', 'fastcgi-cache-for-ploi'),
+            self::Customizer => __('Customizer changes published', 'fastcgi-cache-for-ploi'),
+            self::Menu       => __('Navigation menu updated', 'fastcgi-cache-for-ploi'),
+            self::Manual     => __('Manual flush', 'fastcgi-cache-for-ploi'),
         };
     }
 }

@@ -95,7 +95,7 @@ abstract class AdminPage
     }
 
     /**
-     * The admin-page hook suffix (e.g. "settings_page_ploi-fastcgi-cache").
+     * The admin-page hook suffix (e.g. "settings_page_fastcgi-cache-for-ploi").
      * Only populated after register() has run on the admin_menu hook.
      */
     public function hookSuffix(): string

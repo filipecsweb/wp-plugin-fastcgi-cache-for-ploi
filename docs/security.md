@@ -27,7 +27,7 @@ dedicated key constant is provided.
 
 | Scenario | Key material location | DB-dump-alone decrypts token? |
 |---|---|---|
-| `PLOI_FASTCGI_CACHE_KEY` defined in `wp-config.php` (recommended) | `wp-config.php` (filesystem) | **No** |
+| `FASTCGI_CACHE_FOR_PLOI_KEY` defined in `wp-config.php` (recommended) | `wp-config.php` (filesystem) | **No** |
 | `AUTH_KEY`/`SECURE_AUTH_KEY` defined in `wp-config.php` (Ploi default) | `wp-config.php` (filesystem) | **No** |
 | Salt constants absent (non-standard install) | auto-generated salts in `wp_options` | **Yes — avoid** |
 
@@ -41,7 +41,7 @@ install with no salt constants, where WordPress falls back to DB-stored salts.
 Define a dedicated key in `wp-config.php`:
 
 ```php
-define( 'PLOI_FASTCGI_CACHE_KEY', '<a long random string>' );
+define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '<a long random string>' );
 ```
 
 This guarantees the key is filesystem-only **and** decouples the token from
@@ -50,7 +50,7 @@ invalidate the stored token).
 
 ### Plugin behaviour
 
-- `Crypto` is bound to prefer `PLOI_FASTCGI_CACHE_KEY`, then fall back to
+- `Crypto` is bound to prefer `FASTCGI_CACHE_FOR_PLOI_KEY`, then fall back to
   `wp_salt()`.
 - If the key changes (salt rotation) and the stored token can no longer be
   decrypted, the plugin clears the token and prompts the operator to reconnect —

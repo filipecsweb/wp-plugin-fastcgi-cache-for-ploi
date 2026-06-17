@@ -11,10 +11,10 @@
  * Author URI:        https://github.com/filipeseabra
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       ploi-fastcgi-cache
+ * Text Domain:       fastcgi-cache-for-ploi
  * Domain Path:       /languages
  *
- * @package Ploi\FastCgiCache
+ * @package FastCgiCacheForPloi
  *
  * This header is the SINGLE SOURCE OF TRUTH for the plugin version. The WPForge
  * kernel reads it at runtime via get_file_data() — never hardcode the version
@@ -23,28 +23,28 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache;
+namespace FastCgiCacheForPloi;
 
-use Ploi\FastCgiCache\Lifecycle\Activator;
-use Ploi\FastCgiCache\Lifecycle\Deactivator;
-use Ploi\FastCgiCache\Providers\AdminServiceProvider;
-use Ploi\FastCgiCache\Providers\CoreServiceProvider;
-use Ploi\FastCgiCache\Providers\FlushServiceProvider;
-use Ploi\FastCgiCache\Providers\RestServiceProvider;
+use FastCgiCacheForPloi\Lifecycle\Activator;
+use FastCgiCacheForPloi\Lifecycle\Deactivator;
+use FastCgiCacheForPloi\Providers\AdminServiceProvider;
+use FastCgiCacheForPloi\Providers\CoreServiceProvider;
+use FastCgiCacheForPloi\Providers\FlushServiceProvider;
+use FastCgiCacheForPloi\Providers\RestServiceProvider;
 use WPForge\Lifecycle\Lifecycle;
 use WPForge\Module\AdminUi\AdminUiModule;
 use WPForge\Plugin;
 
 defined('ABSPATH') || exit;
 
-$ploi_fastcgi_cache_autoload = __DIR__ . '/vendor/autoload.php';
+$fastcgi_cache_for_ploi_autoload = __DIR__ . '/vendor/autoload.php';
 
-if (! is_file($ploi_fastcgi_cache_autoload)) {
+if (! is_file($fastcgi_cache_for_ploi_autoload)) {
     add_action('admin_notices', static function (): void {
         echo '<div class="notice notice-error"><p>';
         echo esc_html__(
             'FastCGI Cache for Ploi: dependencies are missing. Run "composer install" in the plugin directory.',
-            'ploi-fastcgi-cache'
+            'fastcgi-cache-for-ploi'
         );
         echo '</p></div>';
     });
@@ -52,7 +52,7 @@ if (! is_file($ploi_fastcgi_cache_autoload)) {
     return;
 }
 
-require $ploi_fastcgi_cache_autoload;
+require $fastcgi_cache_for_ploi_autoload;
 
 /**
  * Boot the plugin on top of the WPForge Foundation.
@@ -63,28 +63,28 @@ require $ploi_fastcgi_cache_autoload;
  *     synchronously here (never in a provider), because WordPress fires
  *     activation hooks without re-running plugins_loaded.
  */
-$ploi_fastcgi_cache = Plugin::create(__FILE__);
+$fastcgi_cache_for_ploi = Plugin::create(__FILE__);
 
 // Always-on services: core bindings, REST routes, and the flush/event engine.
-$ploi_fastcgi_cache->withProviders([
+$fastcgi_cache_for_ploi->withProviders([
     CoreServiceProvider::class,
     RestServiceProvider::class,
     FlushServiceProvider::class,
 ]);
 
 // Admin settings screen — loads only in wp-admin.
-$ploi_fastcgi_cache->withModule(new AdminUiModule([
+$fastcgi_cache_for_ploi->withModule(new AdminUiModule([
     AdminServiceProvider::class,
 ]));
 
 // Activation/deactivation must be wired synchronously, before the plugins_loaded
 // deferral, because WordPress fires activation hooks without re-running it.
-$ploi_fastcgi_cache->withLifecycle(static function (Lifecycle $lifecycle) use ($ploi_fastcgi_cache): void {
-    $prefix = $ploi_fastcgi_cache->optionPrefix();
+$fastcgi_cache_for_ploi->withLifecycle(static function (Lifecycle $lifecycle) use ($fastcgi_cache_for_ploi): void {
+    $prefix = $fastcgi_cache_for_ploi->optionPrefix();
     $lifecycle->onActivate(static fn () => Activator::activate($prefix));
     $lifecycle->onDeactivate(static fn () => Deactivator::deactivate());
 });
 
-add_action('plugins_loaded', static function () use ($ploi_fastcgi_cache): void {
-    $ploi_fastcgi_cache->boot();
+add_action('plugins_loaded', static function () use ($fastcgi_cache_for_ploi): void {
+    $fastcgi_cache_for_ploi->boot();
 });

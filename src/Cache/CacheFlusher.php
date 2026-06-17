@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Cache;
+namespace FastCgiCacheForPloi\Cache;
 
-use Ploi\FastCgiCache\Log\FlushLogEntry;
-use Ploi\FastCgiCache\Log\FlushLogRepository;
-use Ploi\FastCgiCache\Ploi\PloiApiException;
-use Ploi\FastCgiCache\Ploi\PloiClient;
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Log\FlushLogEntry;
+use FastCgiCacheForPloi\Log\FlushLogRepository;
+use FastCgiCacheForPloi\Ploi\PloiApiException;
+use FastCgiCacheForPloi\Ploi\PloiClient;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Logging\LoggerInterface;
 
 /**

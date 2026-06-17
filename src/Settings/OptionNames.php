@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Settings;
+namespace FastCgiCacheForPloi\Settings;
 
 /**
  * The names of the WordPress option rows this plugin owns, built from the

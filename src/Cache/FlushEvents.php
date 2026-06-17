@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Cache;
+namespace FastCgiCacheForPloi\Cache;
 
 /**
  * The content-change events that can trigger a cache flush, as the settings UI
@@ -69,12 +69,12 @@ final class FlushEvents
     private static function description(FlushReason $reason): string
     {
         return match ($reason) {
-            FlushReason::PostSave   => __('A published post, page or custom post type is created, updated, or changes status.', 'ploi-fastcgi-cache'),
-            FlushReason::PostDelete => __('A published post is moved to trash or permanently deleted.', 'ploi-fastcgi-cache'),
-            FlushReason::Comment    => __('A comment is submitted, approved, unapproved, spammed or deleted.', 'ploi-fastcgi-cache'),
-            FlushReason::Theme      => __('The active theme changes.', 'ploi-fastcgi-cache'),
-            FlushReason::Customizer => __('Customizer settings are saved.', 'ploi-fastcgi-cache'),
-            FlushReason::Menu       => __('A navigation menu is created or updated.', 'ploi-fastcgi-cache'),
+            FlushReason::PostSave   => __('A published post, page or custom post type is created, updated, or changes status.', 'fastcgi-cache-for-ploi'),
+            FlushReason::PostDelete => __('A published post is moved to trash or permanently deleted.', 'fastcgi-cache-for-ploi'),
+            FlushReason::Comment    => __('A comment is submitted, approved, unapproved, spammed or deleted.', 'fastcgi-cache-for-ploi'),
+            FlushReason::Theme      => __('The active theme changes.', 'fastcgi-cache-for-ploi'),
+            FlushReason::Customizer => __('Customizer settings are saved.', 'fastcgi-cache-for-ploi'),
+            FlushReason::Menu       => __('A navigation menu is created or updated.', 'fastcgi-cache-for-ploi'),
             FlushReason::Manual     => '',
         };
     }

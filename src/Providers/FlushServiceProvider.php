@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Providers;
+namespace FastCgiCacheForPloi\Providers;
 
-use Ploi\FastCgiCache\Cache\FlushScheduler;
-use Ploi\FastCgiCache\Events\ContentChangeSubscriber;
+use FastCgiCacheForPloi\Cache\FlushScheduler;
+use FastCgiCacheForPloi\Events\ContentChangeSubscriber;
 use WPForge\Provider\ServiceProvider;
 
 /**

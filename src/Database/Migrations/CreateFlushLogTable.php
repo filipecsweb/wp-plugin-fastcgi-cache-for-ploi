@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Database\Migrations;
+namespace FastCgiCacheForPloi\Database\Migrations;
 
-use Ploi\FastCgiCache\Log\FlushLogRepository;
+use FastCgiCacheForPloi\Log\FlushLogRepository;
 use WPForge\Database\Migration;
 
 /**

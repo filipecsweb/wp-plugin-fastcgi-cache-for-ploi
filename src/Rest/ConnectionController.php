@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Rest;
+namespace FastCgiCacheForPloi\Rest;
 
-use Ploi\FastCgiCache\Ploi\PloiApiException;
-use Ploi\FastCgiCache\Ploi\PloiClient;
-use Ploi\FastCgiCache\Providers\RestServiceProvider;
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Ploi\PloiApiException;
+use FastCgiCacheForPloi\Ploi\PloiClient;
+use FastCgiCacheForPloi\Providers\RestServiceProvider;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Security\Capability;
 use WP_Error;
 use WP_REST_Request;
@@ -75,7 +75,7 @@ final class ConnectionController extends PloiRestController
         $token    = $provided !== '' ? $provided : $this->settings->token();
 
         if ($token === null || $token === '') {
-            return $this->error('no_token', __('Enter a Ploi API token to test.', 'ploi-fastcgi-cache'), 400);
+            return $this->error('no_token', __('Enter a Ploi API token to test.', 'fastcgi-cache-for-ploi'), 400);
         }
 
         try {
@@ -91,7 +91,7 @@ final class ConnectionController extends PloiRestController
 
         return $this->respond([
             'success' => true,
-            'message' => __('Connection successful — token saved.', 'ploi-fastcgi-cache'),
+            'message' => __('Connection successful — token saved.', 'fastcgi-cache-for-ploi'),
             'servers' => $servers,
         ]);
     }

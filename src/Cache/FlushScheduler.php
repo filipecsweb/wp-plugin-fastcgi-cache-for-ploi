@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Cache;
+namespace FastCgiCacheForPloi\Cache;
 
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 
 /**
  * Coalesces bursts of content changes into a SINGLE flush.
@@ -19,14 +19,14 @@ use Ploi\FastCgiCache\Settings\PloiSettings;
  */
 final class FlushScheduler
 {
-    public const CRON_HOOK = 'ploi_fastcgi_cache_flush';
+    public const CRON_HOOK = 'fastcgi_cache_for_ploi_flush';
 
     /**
      * Transient key for the pending-flush marker. Public so the lifecycle
      * teardown (Deactivator/Uninstaller) clears the exact same key, never a
      * re-typed copy.
      */
-    public const LOCK = 'ploi_fastcgi_cache_pending';
+    public const LOCK = 'fastcgi_cache_for_ploi_pending';
 
     public function __construct(
         private readonly PloiSettings $settings,

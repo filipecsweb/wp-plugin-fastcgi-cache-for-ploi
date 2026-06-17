@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Tests\Unit\Log;
+namespace FastCgiCacheForPloi\Tests\Unit\Log;
 
 use Brain\Monkey\Functions;
-use Ploi\FastCgiCache\Log\FlushLogEntry;
+use FastCgiCacheForPloi\Log\FlushLogEntry;
 
 beforeEach(function (): void {
     Functions\when('__')->returnArg(1);

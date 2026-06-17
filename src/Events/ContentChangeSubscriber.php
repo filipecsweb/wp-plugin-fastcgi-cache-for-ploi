@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Events;
+namespace FastCgiCacheForPloi\Events;
 
-use Ploi\FastCgiCache\Cache\FlushReason;
-use Ploi\FastCgiCache\Cache\FlushScheduler;
-use Ploi\FastCgiCache\Settings\PloiSettings;
+use FastCgiCacheForPloi\Cache\FlushReason;
+use FastCgiCacheForPloi\Cache\FlushScheduler;
+use FastCgiCacheForPloi\Settings\PloiSettings;
 use WPForge\Hooks\Action;
 use WP_Post;
 

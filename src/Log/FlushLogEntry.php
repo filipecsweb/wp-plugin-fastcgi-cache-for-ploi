@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Log;
+namespace FastCgiCacheForPloi\Log;
 
-use Ploi\FastCgiCache\Cache\FlushReason;
+use FastCgiCacheForPloi\Cache\FlushReason;
 
 /**
  * One row of the flush log.
@@ -111,8 +111,8 @@ final class FlushLogEntry
     public static function failureHint(int $httpCode): ?string
     {
         return match ($httpCode) {
-            401 => __('Ploi rejected the token as wrong or expired.', 'ploi-fastcgi-cache'),
-            422 => __('Ploi rejected the flush — FastCGI caching may not be enabled for this site.', 'ploi-fastcgi-cache'),
+            401 => __('Ploi rejected the token as wrong or expired.', 'fastcgi-cache-for-ploi'),
+            422 => __('Ploi rejected the flush — FastCGI caching may not be enabled for this site.', 'fastcgi-cache-for-ploi'),
             default => null,
         };
     }

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Tests\Unit\Ploi;
+namespace FastCgiCacheForPloi\Tests\Unit\Ploi;
 
 use Brain\Monkey\Functions;
-use Ploi\FastCgiCache\Ploi\PloiApiException;
+use FastCgiCacheForPloi\Ploi\PloiApiException;
 use WPForge\Http\Response;
 
 beforeEach(function (): void {

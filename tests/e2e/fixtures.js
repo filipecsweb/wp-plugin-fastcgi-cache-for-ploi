@@ -17,7 +17,7 @@ const WP_PREFIX = process.env.WP_PATH_PREFIX || ''
 const ADMIN = { login: process.env.WP_ADMIN_USER || 'admin', pass: process.env.WP_ADMIN_PASS || 'password' }
 
 export const LOGIN_PATH = `${WP_PREFIX}/wp-login.php`
-export const SETTINGS_PATH = `${WP_PREFIX}/wp-admin/options-general.php?page=ploi-fastcgi-cache`
+export const SETTINGS_PATH = `${WP_PREFIX}/wp-admin/options-general.php?page=fastcgi-cache-for-ploi`
 
 async function loginAs(page, { login, pass }) {
   await page.goto(LOGIN_PATH)

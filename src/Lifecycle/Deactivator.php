@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Lifecycle;
+namespace FastCgiCacheForPloi\Lifecycle;
 
-use Ploi\FastCgiCache\Cache\FlushScheduler;
+use FastCgiCacheForPloi\Cache\FlushScheduler;
 
 /**
  * Deactivation handler: clear any pending coalesced flush.

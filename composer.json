@@ -1,5 +1,5 @@
 {
-    "name": "ploi/fastcgi-cache",
+    "name": "filipeseabra/fastcgi-cache-for-ploi",
     "description": "Automatically flush a Ploi-managed site's FastCGI cache when content changes. Built on the WPForge plugin Foundation.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
@@ -22,12 +22,12 @@
         "psr-4": {
             "WPForge\\": "foundation/src/",
             "WPForge\\Module\\AdminUi\\": "modules/admin-ui/src/",
-            "Ploi\\FastCgiCache\\": "src/"
+            "FastCgiCacheForPloi\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Ploi\\FastCgiCache\\Tests\\": "tests/"
+            "FastCgiCacheForPloi\\Tests\\": "tests/"
         }
     },
     "config": {

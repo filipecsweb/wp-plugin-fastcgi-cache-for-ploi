@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ploi\FastCgiCache\Admin;
+namespace FastCgiCacheForPloi\Admin;
 
-use Ploi\FastCgiCache\Providers\RestServiceProvider;
+use FastCgiCacheForPloi\Providers\RestServiceProvider;
 use WPForge\Module\AdminUi\AdminPage;
 
 /**
@@ -15,7 +15,7 @@ use WPForge\Module\AdminUi\AdminPage;
  */
 final class SettingsPage extends AdminPage
 {
-    public const SLUG = 'ploi-fastcgi-cache';
+    public const SLUG = 'fastcgi-cache-for-ploi';
 
     public function __construct(
         private readonly string $viewPath,
@@ -46,12 +46,12 @@ final class SettingsPage extends AdminPage
 
     protected function pageTitle(): string
     {
-        return __('FastCGI Cache for Ploi', 'ploi-fastcgi-cache');
+        return __('FastCGI Cache for Ploi', 'fastcgi-cache-for-ploi');
     }
 
     protected function menuTitle(): string
     {
-        return __('FastCGI Cache', 'ploi-fastcgi-cache');
+        return __('FastCGI Cache', 'fastcgi-cache-for-ploi');
     }
 
     protected function renderBody(): void

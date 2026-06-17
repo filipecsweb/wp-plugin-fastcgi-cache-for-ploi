@@ -57,9 +57,9 @@ export default function globalSetup() {
     return
   }
 
-  wpTry(['option', 'delete', 'ploi_fastcgi_cache_settings'])
-  wpTry(['transient', 'delete', 'ploi_fastcgi_cache_pending'])
-  wpTry(['cron', 'event', 'delete', 'ploi_fastcgi_cache_flush'])
+  wpTry(['option', 'delete', 'fastcgi_cache_for_ploi_settings'])
+  wpTry(['transient', 'delete', 'fastcgi_cache_for_ploi_pending'])
+  wpTry(['cron', 'event', 'delete', 'fastcgi_cache_for_ploi_flush'])
 
   if (wpTry(['user', 'get', E2E_SUBSCRIBER.login, '--field=ID'])) {
     wp(['user', 'update', E2E_SUBSCRIBER.login, '--role=subscriber', `--user_pass=${E2E_SUBSCRIBER.pass}`])
