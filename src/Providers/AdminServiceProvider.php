@@ -78,7 +78,6 @@ final class AdminServiceProvider extends ServiceProvider
                 'disconnected'   => __('Token removed. Add a new token to reconnect.', 'fastcgi-cache-for-ploi'),
                 'genericError'   => __('Something went wrong. Please try again.', 'fastcgi-cache-for-ploi'),
                 'needToken'      => __('Add a Ploi API token first.', 'fastcgi-cache-for-ploi'),
-                'needTarget'     => __('Choose a server and site.', 'fastcgi-cache-for-ploi'),
                 // Reconnect-banner body, keyed by why the saved token is unusable.
                 // Keys track ConnectionController's failure states + the decrypt
                 // failure (409), funnelled through store requireReconnect().

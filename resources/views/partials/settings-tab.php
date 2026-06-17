@@ -69,17 +69,17 @@ defined('ABSPATH') || exit;
                     ?>
                 </p>
 
-                <div class="tw:flex tw:flex-col tw:gap-2 tw:border-t tw:border-gray-100 tw:pt-4">
-                    <span class="tw:text-sm tw:font-semibold"><?php echo esc_html__('Flush target', 'fastcgi-cache-for-ploi'); ?></span>
+                <div class="tw:flex tw:flex-col tw:gap-1 tw:border-t tw:border-gray-100 tw:pt-4">
+                    <span class="tw:text-sm tw:font-semibold"><?php echo esc_html__('Flush target (Server and Site)', 'fastcgi-cache-for-ploi'); ?></span>
+                    <p class="tw:m-0! tw:text-[13px] tw:text-gray-600" x-show="canFlush">
+                        <?php echo esc_html__('Currently flushing:', 'fastcgi-cache-for-ploi'); ?>
+                        <strong x-text="`${saved.serverName || saved.serverId} → ${saved.siteDomain || saved.siteId}`"></strong>
+                    </p>
+                    <span class="tw:text-[13px] tw:text-gray-500" x-show="!canFlush && flushDisabledReason" x-text="flushDisabledReason"></span>
                     <div class="tw:flex tw:flex-wrap tw:items-center tw:gap-3">
-                        <p class="tw:m-0! tw:text-[13px] tw:text-gray-600" x-show="canFlush">
-                            <?php echo esc_html__('Currently flushing:', 'fastcgi-cache-for-ploi'); ?>
-                            <strong x-text="`${saved.serverName || saved.serverId} → ${saved.siteDomain || saved.siteId}`"></strong>
-                        </p>
-                        <span class="tw:text-[13px] tw:text-gray-500" x-show="!canFlush && flushDisabledReason" x-text="flushDisabledReason"></span>
-                        <button type="button" class="button-link" x-show="hasToken && !needsReconnect" @click="openTargetModal()" x-text="canFlush
+                        <button type="button" class="button" x-show="hasToken && !needsReconnect" @click="openTargetModal()" x-text="canFlush
                             ? '<?php echo esc_js(__('Change', 'fastcgi-cache-for-ploi')); ?>'
-                            : '<?php echo esc_js(__('Choose target', 'fastcgi-cache-for-ploi')); ?>'"></button>
+                            : '<?php echo esc_js(__('Select target', 'fastcgi-cache-for-ploi')); ?>'"></button>
                         <button type="button" class="button tw:ml-auto" @click="flushNow()" :disabled="!canFlush || busy.flush">
                             <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
                                 <span x-show="busy.flush" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>

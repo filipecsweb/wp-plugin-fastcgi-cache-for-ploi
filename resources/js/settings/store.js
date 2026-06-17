@@ -87,7 +87,6 @@ export default function ploiCache() {
       // duplicate it next to the Flush button.
       if (this.needsReconnect) return ''
       if (!this.saved.hasToken) return this.cfg.i18n.needToken
-      if (!this.saved.serverId || !this.saved.siteId) return this.cfg.i18n.needTarget
       return ''
     },
 

@@ -13,7 +13,7 @@ test.describe('Settings screen — unconfigured', () => {
 
   test('disables "Flush now" until configured, with a reason (§7)', async ({ admin }) => {
     await expect(admin.getByRole('button', { name: /Flush now/i })).toBeDisabled()
-    await expect(admin.locator('.ploi-cache-admin')).toContainText(/Add a Ploi API token first|Choose a server and site/i)
+    await expect(admin.locator('.ploi-cache-admin')).toContainText(/Add a Ploi API token first/i)
   })
 
   test('rejects an invalid coalesce window (§5)', async ({ admin }) => {
@@ -76,7 +76,7 @@ test.describe('Settings screen — saving (§6)', () => {
     await rest.seed({ server_id: '', site_id: '' })
     await admin.reload()
     await expect(admin.getByRole('button', { name: /Flush now/i })).toBeDisabled()
-    await expect(admin.locator('.ploi-cache-admin')).toContainText(/Choose a server and site/i)
+    await expect(admin.getByRole('button', { name: /Select target/i })).toBeVisible()
   })
 })
 
