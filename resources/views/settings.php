@@ -77,62 +77,77 @@ defined('ABSPATH') || exit;
                 <h2 class="hndle tw:m-0! tw:px-4 tw:py-3 tw:text-sm! tw:font-semibold"><?php echo esc_html__('Connection', 'ploi-fastcgi-cache'); ?></h2>
             </div>
             <div class="inside">
-                <p class="description tw:mt-0">
-                    <?php echo esc_html__('Testing a token verifies it against Ploi and saves it (encrypted) automatically. A saved token is never shown again.', 'ploi-fastcgi-cache'); ?>
-                </p>
+                <div class="tw:flex tw:flex-col tw:gap-3">
+                    <p class="description tw:m-0!">
+                        <?php echo esc_html__('Testing a token verifies it against Ploi and saves it (encrypted) automatically. A saved token is never shown again.', 'ploi-fastcgi-cache'); ?>
+                    </p>
 
-                <div class="tw:flex tw:flex-col tw:gap-3 tw:sm:flex-row tw:sm:items-end">
-                    <label class="tw:flex tw:flex-1 tw:flex-col tw:gap-1">
-                        <span class="tw:text-sm tw:font-semibold"><?php echo esc_html__('Ploi API token', 'ploi-fastcgi-cache'); ?></span>
-                        <input
-                            type="password"
-                            class="large-text tw:w-full!"
-                            autocomplete="off"
-                            spellcheck="false"
-                            x-model="token"
-                            :placeholder="hasToken
-                                ? '<?php echo esc_js(__('Token saved — enter a new one to replace it', 'ploi-fastcgi-cache')); ?>'
-                                : '<?php echo esc_js(__('Enter your Ploi API token', 'ploi-fastcgi-cache')); ?>'"
-                        >
-                    </label>
-                    <button type="button" class="button" @click="testConnection()" :disabled="busy.test">
-                        <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
-                            <span x-show="busy.test" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
-                            <span x-text="busy.test
-                                ? '<?php echo esc_js(__('Testing…', 'ploi-fastcgi-cache')); ?>'
-                                : '<?php echo esc_js(__('Test connection', 'ploi-fastcgi-cache')); ?>'"></span>
-                        </span>
-                    </button>
-                </div>
-
-                <div class="tw:mt-3 tw:flex tw:flex-col tw:gap-3">
-                    <div class="tw:flex tw:items-center tw:gap-2 tw:text-sm">
-                        <span class="tw:inline-block tw:h-2 tw:w-2 tw:rounded-full" :class="hasToken ? 'tw:bg-green-500' : 'tw:bg-gray-300'"></span>
-                        <span class="tw:text-gray-600" x-text="hasToken
-                            ? '<?php echo esc_js(__('A token is saved.', 'ploi-fastcgi-cache')); ?>'
-                            : '<?php echo esc_js(__('No token saved yet.', 'ploi-fastcgi-cache')); ?>'"></span>
-                        <button
-                            type="button"
-                            class="button-link button-link-delete tw:ml-auto"
-                            x-show="hasToken && !confirmingDisconnect"
-                            @click="askDisconnect()"
-                        ><?php echo esc_html__('Disconnect', 'ploi-fastcgi-cache'); ?></button>
+                    <div class="tw:flex tw:flex-col tw:gap-3 tw:sm:flex-row tw:sm:items-end">
+                        <label class="tw:flex tw:flex-1 tw:flex-col tw:gap-1">
+                            <span class="tw:text-sm tw:font-semibold"><?php echo esc_html__('Ploi API token', 'ploi-fastcgi-cache'); ?></span>
+                            <input
+                                type="password"
+                                class="large-text tw:w-full!"
+                                autocomplete="off"
+                                spellcheck="false"
+                                x-model="token"
+                                :placeholder="hasToken
+                                    ? '<?php echo esc_js(__('Token saved — enter a new one to replace it', 'ploi-fastcgi-cache')); ?>'
+                                    : '<?php echo esc_js(__('Enter your Ploi API token', 'ploi-fastcgi-cache')); ?>'"
+                            >
+                        </label>
+                        <button type="button" class="button" @click="testConnection()" :disabled="busy.test">
+                            <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
+                                <span x-show="busy.test" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
+                                <span x-text="busy.test
+                                    ? '<?php echo esc_js(__('Testing…', 'ploi-fastcgi-cache')); ?>'
+                                    : '<?php echo esc_js(__('Test connection', 'ploi-fastcgi-cache')); ?>'"></span>
+                            </span>
+                        </button>
                     </div>
 
-                    <!-- Inline destructive confirm (no native dialog) -->
-                    <div x-show="confirmingDisconnect" class="notice notice-warning inline tw:m-0!" role="alert">
-                        <p><?php echo esc_html__('Remove the saved token? Flushing will stop until you reconnect.', 'ploi-fastcgi-cache'); ?></p>
-                        <p class="tw:flex tw:items-center tw:gap-2">
-                            <button type="button" class="button button-small" @click="disconnect()" :disabled="busy.disconnect">
-                                <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
-                                    <span x-show="busy.disconnect" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
-                                    <span x-text="busy.disconnect
-                                        ? '<?php echo esc_js(__('Disconnecting…', 'ploi-fastcgi-cache')); ?>'
-                                        : '<?php echo esc_js(__('Yes, disconnect', 'ploi-fastcgi-cache')); ?>'"></span>
-                                </span>
-                            </button>
-                            <button type="button" class="button button-small" @click="cancelDisconnect()" :disabled="busy.disconnect"><?php echo esc_html__('Cancel', 'ploi-fastcgi-cache'); ?></button>
-                        </p>
+                    <p class="description tw:m-0!">
+                        <?php
+                        printf(
+                            /* translators: 1: <strong>-wrapped breadcrumb to the Ploi API keys screen; 2: opening <a> tag; 3: closing </a> tag; 4: <code>-wrapped example token name. */
+                            esc_html__('Paste a Ploi API token to connect. Create one in %1$s (%2$sopen ↗%3$s) and name it something like %4$s so it\'s easy to find and revoke later.', 'ploi-fastcgi-cache'),
+                            '<strong>' . esc_html__('Ploi → API keys', 'ploi-fastcgi-cache') . '</strong>',
+                            '<a href="' . esc_url('https://ploi.io/profile/api-keys') . '" target="_blank" rel="noopener noreferrer">',
+                            '</a>',
+                            '<code class="tw:mx-1!">' . esc_html__('FastCGI Cache — yoursite.com', 'ploi-fastcgi-cache') . '</code>'
+                        );
+                        ?>
+                    </p>
+
+                    <div class="tw:flex tw:flex-col tw:gap-3">
+                        <div class="tw:flex tw:items-center tw:gap-2 tw:text-sm">
+                            <span class="tw:inline-block tw:h-2 tw:w-2 tw:rounded-full" :class="hasToken ? 'tw:bg-green-500' : 'tw:bg-gray-300'"></span>
+                            <span class="tw:text-gray-600" x-text="hasToken
+                                ? '<?php echo esc_js(__('A token is saved.', 'ploi-fastcgi-cache')); ?>'
+                                : '<?php echo esc_js(__('No token saved yet.', 'ploi-fastcgi-cache')); ?>'"></span>
+                            <button
+                                type="button"
+                                class="button-link button-link-delete tw:ml-auto"
+                                x-show="hasToken && !confirmingDisconnect"
+                                @click="askDisconnect()"
+                            ><?php echo esc_html__('Disconnect', 'ploi-fastcgi-cache'); ?></button>
+                        </div>
+
+                        <!-- Inline destructive confirm (no native dialog) -->
+                        <div x-show="confirmingDisconnect" class="notice notice-warning inline tw:m-0!" role="alert">
+                            <p><?php echo esc_html__('Remove the saved token? Flushing will stop until you reconnect.', 'ploi-fastcgi-cache'); ?></p>
+                            <p class="tw:flex tw:items-center tw:gap-2">
+                                <button type="button" class="button button-small" @click="disconnect()" :disabled="busy.disconnect">
+                                    <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
+                                        <span x-show="busy.disconnect" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
+                                        <span x-text="busy.disconnect
+                                            ? '<?php echo esc_js(__('Disconnecting…', 'ploi-fastcgi-cache')); ?>'
+                                            : '<?php echo esc_js(__('Yes, disconnect', 'ploi-fastcgi-cache')); ?>'"></span>
+                                    </span>
+                                </button>
+                                <button type="button" class="button button-small" @click="cancelDisconnect()" :disabled="busy.disconnect"><?php echo esc_html__('Cancel', 'ploi-fastcgi-cache'); ?></button>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -292,7 +307,36 @@ defined('ABSPATH') || exit;
                                             ? '<?php echo esc_js(__('Success', 'ploi-fastcgi-cache')); ?>'
                                             : '<?php echo esc_js(__('Failed', 'ploi-fastcgi-cache')); ?>'"
                                     ></span>
-                                    <span class="tw:ml-1 tw:text-[13px] tw:text-gray-500" x-show="entry.http_code" x-text="`HTTP ${entry.http_code}`"></span>
+                                    <span class="tw:ml-1 tw:inline-flex tw:items-center tw:gap-1 tw:align-middle tw:text-[13px] tw:text-gray-500" x-show="entry.http_code">
+                                        <span x-text="`HTTP ${entry.http_code}`"></span>
+                                        <span
+                                            x-show="entry.hint"
+                                            x-data="tooltip"
+                                            class="tw:relative tw:inline-flex"
+                                            @keydown.escape="hide()"
+                                            @click.outside="hide()"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="button-link tw:inline-flex tw:items-center tw:align-middle"
+                                                @mouseenter="show()"
+                                                @mouseleave="hide()"
+                                                @focus="show()"
+                                                @blur="hide()"
+                                                @click="show()"
+                                                :aria-label="entry.hint"
+                                            >
+                                                <span class="dashicons dashicons-editor-help tw:text-[16px]! tw:h-[16px]! tw:w-[16px]! tw:leading-none!" aria-hidden="true"></span>
+                                            </button>
+                                            <span
+                                                x-show="open"
+                                                x-transition.opacity
+                                                aria-hidden="true"
+                                                x-text="entry.hint"
+                                                class="tw:absolute tw:top-full tw:left-1/2 tw:z-20 tw:mt-1 tw:-translate-x-1/2 tw:w-max tw:max-w-xs tw:rounded tw:bg-gray-900 tw:px-2 tw:py-1 tw:text-[12px] tw:text-white tw:shadow-lg"
+                                            ></span>
+                                        </span>
+                                    </span>
                                     <div class="tw:mt-1 tw:text-[13px] tw:text-red-600" x-show="entry.message" x-text="entry.message"></div>
                                 </td>
                                 <td x-text="`${entry.duration_ms} ms`"></td>

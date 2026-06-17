@@ -87,7 +87,34 @@ final class FlushLogEntry
             'http_code'    => $this->httpCode,
             'duration_ms'  => $this->durationMs,
             'message'      => $this->message,
+            'hint'         => self::failureHint($this->httpCode),
         ];
+    }
+
+    /**
+     * Human-readable diagnostic for a failed flush, keyed by HTTP status.
+     *
+     * Single source of truth: both the immediate "Flush now" notice
+     * (FlushController::failureNotice()) and the serialized log row consume this,
+     * so the two can never diverge. Phrased as a tense-neutral DIAGNOSTIC — never
+     * an imperative — so the same string reads correctly both in the notice shown
+     * the instant a flush fails AND in a historical log row, and never goes stale
+     * the way an instruction ("re-test your token") would once the token or target
+     * is fixed. Returns null for codes we have no specific gloss for; callers fall
+     * back to the raw Ploi message.
+     *
+     * Ploi answers 422 on the flush endpoint when the site has no FastCGI cache to
+     * flush, and its raw "The given data was invalid." is opaque; we can't prove
+     * 422 is exclusive to that case, so we hedge ("may not be enabled"). Bad
+     * server/site IDs return 404, not 422.
+     */
+    public static function failureHint(int $httpCode): ?string
+    {
+        return match ($httpCode) {
+            401 => __('Ploi rejected the token as wrong or expired.', 'ploi-fastcgi-cache'),
+            422 => __('Ploi rejected the flush — FastCGI caching may not be enabled for this site.', 'ploi-fastcgi-cache'),
+            default => null,
+        };
     }
 
     private static function asString(mixed $value): string

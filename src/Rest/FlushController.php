@@ -6,6 +6,7 @@ namespace Ploi\FastCgiCache\Rest;
 
 use Ploi\FastCgiCache\Cache\CacheFlusher;
 use Ploi\FastCgiCache\Cache\FlushReason;
+use Ploi\FastCgiCache\Log\FlushLogEntry;
 use Ploi\FastCgiCache\Providers\RestServiceProvider;
 use Ploi\FastCgiCache\Settings\PloiSettings;
 use WPForge\Security\Capability;
@@ -72,28 +73,25 @@ final class FlushController extends PloiRestController
     /**
      * Build the user-facing notice for a failed flush.
      *
-     * The log keeps the raw Ploi message (see CacheFlusher) for debugging; this
-     * only shapes what the admin sees. Ploi answers 422 on the flush endpoint
-     * when the site has no FastCGI cache to flush, and its raw "The given data
-     * was invalid." is opaque. We can't prove 422 is exclusive to that case, so
-     * we hedge ("may not be enabled") and still append Ploi's raw message so any
-     * other 422 cause stays legible. Bad server/site IDs return 404, not 422.
+     * The per-status gloss is single-sourced in {@see FlushLogEntry::failureHint()}
+     * so this notice and the log row stay in lockstep; here we only COMPOSE that
+     * hint with Ploi's raw message (kept for debugging), or fall back to the raw
+     * message when we have no specific gloss for the status.
      */
     private function failureNotice(int $httpCode, ?string $raw): string
     {
-        $raw = $raw !== null && $raw !== '' ? $raw : null;
+        $raw  = $raw !== null && $raw !== '' ? $raw : null;
+        $hint = FlushLogEntry::failureHint($httpCode);
 
-        if ($httpCode === 422) {
-            $hint = __('Ploi rejected the flush — FastCGI caching may not be enabled for this site.', 'ploi-fastcgi-cache');
-
-            return $raw === null ? $hint : sprintf(
-                /* translators: 1: friendly explanation, 2: raw message from the Ploi API. */
-                __('%1$s (Ploi: %2$s)', 'ploi-fastcgi-cache'),
-                $hint,
-                $raw
-            );
+        if ($hint === null) {
+            return $raw ?? __('The flush request failed.', 'ploi-fastcgi-cache');
         }
 
-        return $raw ?? __('The flush request failed.', 'ploi-fastcgi-cache');
+        return $raw === null ? $hint : sprintf(
+            /* translators: 1: friendly explanation, 2: raw message from the Ploi API. */
+            __('%1$s (Ploi: %2$s)', 'ploi-fastcgi-cache'),
+            $hint,
+            $raw
+        );
     }
 }
