@@ -17,7 +17,7 @@ defined('ABSPATH') || exit;
 <div class="tw:fixed tw:bottom-4 tw:right-4 tw:z-[100000] tw:flex tw:w-80 tw:max-w-[calc(100vw-2rem)] tw:flex-col tw:gap-2">
     <template x-for="toast in $store.toasts.items" :key="toast.id">
         <div
-            class="notice inline is-dismissible tw:m-0! tw:shadow-lg"
+            class="notice inline is-dismissible tw:relative tw:m-0! tw:overflow-hidden tw:shadow-lg"
             :class="toast.type === 'success' ? 'notice-success' : toast.type === 'warning' ? 'notice-warning' : toast.type === 'info' ? 'notice-info' : 'notice-error'"
             :role="toast.type === 'success' || toast.type === 'info' ? 'status' : 'alert'"
             :aria-live="toast.type === 'success' || toast.type === 'info' ? 'polite' : 'assertive'"
@@ -32,6 +32,13 @@ defined('ABSPATH') || exit;
             <button type="button" class="notice-dismiss" x-show="toast.dismissible" @click="$store.toasts.remove(toast.id)">
                 <span class="screen-reader-text"><?php echo esc_html__('Dismiss this notice.', 'fastcgi-cache-for-ploi'); ?></span>
             </button>
+            <div
+                x-show="toast.timeout > 0"
+                aria-hidden="true"
+                class="tw:absolute tw:bottom-0 tw:left-0 tw:h-1"
+                :class="toast.type === 'success' ? 'tw:bg-green-600' : toast.type === 'warning' ? 'tw:bg-amber-500' : toast.type === 'info' ? 'tw:bg-blue-500' : 'tw:bg-red-600'"
+                :style="`width: ${toast.progress}%`"
+            ></div>
         </div>
     </template>
 </div>
