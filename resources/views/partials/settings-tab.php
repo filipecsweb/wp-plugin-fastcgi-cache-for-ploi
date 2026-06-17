@@ -2,7 +2,8 @@
 
 /**
  * "Settings" tab body: Connection, Target, the auto-flush events + coalesce
- * window, and the Save / Flush-now actions. Rendered inside the shared Alpine
+ * window. Each card carries its own "Save settings" button (shared save-button
+ * partial); "Flush now" lives only in the Target card. Rendered inside the shared Alpine
  * `x-data="ploiCache"` root (see settings.php), so every binding below resolves
  * against that one component. The panel is shown via `activeTab`.
  *
@@ -100,6 +101,9 @@ defined('ABSPATH') || exit;
             </div>
         </div>
     </section>
+    <div class="tw:flex tw:flex-wrap tw:items-center tw:gap-3">
+        <?php $this->partial('save-button'); ?>
+    </div>
 
     <!-- Target server / site -->
     <section class="postbox tw:m-0!">
@@ -143,8 +147,23 @@ defined('ABSPATH') || exit;
                 <?php echo esc_html__('Currently flushing:', 'fastcgi-cache-for-ploi'); ?>
                 <strong x-text="`${saved.serverName || saved.serverId} → ${saved.siteDomain || saved.siteId}`"></strong>
             </p>
+
+            <div class="tw:mt-4 tw:flex tw:flex-wrap tw:items-center tw:justify-end tw:gap-2">
+                <span class="tw:text-[13px] tw:text-gray-500" x-show="!canFlush" x-text="flushDisabledReason"></span>
+                <button type="button" class="button" @click="flushNow()" :disabled="!canFlush || busy.flush">
+                    <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
+                        <span x-show="busy.flush" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
+                        <span x-text="busy.flush
+                            ? '<?php echo esc_js(__('Flushing…', 'fastcgi-cache-for-ploi')); ?>'
+                            : '<?php echo esc_js(__('Flush now', 'fastcgi-cache-for-ploi')); ?>'"></span>
+                    </span>
+                </button>
+            </div>
         </div>
     </section>
+    <div class="tw:flex tw:flex-wrap tw:items-center tw:gap-3">
+        <?php $this->partial('save-button'); ?>
+    </div>
 
     <!-- Auto-flush events -->
     <section class="postbox tw:m-0!">
@@ -186,28 +205,7 @@ defined('ABSPATH') || exit;
             </div>
         </div>
     </section>
-
-    <!-- Actions -->
-    <section class="tw:flex tw:flex-wrap tw:items-center tw:gap-3">
-        <button type="button" class="button button-primary" @click="save()" :disabled="busy.save || !debounceValid">
-            <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
-                <span x-show="busy.save" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
-                <span x-text="busy.save
-                    ? '<?php echo esc_js(__('Saving…', 'fastcgi-cache-for-ploi')); ?>'
-                    : '<?php echo esc_js(__('Save settings', 'fastcgi-cache-for-ploi')); ?>'"></span>
-            </span>
-        </button>
-
-        <span class="tw:inline-flex tw:items-center tw:gap-2">
-            <button type="button" class="button" @click="flushNow()" :disabled="!canFlush || busy.flush">
-                <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
-                    <span x-show="busy.flush" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
-                    <span x-text="busy.flush
-                        ? '<?php echo esc_js(__('Flushing…', 'fastcgi-cache-for-ploi')); ?>'
-                        : '<?php echo esc_js(__('Flush now', 'fastcgi-cache-for-ploi')); ?>'"></span>
-                </span>
-            </button>
-            <span class="tw:text-[13px] tw:text-gray-500" x-show="!canFlush" x-text="flushDisabledReason"></span>
-        </span>
-    </section>
+    <div class="tw:flex tw:flex-wrap tw:items-center tw:gap-3">
+        <?php $this->partial('save-button'); ?>
+    </div>
 </div>
