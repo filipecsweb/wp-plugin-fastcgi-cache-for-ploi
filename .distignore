@@ -20,6 +20,9 @@
 # --- AI / assistant tooling ---
 .claude
 
+# --- WordPress.org page assets (banner/icon/screenshots: SVN assets/, never the ZIP) ---
+.wordpress-org
+
 # --- Front-end source (compiled output lives in public/build/) ---
 node_modules
 package.json
