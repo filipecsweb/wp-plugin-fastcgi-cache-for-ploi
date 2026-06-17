@@ -46,16 +46,18 @@ export default function ploiCache() {
       siteDomain: s.siteDomain || '',
     },
     needsReconnect: !!s.needsReconnect,
+    // Why the saved token is unusable, selecting the reconnect banner's copy.
+    // Seeded from PHP only for the decrypt-failure case; runtime probes set the rest.
+    reconnectReason: s.needsReconnect ? 'unreadable' : '',
     keyWarning: !!cfg.keyWarning,
 
     events: cfg.events || [],
     log: cfg.log || [],
     busy: { connect: false, servers: false, sites: false, save: false, flush: false, log: false, disconnect: false, target: false },
-    notice: null,
     targetModalOpen: false,
-    // The change-target modal's own error line (its server/site lists couldn't
-    // load). Separate from `notice` because a page notice sits behind the overlay.
-    targetError: '',
+    // True once a target probe has populated the server list, so the modal can tell
+    // "loaded, none found" from "load failed" (the latter is surfaced via a toast).
+    serversLoaded: false,
 
     init() {
       // Reflect tab changes in the URL hash (refresh-safe, shareable) without
@@ -86,23 +88,45 @@ export default function ploiCache() {
       return Number.isInteger(n) && n >= this.cfg.debounceMin && n <= this.cfg.debounceMax
     },
 
-    setNotice(type, text) {
-      this.notice = { type, text }
-    },
-    // Transient confirmation that needn't persist above the tabs. Delegates to the
-    // shared toast store so any screen raises toasts the same way.
+    // Transient confirmation/failure that needn't persist. Delegates to the shared
+    // toast store so any screen raises toasts the same way.
     toast(type, text, opts = {}) {
       this.$store.toasts.add(type, text, opts)
     },
-    dismiss() {
-      this.notice = null
+
+    // The saved token can't be used until reconnected. The single entry point for
+    // every such condition (decrypt-fail, invalid, missing scope): raises the
+    // persistent banner with reason-specific copy and dismisses any open modal.
+    requireReconnect(reason) {
+      this.reconnectReason = reason
+      this.needsReconnect = true
+      this.saved.hasToken = false
+      this.targetModalOpen = false
     },
+
+    // A Ploi failure is either a saved-token problem (→ persistent reconnect banner)
+    // or a transient/reachability problem (→ toast). One classifier for both a probe
+    // `state` string and a thrown HTTP error.
+    failureReason(e) {
+      if (e.code === 'needs_reconnect' || e.status === 409) return 'unreadable'
+      if (e.status === 401) return 'invalid'
+      if (e.status === 403) return 'missing_permission'
+      return 'unknown'
+    },
+    routeTokenFailure(reason) {
+      if (reason === 'unreadable' || reason === 'invalid' || reason === 'missing_permission') {
+        this.requireReconnect(reason)
+      } else {
+        this.toast('error', this.cfg.i18n.cannotReach)
+      }
+    },
+
     handleError(e) {
       if (e.code === 'needs_reconnect' || e.status === 409) {
-        this.needsReconnect = true
-        this.saved.hasToken = false
+        this.requireReconnect('unreadable')
+        return
       }
-      this.setNotice('error', e.message)
+      this.toast('error', e.message)
     },
 
     // Adopt a server settings snapshot as the SAVED state (what flushing uses).
@@ -116,32 +140,25 @@ export default function ploiCache() {
         siteDomain: data.siteDomain || '',
       }
       this.needsReconnect = !!data.needsReconnect
-    },
-
-    // The specific reason a Ploi list call failed, for the modal's inline error:
-    // 401 → invalid token, 403 → missing scope, anything else → couldn't reach Ploi.
-    // The GET /connection probe reports the same reasons as a `state` (no HTTP
-    // error), so its keys match this map.
-    targetErrorFor(e) {
-      const key = e.status === 401 ? 'invalid' : e.status === 403 ? 'missing_permission' : 'unknown'
-      return this.cfg.i18n.targetError[key]
+      this.reconnectReason = data.needsReconnect ? 'unreadable' : ''
     },
 
     // Load the server/site lists for the change-target modal in one round-trip
-    // (GET /connection probes both scopes). A probe failure comes back as a
-    // `state`, not an HTTP error, so it maps to the same inline message.
+    // (GET /connection probes both scopes). A probe failure comes back as a `state`,
+    // not an HTTP error, so both feed the same routeTokenFailure() classifier.
     async loadTargetOptions() {
       this.servers = []
       this.sites = []
-      this.targetError = ''
+      this.serversLoaded = false
       this.busy.servers = true
       try {
         const data = await this.api('GET', '/connection')
         if (data.state && data.state !== 'ok') {
-          this.targetError = this.cfg.i18n.targetError[data.state] || this.cfg.i18n.targetError.unknown
+          this.routeTokenFailure(data.state)
           return
         }
         this.servers = data.servers || []
+        this.serversLoaded = true
         // Reuse the saved server's sites the probe already fetched; otherwise load
         // them when the saved server is present in the list.
         if (data.sites && data.sites.length && this.serverId) {
@@ -150,15 +167,7 @@ export default function ploiCache() {
           await this.loadSites()
         }
       } catch (e) {
-        // A decrypt-failure (409) means the token is unreadable: close the dialog
-        // and let the page reconnect banner own it. Otherwise show the reason inline.
-        if (e.code === 'needs_reconnect' || e.status === 409) {
-          this.needsReconnect = true
-          this.saved.hasToken = false
-          this.targetModalOpen = false
-        } else {
-          this.targetError = this.targetErrorFor(e)
-        }
+        this.routeTokenFailure(this.failureReason(e))
       } finally {
         this.busy.servers = false
       }
@@ -194,11 +203,10 @@ export default function ploiCache() {
     async connect() {
       const entered = this.token.trim()
       if (!entered) {
-        this.setNotice('error', this.cfg.i18n.needToken)
+        this.toast('error', this.cfg.i18n.needToken)
         return
       }
       this.busy.connect = true
-      this.notice = null
       try {
         const data = await this.api('POST', '/connection', { token: entered })
         this.adoptSaved(data)
@@ -213,7 +221,6 @@ export default function ploiCache() {
 
     async disconnect() {
       this.busy.disconnect = true
-      this.notice = null
       try {
         const data = await this.api('DELETE', '/connection')
         this.adoptSaved(data)
@@ -240,9 +247,9 @@ export default function ploiCache() {
         const data = await this.api('GET', `/servers/${encodeURIComponent(this.serverId)}/sites`)
         this.sites = data.sites || []
       } catch (e) {
-        // No stale options on failure; show the reason inline in the modal.
+        // No stale options on failure; the failure is surfaced by routeTokenFailure.
         this.sites = []
-        this.targetError = this.targetErrorFor(e)
+        this.routeTokenFailure(this.failureReason(e))
       } finally {
         this.busy.sites = false
       }
@@ -251,7 +258,6 @@ export default function ploiCache() {
     onServerChange() {
       this.siteId = ''
       this.sites = []
-      this.targetError = ''
       if (this.serverId) this.loadSites()
     },
 
@@ -268,7 +274,6 @@ export default function ploiCache() {
       // Start the dialog from the saved target, then lazy-load the lists it needs.
       this.serverId = this.saved.serverId
       this.siteId = this.saved.siteId
-      this.targetError = ''
       this.targetModalOpen = true
       this.loadTargetOptions()
     },
@@ -277,7 +282,6 @@ export default function ploiCache() {
     // touches the token, events, or debounce.
     async saveTarget() {
       this.busy.target = true
-      this.targetError = ''
       try {
         const data = await this.api('POST', '/target', {
           server_id: this.serverId,
@@ -290,7 +294,9 @@ export default function ploiCache() {
         // A decrypt-flake on save raises needsReconnect; let the page banner own it.
         if (!this.needsReconnect) this.toast('success', this.cfg.i18n.targetSaved)
       } catch (e) {
-        this.targetError = e.message || this.cfg.i18n.genericError
+        // Keep the modal open on a transient failure so the user can retry; a
+        // token-unusable error (handled in handleError) closes it for the banner.
+        this.handleError(e)
       } finally {
         this.busy.target = false
       }
@@ -300,7 +306,6 @@ export default function ploiCache() {
     // flush target (saveTarget) own their own state, so this preserves them.
     async save() {
       this.busy.save = true
-      this.notice = null
       try {
         await this.api('POST', '/settings', {
           server_id: this.saved.serverId,
@@ -320,7 +325,6 @@ export default function ploiCache() {
 
     async flushNow() {
       this.busy.flush = true
-      this.notice = null
       try {
         const data = await this.api('POST', '/flush', {})
         // CONTRACT: FlushController always returns data.message on success, so no client fallback.

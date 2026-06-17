@@ -12,10 +12,6 @@ declare(strict_types=1);
 defined('ABSPATH') || exit;
 ?>
 <div class="tw:flex tw:flex-col tw:gap-4">
-    <div x-show="targetError" class="notice notice-error inline tw:m-0!" role="alert">
-        <p x-text="targetError"></p>
-    </div>
-
     <div class="tw:grid tw:gap-4 tw:sm:grid-cols-2">
         <label class="tw:flex tw:flex-col tw:gap-1">
             <span class="tw:flex tw:items-center tw:gap-2 tw:text-sm tw:font-semibold">
@@ -28,7 +24,7 @@ defined('ABSPATH') || exit;
                     <option :value="server.id" :selected="String(server.id) === String(serverId)" x-text="server.name"></option>
                 </template>
             </select>
-            <span class="tw:text-[13px] tw:text-gray-500" x-show="!targetError && !busy.servers && servers.length === 0"><?php echo esc_html__('No servers found for this token.', 'fastcgi-cache-for-ploi'); ?></span>
+            <span class="tw:text-[13px] tw:text-gray-500" x-show="serversLoaded && !busy.servers && servers.length === 0"><?php echo esc_html__('No servers found for this token.', 'fastcgi-cache-for-ploi'); ?></span>
         </label>
 
         <label class="tw:flex tw:flex-col tw:gap-1">

@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 defined('ABSPATH') || exit;
 ?>
-<div class="tw:fixed tw:bottom-4 tw:right-4 tw:z-[100000] tw:flex tw:w-80 tw:max-w-[calc(100vw-2rem)] tw:flex-col tw:gap-2">
+<div class="tw:fixed tw:bottom-4 tw:right-4 tw:z-[100001] tw:flex tw:w-80 tw:max-w-[calc(100vw-2rem)] tw:flex-col tw:gap-2">
     <template x-for="toast in $store.toasts.items" :key="toast.id">
         <div
             class="notice inline is-dismissible tw:relative tw:m-0! tw:shadow-lg"

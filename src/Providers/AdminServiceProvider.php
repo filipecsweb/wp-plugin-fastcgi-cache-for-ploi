@@ -91,14 +91,16 @@ final class AdminServiceProvider extends ServiceProvider
                     PloiSettings::DEBOUNCE_MIN,
                     PloiSettings::DEBOUNCE_MAX
                 ),
-                // Inline messages in the change-target modal when its lists can't
-                // load. Keys track ConnectionController's failure states (the
-                // GET /connection probe reports the reason as a `state`).
-                'targetError'    => [
-                    'invalid'            => __('Ploi rejected your saved token. Disconnect and reconnect with a valid one.', 'fastcgi-cache-for-ploi'),
-                    'missing_permission' => __('Your saved token is missing a required permission. Reconnect with a token that has the Servers and Sites scopes.', 'fastcgi-cache-for-ploi'),
-                    'unknown'            => __('Couldn\'t reach Ploi right now. Close this and try again in a moment.', 'fastcgi-cache-for-ploi'),
+                // Reconnect-banner body, keyed by why the saved token is unusable.
+                // Keys track ConnectionController's failure states + the decrypt
+                // failure (409), funnelled through store requireReconnect().
+                'reconnect'      => [
+                    'unreadable'         => __('Your saved token could not be read — your site\'s security keys may have changed. Re-enter your Ploi API token below and click Connect.', 'fastcgi-cache-for-ploi'),
+                    'invalid'            => __('Ploi rejected your saved token. Re-enter a valid Ploi API token below and click Connect.', 'fastcgi-cache-for-ploi'),
+                    'missing_permission' => __('Your saved token is missing a required permission. Re-enter a token with the Servers and Sites scopes below and click Connect.', 'fastcgi-cache-for-ploi'),
                 ],
+                // Transient reachability failure (network / unexpected Ploi error).
+                'cannotReach'    => __('Couldn\'t reach Ploi right now. Try again in a moment.', 'fastcgi-cache-for-ploi'),
             ],
         ];
     }

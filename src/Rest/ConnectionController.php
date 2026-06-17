@@ -21,8 +21,9 @@ final class ConnectionController extends PloiRestController
 {
     /**
      * Saved-connection health states. These string values are a contract with the
-     * admin JS: the change-target modal maps a non-ok state to the matching
-     * i18n.targetError message, so they must stay in lockstep.
+     * admin JS: store routeTokenFailure() maps invalid/missing_permission to the
+     * persistent reconnect banner and anything else to a transient toast, so they
+     * must stay in lockstep.
      */
     private const STATE_OK                 = 'ok';
     private const STATE_INVALID            = 'invalid';
