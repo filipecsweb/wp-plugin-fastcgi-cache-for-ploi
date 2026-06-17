@@ -43,10 +43,28 @@ final class SettingsController extends PloiRestController
                 'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
             ],
         ]);
+
+        $this->registerRoute('/target', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'saveTarget'],
+            'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
+        ]);
     }
 
     public function show(WP_REST_Request $request): WP_REST_Response
     {
+        return $this->respond($this->settings->toArray());
+    }
+
+    /**
+     * Persist ONLY the flush target (server + site), leaving the token, events,
+     * and debounce untouched. The change-target modal selects from Ploi's own live
+     * list, so the IDs are valid by construction — no re-probe needed here.
+     */
+    public function saveTarget(WP_REST_Request $request): WP_REST_Response
+    {
+        $this->applyTarget($request);
+
         return $this->respond($this->settings->toArray());
     }
 
@@ -59,12 +77,7 @@ final class SettingsController extends PloiRestController
             $this->settings->setToken($token);
         }
 
-        $this->settings->setTarget(
-            $this->sanitizer->text($this->stringParam($request, 'server_id')),
-            $this->sanitizer->text($this->stringParam($request, 'site_id')),
-            $this->sanitizer->text($this->stringParam($request, 'server_name')),
-            $this->sanitizer->text($this->stringParam($request, 'site_domain')),
-        );
+        $this->applyTarget($request);
 
         $events = $request->get_param('events');
         $this->settings->setEvents(is_array($events) ? $events : []);
@@ -93,6 +106,16 @@ final class SettingsController extends PloiRestController
         }
 
         return $this->respond($data);
+    }
+
+    private function applyTarget(WP_REST_Request $request): void
+    {
+        $this->settings->setTarget(
+            $this->sanitizer->text($this->stringParam($request, 'server_id')),
+            $this->sanitizer->text($this->stringParam($request, 'site_id')),
+            $this->sanitizer->text($this->stringParam($request, 'server_name')),
+            $this->sanitizer->text($this->stringParam($request, 'site_domain')),
+        );
     }
 
     /**

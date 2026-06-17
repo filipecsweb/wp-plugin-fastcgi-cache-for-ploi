@@ -15,13 +15,6 @@ function initialTab(cfg) {
   return keys.includes(fromHash) ? fromHash : keys[0] || 'settings'
 }
 
-// A saved id/label pair as a single-option list — the floor each dropdown resets
-// to, so the saved target is always a selected, visible option even before (or
-// without) a live Ploi probe. Empty when nothing is saved.
-function savedOption(id, labelKey, label) {
-  return id ? [{ id, [labelKey]: label || id }] : []
-}
-
 export default function ploiCache() {
   const cfg = window.PloiCacheConfig || {}
   const s = cfg.settings || {}
@@ -39,10 +32,9 @@ export default function ploiCache() {
     enabled: { ...(s.enabledEvents || {}) },
     debounce: s.debounce ?? cfg.debounceDefault,
 
-    // From Ploi (GET /connection). Seeded with the saved target so it shows
-    // selected on first paint; the probe then adds the other choices.
-    servers: savedOption(s.serverId, 'name', s.serverName),
-    sites: savedOption(s.siteId, 'domain', s.siteDomain),
+    // Loaded from Ploi (GET /connection) only when the change-target modal opens.
+    servers: [],
+    sites: [],
 
     // WHY: separate from the working copy because flushing reads the persisted
     // snapshot, not edits in progress.
@@ -55,22 +47,20 @@ export default function ploiCache() {
     },
     needsReconnect: !!s.needsReconnect,
     keyWarning: !!cfg.keyWarning,
-    // Live health of the SAVED token, reconciled by refreshConnection() (load +
-    // Save) off GET /connection — never by Test. Drives the status badge. Seeded
-    // to 'checking' when a token is stored so the dot starts neutral (not green)
-    // until verified. Values mirror ConnectionController's states + the JS-only
+    // Health of the SAVED token, shown as the status dot. No probe on load: a
+    // saved token reads as 'ok' until Test or the change-target modal proves
+    // otherwise. Values mirror ConnectionController's states + the JS-only
     // 'checking': absent | checking | ok | invalid | missing_permission | unknown.
-    connectionState: s.hasToken ? 'checking' : 'absent',
+    connectionState: s.hasToken ? 'ok' : 'absent',
 
     events: cfg.events || [],
     log: cfg.log || [],
-    busy: { test: false, servers: false, sites: false, save: false, flush: false, log: false, disconnect: false },
+    busy: { test: false, servers: false, sites: false, save: false, flush: false, log: false, disconnect: false, target: false },
     notice: null,
     confirmingDisconnect: false,
+    targetModalOpen: false,
 
     init() {
-      // Single reconcile path: load the dropdowns to match the saved connection.
-      this.refreshConnection()
       // Reflect tab changes in the URL hash (refresh-safe, shareable) without
       // adding history entries or jumping the scroll position.
       this.$watch('activeTab', (tab) => {
@@ -138,9 +128,9 @@ export default function ploiCache() {
         siteDomain: data.siteDomain || '',
       }
       this.needsReconnect = !!data.needsReconnect
-      // Fresh snapshot adopted; health is re-derived by refreshConnection() (Save)
-      // or stays 'absent' after a disconnect (no token left to probe).
-      this.connectionState = data.hasToken ? 'checking' : 'absent'
+      // Drop the dot to neutral only when no token remains; with a token, keep the
+      // last-known health (a probe, if one follows, updates it).
+      if (!data.hasToken) this.connectionState = 'absent'
     },
 
     // Map a Ploi probe failure to a saved-token health state (401 invalid, 403
@@ -150,22 +140,17 @@ export default function ploiCache() {
       this.connectionState = e.status === 401 ? 'invalid' : e.status === 403 ? 'missing_permission' : 'unknown'
     },
 
-    // The single place that reconciles the saved connection's health AND the
-    // server/site dropdowns. Called whenever the token state may have changed
-    // (init, Save), so the badge and dropdowns never drift from the saved token.
-    // GET /connection probes both required scopes and returns the lists, so it is
-    // one round-trip — and Test never calls it, so testing can't move the badge.
+    // Probe the saved token (GET /connection) and load the server/site lists in
+    // one round-trip. Called when a token is saved and when the change-target
+    // modal opens — never on page load, and never by Test, so testing can't move
+    // the badge.
     async refreshConnection() {
+      this.servers = []
+      this.sites = []
       if (!this.saved.hasToken || this.needsReconnect) {
-        this.servers = []
-        this.sites = []
         this.connectionState = 'absent'
         return
       }
-      // Show the saved target while the probe is in flight; the response then
-      // replaces these with the full lists.
-      this.servers = this.savedServerFloor()
-      this.sites = this.savedSiteFloor()
       this.connectionState = 'checking'
       this.busy.servers = true
       try {
@@ -180,15 +165,12 @@ export default function ploiCache() {
           await this.loadSites()
         }
       } catch (e) {
-        // A decrypt-failure (409) routes to the reconnect banner (no target to
-        // show); any other failure only colours the badge — no error toast on a
-        // load the user didn't trigger — and the saved target stays visible.
+        // A decrypt-failure (409) routes to the reconnect banner; any other failure
+        // only colours the badge — no toast on a refresh the user didn't trigger.
         if (e.code === 'needs_reconnect' || e.status === 409) {
           this.needsReconnect = true
           this.saved.hasToken = false
           this.connectionState = 'absent'
-          this.servers = []
-          this.sites = []
         } else {
           this.applyProbeError(e)
         }
@@ -280,9 +262,8 @@ export default function ploiCache() {
         const data = await this.api('GET', `/servers/${encodeURIComponent(this.serverId)}/sites`)
         this.sites = data.sites || []
       } catch (e) {
-        // No stale options: fall back to the saved site (only when this IS the
-        // saved server). An auth/scope failure also reflects in the badge.
-        this.sites = this.savedSiteFloor()
+        // No stale options on failure; an auth/scope failure also colours the badge.
+        this.sites = []
         this.applyProbeError(e)
         this.handleError(e)
       } finally {
@@ -296,18 +277,6 @@ export default function ploiCache() {
       if (this.serverId) this.loadSites()
     },
 
-    // The saved target as a one-option floor for each dropdown, so the saved
-    // selection stays visible while a probe is in flight or after it fails. The
-    // site floor only applies on the saved server (its site belongs to it).
-    savedServerFloor() {
-      return savedOption(this.saved.serverId, 'name', this.saved.serverName)
-    },
-    savedSiteFloor() {
-      return String(this.serverId) === String(this.saved.serverId)
-        ? savedOption(this.saved.siteId, 'domain', this.saved.siteDomain)
-        : []
-    },
-
     selectedServerName() {
       const found = this.servers.find((x) => String(x.id) === String(this.serverId))
       return found ? found.name : this.saved.serverName
@@ -315,6 +284,36 @@ export default function ploiCache() {
     selectedSiteDomain() {
       const found = this.sites.find((x) => String(x.id) === String(this.siteId))
       return found ? found.domain : this.saved.siteDomain
+    },
+
+    openTargetModal() {
+      // Start the dialog from the saved target, then lazy-load the lists it needs.
+      this.serverId = this.saved.serverId
+      this.siteId = this.saved.siteId
+      this.targetModalOpen = true
+      this.refreshConnection()
+    },
+
+    // Persist ONLY the target (its own route), so changing the flush target never
+    // touches the token, events, or debounce.
+    async saveTarget() {
+      this.busy.target = true
+      this.notice = null
+      try {
+        const data = await this.api('POST', '/target', {
+          server_id: this.serverId,
+          site_id: this.siteId,
+          server_name: this.selectedServerName(),
+          site_domain: this.selectedSiteDomain(),
+        })
+        this.adoptSaved(data)
+        this.targetModalOpen = false
+        this.setNotice('success', this.cfg.i18n.targetSaved)
+      } catch (e) {
+        this.handleError(e)
+      } finally {
+        this.busy.target = false
+      }
     },
 
     async save() {
@@ -328,25 +327,18 @@ export default function ploiCache() {
         const submitted = this.token.trim()
         const data = await this.api('POST', '/settings', {
           token: submitted || undefined,
-          server_id: this.serverId,
-          site_id: this.siteId,
-          server_name: this.selectedServerName(),
-          site_domain: this.selectedSiteDomain(),
+          server_id: this.saved.serverId,
+          site_id: this.saved.siteId,
+          server_name: this.saved.serverName,
+          site_domain: this.saved.siteDomain,
           events: this.enabled,
           debounce: Number(this.debounce),
         })
         this.adoptSaved(data)
         this.token = ''
-        // Server cleared a target the new token can't use (downgrade / different
-        // account): drop the now-invalid working selection too.
-        if (data.targetCleared) {
-          this.serverId = ''
-          this.siteId = ''
-          this.sites = []
-        }
-        // Reconcile the dropdowns with the (possibly new) saved token. The guard
-        // skips a needless Ploi refetch when only events/debounce changed.
-        if (submitted || this.servers.length === 0) {
+        // Only a freshly entered token needs a live re-check; events/debounce
+        // changes don't touch the connection.
+        if (submitted) {
           await this.refreshConnection()
         }
         // One coherent outcome: a token-health problem outranks a cleared target,

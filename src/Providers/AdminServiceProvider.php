@@ -78,10 +78,11 @@ final class AdminServiceProvider extends ServiceProvider
             'debounceDefault' => PloiSettings::DEBOUNCE_DEFAULT,
             'i18n'        => [
                 'saved'          => __('Settings saved.', 'fastcgi-cache-for-ploi'),
+                'targetSaved'    => __('Flush target updated.', 'fastcgi-cache-for-ploi'),
                 'disconnected'   => __('Token removed. Add a new token to reconnect.', 'fastcgi-cache-for-ploi'),
                 'genericError'   => __('Something went wrong. Please try again.', 'fastcgi-cache-for-ploi'),
                 'needToken'      => __('Add a Ploi API token first.', 'fastcgi-cache-for-ploi'),
-                'needTarget'     => __('Choose a server and site, then save.', 'fastcgi-cache-for-ploi'),
+                'needTarget'     => __('Choose a server and site.', 'fastcgi-cache-for-ploi'),
                 'reconnectShort' => __('Re-enter your token to reconnect.', 'fastcgi-cache-for-ploi'),
                 'badDebounce'    => sprintf(
                     /* translators: 1: minimum seconds, 2: maximum seconds. */
