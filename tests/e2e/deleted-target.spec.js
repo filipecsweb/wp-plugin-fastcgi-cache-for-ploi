@@ -2,8 +2,8 @@ import { test, expect } from './support/fixtures.js'
 import { TOKENS, MOCK } from './support/config.js'
 
 /**
- * Deleted-target regressions (F1–F4; defined in docs/e2e-tests.md). Each test
- * enforces the behavior when a saved server/site has been deleted in Ploi.
+ * Deleted-target regressions (F1–F4). Each test enforces the behavior when a saved
+ * server/site has been deleted in Ploi out from under the plugin.
  *
  * Deletions are simulated by route-mocking the UI's own Ploi-backed fetches
  * (/connection, /servers/{id}/sites). page.route does not touch the harness's

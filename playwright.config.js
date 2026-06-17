@@ -6,9 +6,15 @@ import { loadEnv } from './tests/e2e/support/load-env.js'
 loadEnv()
 
 /**
- * E2E against a real WordPress serving this checkout. Configure it in `.claude/.env`
- * (see docs/e2e-tests.md). The global setup refuses to run unless WP_PLUGIN_PATH
- * resolves to this repo, so the suite can't silently test a stale copy.
+ * E2E against a real WordPress that serves this checkout and talks to the real Ploi
+ * API. Configure everything in `.claude/.env` (loaded above): WP_BASE_URL,
+ * WP_PATH_PREFIX, WP_ADMIN_USER, WP_ADMIN_PASS, WP_PLUGIN_PATH, and the
+ * PLOI_API_TOKEN_* tokens (the good one plus the bad/under-scoped ones). global-setup
+ * refuses to run unless WP_PLUGIN_PATH resolves to this repo, so the suite can't
+ * silently test a stale copy.
+ *
+ * The specs drive the BUILT admin JS, so run `npm run build` after changing
+ * resources/js before re-running (and `npm run e2e:install` once for the browsers).
  *
  * Runs SERIALLY on purpose: every spec shares one WordPress install (one settings
  * option row + one flush-log table), so parallel workers would clobber each other's

@@ -4,7 +4,8 @@ import { SETTINGS_PATH } from './config.js'
 /**
  * Page Object for the FastCGI Cache for Ploi settings screen. Locators favour
  * roles/labels and stable structure over brittle CSS, and are re-derived from the
- * live accessibility tree (see docs/e2e-tests.md "How the suite was built").
+ * live accessibility tree — re-derive from a live session (playwright-cli) if the
+ * admin UI changes.
  *
  * Note on names: the connect/disconnect buttons share the substring "connect", so
  * those use exact matching; the Site <select>'s accessible name absorbs its hint
