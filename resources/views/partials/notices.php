@@ -23,13 +23,17 @@ defined('ABSPATH') || exit;
     </p>
 </div>
 
-<div x-show="keyWarning" class="notice notice-info inline tw:m-0!">
-    <p>
-    <?php
-    echo wp_kses(
-        __('For stronger security, define a dedicated encryption key in <code>wp-config.php</code>: <code>define( \'FASTCGI_CACHE_FOR_PLOI_KEY\', \'…\' );</code>. Otherwise the token is encrypted with keys derived from your database.', 'fastcgi-cache-for-ploi'),
-        ['code' => []]
-    );
-    ?>
+<div x-show="keyWarning" class="notice notice-warning inline tw:m-0!">
+    <p class="tw:flex tw:items-start tw:gap-2">
+        <span class="dashicons dashicons-shield tw:mt-0.5 tw:shrink-0" aria-hidden="true"></span>
+        <span>
+            <strong><?php echo esc_html__('Harden your token\'s encryption key', 'fastcgi-cache-for-ploi'); ?></strong><br>
+            <?php
+            echo wp_kses(
+                __('Your WordPress security keys (salts) aren\'t defined in <code>wp-config.php</code>. Define them — or add a dedicated key — so the key that encrypts your token lives in <code>wp-config.php</code>, separate from your database: <code>define( \'FASTCGI_CACHE_FOR_PLOI_KEY\', \'…\' );</code>', 'fastcgi-cache-for-ploi'),
+                ['code' => []]
+            );
+            ?>
+        </span>
     </p>
 </div>
