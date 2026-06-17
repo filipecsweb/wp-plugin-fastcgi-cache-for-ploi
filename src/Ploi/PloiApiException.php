@@ -26,9 +26,16 @@ final class PloiApiException extends RuntimeException
     {
         $status = $response->status();
 
-        if ($status === 401 || $status === 403) {
+        if ($status === 401) {
             return new self(
                 __('Your Ploi API token was rejected. Check the token and try again.', 'fastcgi-cache-for-ploi'),
+                $status
+            );
+        }
+
+        if ($status === 403) {
+            return new self(
+                __('This Ploi API token is missing a required permission. Use a token with the Servers and Sites scopes.', 'fastcgi-cache-for-ploi'),
                 $status
             );
         }

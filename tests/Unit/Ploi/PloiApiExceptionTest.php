@@ -33,9 +33,16 @@ it('falls back to a translated HTTP-status line when neither message nor error i
     expect(PloiApiException::messageFromResponse($response))->toBe('The Ploi API request failed (HTTP 502).');
 });
 
-it('returns a token-rejected message for 401/403 without reading the body', function (): void {
+it('returns a token-rejected message for an invalid token (401), without reading the body', function (): void {
     $exception = PloiApiException::fromResponse(new Response(401, ''));
 
     expect($exception->getMessage())->toBe('Your Ploi API token was rejected. Check the token and try again.')
         ->and($exception->statusCode())->toBe(401);
+});
+
+it('returns a missing-permission message for an under-scoped token (403), without reading the body', function (): void {
+    $exception = PloiApiException::fromResponse(new Response(403, ''));
+
+    expect($exception->getMessage())->toBe('This Ploi API token is missing a required permission. Use a token with the Servers and Sites scopes.')
+        ->and($exception->statusCode())->toBe(403);
 });

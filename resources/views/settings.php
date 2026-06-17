@@ -61,7 +61,7 @@ defined('ABSPATH') || exit;
         <template x-if="notice">
             <div
                 class="notice inline is-dismissible tw:m-0!"
-                :class="notice.type === 'success' ? 'notice-success' : 'notice-error'"
+                :class="notice.type === 'success' ? 'notice-success' : notice.type === 'warning' ? 'notice-warning' : 'notice-error'"
                 role="alert"
             >
                 <p x-text="notice.text"></p>

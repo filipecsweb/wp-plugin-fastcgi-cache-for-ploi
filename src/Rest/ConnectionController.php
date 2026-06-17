@@ -84,9 +84,28 @@ final class ConnectionController extends PloiRestController
             return $this->ploiError($exception);
         }
 
-        // Persist only a freshly entered, verified token.
+        // Persist only a freshly entered, verified token, then re-validate the
+        // saved target against it: a scope-limited token (servers but not sites)
+        // must not leave the previously-configured site as a stale, unverifiable
+        // — yet still flushable — target. clearTarget() keeps the UI honest.
         if ($provided !== '') {
             $this->settings->setToken($provided);
+
+            if ($this->targetUnreadableWith($provided)) {
+                $this->settings->clearTarget();
+
+                $message = __(
+                    'Token saved, but it cannot read your configured site (it needs the Sites scope). Re-select your server and site.',
+                    'fastcgi-cache-for-ploi'
+                );
+
+                return $this->respond([
+                    'success'  => true,
+                    'message'  => $message,
+                    'servers'  => $servers,
+                    'settings' => $this->settings->toArray(),
+                ]);
+            }
         }
 
         return $this->respond([
@@ -145,6 +164,27 @@ final class ConnectionController extends PloiRestController
         } catch (PloiApiException $exception) {
             return $this->ploiError($exception);
         }
+    }
+
+    /**
+     * True when a target is configured but the given token cannot read that
+     * server's sites because it lacks the Sites scope (Ploi answers 403). Any
+     * other failure (transient/network) is treated as "still readable" so a
+     * blip never destroys a valid target.
+     */
+    private function targetUnreadableWith(string $token): bool
+    {
+        if ($this->settings->serverId() === '' || $this->settings->siteId() === '') {
+            return false;
+        }
+
+        try {
+            $this->client->sites($token, $this->settings->serverId());
+        } catch (PloiApiException $exception) {
+            return $exception->statusCode() === 403;
+        }
+
+        return false;
     }
 
     private function ploiError(PloiApiException $exception): WP_Error

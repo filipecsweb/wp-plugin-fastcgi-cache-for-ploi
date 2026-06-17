@@ -87,6 +87,19 @@ export default function ploiCache() {
       this.setNotice('error', e.message)
     },
 
+    // Adopt a server settings snapshot as the SAVED state (what flushing uses).
+    // Single source for save(), disconnect(), and the token-downgrade path.
+    adoptSaved(data) {
+      this.saved = {
+        hasToken: !!data.hasToken,
+        serverId: data.serverId || '',
+        serverName: data.serverName || '',
+        siteId: data.siteId || '',
+        siteDomain: data.siteDomain || '',
+      }
+      this.needsReconnect = !!data.needsReconnect
+    },
+
     // --- REST ---
     async api(method, path, body) {
       const res = await fetch(`${this.cfg.restUrl}${path}`, {
@@ -129,6 +142,17 @@ export default function ploiCache() {
           this.needsReconnect = false
           this.token = ''
         }
+        // The server cleared a now-unreadable target (the new token lacks the
+        // Sites scope): adopt the fresh snapshot so Flush now disables, and warn
+        // instead of silently keeping a stale, flushable target.
+        if (data.settings) {
+          this.adoptSaved(data.settings)
+          this.serverId = ''
+          this.siteId = ''
+          this.sites = []
+          this.setNotice('warning', data.message)
+          return
+        }
         if (this.serverId && this.servers.some((x) => String(x.id) === String(this.serverId))) {
           await this.loadSites()
         }
@@ -154,14 +178,7 @@ export default function ploiCache() {
         const data = await this.api('DELETE', '/connection')
         // Adopt the server's fresh snapshot (token + target now empty), exactly
         // like save(), then clear the editable working copy + loaded lists.
-        this.saved = {
-          hasToken: !!data.hasToken,
-          serverId: data.serverId || '',
-          serverName: data.serverName || '',
-          siteId: data.siteId || '',
-          siteDomain: data.siteDomain || '',
-        }
-        this.needsReconnect = !!data.needsReconnect
+        this.adoptSaved(data)
         this.token = ''
         this.serverId = ''
         this.siteId = ''
@@ -239,14 +256,7 @@ export default function ploiCache() {
           events: this.enabled,
           debounce: Number(this.debounce),
         })
-        this.saved = {
-          hasToken: !!data.hasToken,
-          serverId: data.serverId || '',
-          serverName: data.serverName || '',
-          siteId: data.siteId || '',
-          siteDomain: data.siteDomain || '',
-        }
-        this.needsReconnect = !!data.needsReconnect
+        this.adoptSaved(data)
         this.token = ''
         this.setNotice('success', this.cfg.i18n.saved)
       } catch (e) {
