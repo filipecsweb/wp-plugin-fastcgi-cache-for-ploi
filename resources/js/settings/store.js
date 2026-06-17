@@ -6,12 +6,25 @@
  * actually use) from the editable working copy, and surfaces both Ploi API errors
  * and the decrypt-failed reconnect path (HTTP 409 / code "needs_reconnect").
  */
+// Resolve the tab to open on load: the URL hash if it names a known tab (so a
+// refresh / shared link reopens it), else the first tab. cfg.tabs is the valid
+// key list from SettingsPage::tabKeys().
+function initialTab(cfg) {
+  const keys = cfg.tabs || []
+  const fromHash = (window.location.hash || '').replace(/^#/, '')
+  return keys.includes(fromHash) ? fromHash : keys[0] || 'settings'
+}
+
 export default function ploiCache() {
   const cfg = window.PloiCacheConfig || {}
   const s = cfg.settings || {}
 
   return {
     cfg,
+
+    // Active tab (client-side; the page never reloads). Seeded from the URL hash
+    // and kept in sync with it (see init), so refresh + shared links are stable.
+    activeTab: initialTab(cfg),
 
     // Editable working copy.
     token: '',
@@ -47,6 +60,15 @@ export default function ploiCache() {
     init() {
       // Single reconcile path: load the dropdowns to match the saved connection.
       this.refreshConnection()
+      // Reflect tab changes in the URL hash (refresh-safe, shareable) without
+      // adding history entries or jumping the scroll position.
+      this.$watch('activeTab', (tab) => {
+        if (window.history.replaceState) {
+          window.history.replaceState(null, '', `#${tab}`)
+        } else {
+          window.location.hash = tab
+        }
+      })
     },
 
     // --- derived state ---

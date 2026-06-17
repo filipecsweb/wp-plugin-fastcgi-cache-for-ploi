@@ -50,7 +50,7 @@ final class AdminServiceProvider extends ServiceProvider
                 'resources/js/admin.js',
                 'fastcgi-cache-for-ploi-admin',
                 'PloiCacheConfig',
-                $this->config()
+                $this->config($page)
             );
         });
     }
@@ -58,7 +58,7 @@ final class AdminServiceProvider extends ServiceProvider
     /**
      * @return array<string, mixed>
      */
-    private function config(): array
+    private function config(SettingsPage $page): array
     {
         $plugin   = $this->container->make(Plugin::class);
         $nonce    = $this->container->make(Nonce::class);
@@ -69,6 +69,7 @@ final class AdminServiceProvider extends ServiceProvider
             'restUrl'     => esc_url_raw(rest_url(RestServiceProvider::NAMESPACE)),
             'nonce'       => $nonce->create('wp_rest'),
             'version'     => $plugin->version(),
+            'tabs'        => $page->tabKeys(),
             'events'      => FlushEvents::all(),
             'settings'    => $settings->toArray(),
             'log'         => array_map(

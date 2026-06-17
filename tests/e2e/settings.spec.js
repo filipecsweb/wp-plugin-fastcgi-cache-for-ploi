@@ -88,16 +88,59 @@ test.describe('Settings screen — saving (§6)', () => {
   })
 })
 
+test.describe('Settings screen — tabs', () => {
+  test('switches between Settings and Logs, persisting the active tab in the URL hash', async ({ admin }) => {
+    const root = admin.locator('.ploi-cache-admin')
+    const recentFlushes = admin.getByRole('heading', { name: 'Recent flushes' })
+    const tokenField = root.locator('input[type="password"]')
+
+    // Settings is active by default: its content shows, the Logs content is hidden.
+    await expect(tokenField).toBeVisible()
+    await expect(recentFlushes).toBeHidden()
+
+    // Switch to Logs: its content shows, Settings hides, and the hash reflects it.
+    await admin.getByRole('tab', { name: 'Logs' }).click()
+    await expect(recentFlushes).toBeVisible()
+    await expect(tokenField).toBeHidden()
+    await expect(admin).toHaveURL(/#logs$/)
+
+    // The active tab survives a full reload (read back from the hash).
+    await admin.reload()
+    await expect(admin.getByRole('heading', { name: 'Recent flushes' })).toBeVisible()
+    await expect(admin.locator('.ploi-cache-admin input[type="password"]')).toBeHidden()
+
+    // Back to Settings.
+    await admin.getByRole('tab', { name: 'Settings' }).click()
+    await expect(admin.locator('.ploi-cache-admin input[type="password"]')).toBeVisible()
+    await expect(admin).toHaveURL(/#settings$/)
+  })
+
+  test('stays on the Settings tab after saving', async ({ admin }) => {
+    const root = admin.locator('.ploi-cache-admin')
+
+    await root.getByRole('button', { name: 'Disable all' }).click()
+    const debounce = admin.locator('#ploi-debounce')
+    await debounce.fill('0')
+    await debounce.blur()
+    await admin.getByRole('button', { name: /Save settings/i }).click()
+    await expect(root).toContainText('Settings saved.')
+
+    // Still on Settings: its content is visible and the tab is marked active.
+    await expect(debounce).toBeVisible()
+    await expect(admin.getByRole('tab', { name: 'Settings' })).toHaveClass(/nav-tab-active/)
+  })
+})
+
 // Tailwind preflight is OFF on this screen, so a newly added control renders raw
 // until given a native wp-admin class. Fails if ANY actionable control carries no
 // recognized native class — across connected AND disconnected states.
 test.describe('Admin controls use native wp-admin styling', () => {
-  const RECOGNIZED = ['button', 'button-primary', 'button-secondary', 'button-link', 'button-link-delete']
+  const RECOGNIZED = ['button', 'button-primary', 'button-secondary', 'button-link', 'button-link-delete', 'nav-tab', 'nav-tab-active']
   const ALLOWLIST = ['notice-dismiss']
 
   function rawControls(page) {
     return page.$$eval(
-      '.ploi-cache-admin button, .ploi-cache-admin a[role="button"], .ploi-cache-admin .button',
+      '.ploi-cache-admin button, .ploi-cache-admin a[role="button"], .ploi-cache-admin .button, .ploi-cache-admin .nav-tab',
       (els, ok) =>
         els
           .filter((el) => !Array.from(el.classList).some((c) => ok.includes(c)))
