@@ -56,6 +56,7 @@ export class SettingsPage {
       return {
         hasToken: d.hasToken,
         needsReconnect: d.needsReconnect,
+        reconnectReason: d.reconnectReason,
         canFlush: d.canFlush,
         serverId: d.serverId,
         siteId: d.siteId,

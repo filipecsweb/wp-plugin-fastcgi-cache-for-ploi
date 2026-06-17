@@ -1,5 +1,6 @@
 import { test, expect } from './support/fixtures.js'
 import { TOKENS, MOCK } from './support/config.js'
+import { jsonRoute } from './support/mock.js'
 
 /**
  * Deleted-target regressions (F1–F4). Each test enforces the behavior when a saved
@@ -18,11 +19,6 @@ import { TOKENS, MOCK } from './support/config.js'
  */
 test.describe('Deleted flush target (F1–F4)', () => {
   test.skip(!TOKENS.good, 'needs the good Ploi token in .claude/.env')
-
-  const jsonRoute = (page, glob, payload, status = 200) =>
-    page.route(glob, (route) =>
-      route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(payload) })
-    )
 
   test('a deleted SITE is flagged in the modal and the stale site is not re-savable (F2/F3)', async ({ connected, admin, api, settings }) => {
     const saved = await api.settings()
