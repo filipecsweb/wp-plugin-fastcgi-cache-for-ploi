@@ -18,17 +18,20 @@ const NO_SCOPE_TOKEN = process.env.PLOI_API_TOKEN_BAD_NO_SCOPE_AT_ALL
 const tokenInput = (admin) => admin.locator('.ploi-cache-admin input[type="password"]')
 const serverSelect = (admin) => admin.locator('.ploi-cache-admin select').first()
 const siteSelect = (admin) => admin.locator('.ploi-cache-admin select').nth(1)
+// Each Settings card renders its own identical "Save settings" button (they all
+// call the same save()), so target the first to stay unambiguous.
+const saveButton = (admin) => admin.getByRole('button', { name: 'Save settings' }).first()
 
 // Save the good token, then pick its first server + first site, then save again —
 // the two-step flow the validate-only split produces. Leaves a flushable config.
 async function configureWithGoodToken(admin) {
   await tokenInput(admin).fill(GOOD_TOKEN)
-  await admin.getByRole('button', { name: 'Save settings' }).click()
+  await saveButton(admin).click()
   await expect(serverSelect(admin)).toBeEnabled()
   await serverSelect(admin).selectOption({ index: 1 })
   await expect(siteSelect(admin)).toBeEnabled()
   await siteSelect(admin).selectOption({ index: 1 })
-  await admin.getByRole('button', { name: 'Save settings' }).click()
+  await saveButton(admin).click()
   await expect(admin.getByRole('button', { name: 'Flush now' })).toBeEnabled()
 }
 
@@ -86,6 +89,20 @@ test.describe('Test token — validate only, never saves (§2)', () => {
     await expect(admin.locator('.ploi-cache-admin .notice-error')).toContainText(/missing a required permission/i)
     expect((await rest.settings()).hasToken).toBe(false)
   })
+
+  test('testing a saved, valid token never moves the status badge', async ({ admin }) => {
+    test.skip(!GOOD_TOKEN, 'needs the good token')
+
+    await configureWithGoodToken(admin)
+    await expect(admin.locator('.ploi-cache-admin')).toContainText('Connected.')
+
+    // Re-test the SAVED token (empty box → POST {}): a transient notice appears,
+    // but the badge must NOT move. Test validates; only Save/Disconnect/load —
+    // the things that change saved state — drive the badge.
+    await admin.getByRole('button', { name: 'Test token' }).click()
+    await expect(admin.locator('.ploi-cache-admin .notice-success')).toContainText(/still valid/i)
+    await expect(admin.locator('.ploi-cache-admin')).toContainText('Connected.')
+  })
 })
 
 test.describe('Save persists the token and the UI reacts without reload (§2/§3)', () => {
@@ -94,9 +111,9 @@ test.describe('Save persists the token and the UI reacts without reload (§2/§3
 
     await tokenInput(admin).fill(GOOD_TOKEN)
     // Save (not Test) is what persists + loads — no reload needed.
-    await admin.getByRole('button', { name: 'Save settings' }).click()
+    await saveButton(admin).click()
 
-    await expect(admin.locator('.ploi-cache-admin')).toContainText('A token is saved.')
+    await expect(admin.locator('.ploi-cache-admin')).toContainText('Connected.')
     await expect(serverSelect(admin)).toBeEnabled()
     await expect(serverSelect(admin).locator('option')).not.toHaveCount(1)
     expect((await rest.settings()).hasToken).toBe(true)
@@ -111,19 +128,20 @@ test.describe('Save persists the token and the UI reacts without reload (§2/§3
     expect((await rest.settings()).isConfigured).toBe(true)
   })
 
-  test('saving a servers-only token clears a now-unreadable target (§3)', async ({ admin, rest }) => {
+  test('saving a servers-only token reports a missing permission and clears the target (§3)', async ({ admin, rest }) => {
     test.skip(!GOOD_TOKEN || !SERVERS_ONLY_TOKEN, 'needs the good and servers-only tokens')
 
     await configureWithGoodToken(admin)
 
-    // Downgrade via SAVE (Test no longer does this): the new token can't read the
-    // saved site (403), so save clears the target instead of leaving it stale.
+    // Servers-only lacks the Sites scope the plugin needs. The saved-token health
+    // check (GET /connection) reports a missing permission — which outranks the
+    // cleared-target note — while the now-unreadable target is still cleared so
+    // Flush can't fire at a stale site.
     await tokenInput(admin).fill(SERVERS_ONLY_TOKEN)
-    await admin.getByRole('button', { name: 'Save settings' }).click()
+    await saveButton(admin).click()
 
-    const liveNotice = admin.locator('.ploi-cache-admin .notice.is-dismissible')
-    await expect(liveNotice).toContainText(/aren.t available with this token|Re-select your server/i)
-    await expect(liveNotice).toHaveClass(/notice-warning/)
+    await expect(admin.locator('.ploi-cache-admin .notice-error')).toContainText(/missing a required permission/i)
+    await expect(admin.locator('.ploi-cache-admin')).toContainText(/missing a required permission/i)
     await expect(admin.getByRole('button', { name: 'Flush now' })).toBeDisabled()
 
     const after = await rest.settings()
@@ -132,18 +150,33 @@ test.describe('Save persists the token and the UI reacts without reload (§2/§3
     expect(after.isConfigured).toBe(false)
   })
 
-  test('saving a junk token over a good one disables the dropdown and flags rejection', async ({ admin }) => {
+  test('saving a no-permission token reports a missing permission (§3)', async ({ admin, rest }) => {
+    test.skip(!NO_SCOPE_TOKEN, 'needs PLOI_API_TOKEN_BAD_NO_SCOPE_AT_ALL')
+
+    // No target selected — the token alone saves, then the live check finds no
+    // usable scope: amber badge + a missing-permission notice (never "rejected").
+    await tokenInput(admin).fill(NO_SCOPE_TOKEN)
+    await saveButton(admin).click()
+
+    await expect(admin.locator('.ploi-cache-admin .notice-error')).toContainText(/missing a required permission/i)
+    await expect(admin.locator('.ploi-cache-admin')).toContainText(/missing a required permission/i)
+    expect((await rest.settings()).hasToken).toBe(true)
+  })
+
+  test('saving a junk token over a good one disables the dropdown and flags it invalid', async ({ admin }) => {
     test.skip(!GOOD_TOKEN, 'needs the good token')
 
     await configureWithGoodToken(admin)
 
-    // A junk token persists (save never validates) but the in-place reload fails:
-    // options cleared, dropdown disabled, the saved token flagged as rejected.
+    // A junk token persists (save never validates) but the in-place health check
+    // 401s → the badge flips to "no longer valid" and the dropdown empties. (The
+    // target is kept on a 401, on purpose — a rejected token is surfaced, not a
+    // reason to destroy a still-valid target.)
     await tokenInput(admin).fill('not-a-valid-ploi-api-token')
-    await admin.getByRole('button', { name: 'Save settings' }).click()
+    await saveButton(admin).click()
 
-    await expect(admin.locator('.ploi-cache-admin .notice-error')).toContainText(/rejected|went wrong/i)
-    await expect(admin.locator('.ploi-cache-admin')).toContainText(/Ploi rejected it/i)
+    await expect(admin.locator('.ploi-cache-admin .notice-error')).toContainText(/no longer valid/i)
+    await expect(admin.locator('.ploi-cache-admin')).toContainText(/no longer valid/i)
     await expect(serverSelect(admin)).toBeDisabled()
   })
 })

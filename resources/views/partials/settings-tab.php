@@ -67,13 +67,9 @@ defined('ABSPATH') || exit;
                     <div class="tw:flex tw:items-center tw:gap-2 tw:text-sm">
                         <span
                             class="tw:inline-block tw:h-2 tw:w-2 tw:rounded-full"
-                            :class="!hasToken ? 'tw:bg-gray-300' : (tokenRejected ? 'tw:bg-amber-500' : 'tw:bg-green-500')"
+                            :class="connectionDot"
                         ></span>
-                        <span class="tw:text-gray-600" x-text="!hasToken
-                            ? '<?php echo esc_js(__('No token saved yet.', 'fastcgi-cache-for-ploi')); ?>'
-                            : (tokenRejected
-                                ? '<?php echo esc_js(__('Token saved, but Ploi rejected it — test your token again.', 'fastcgi-cache-for-ploi')); ?>'
-                                : '<?php echo esc_js(__('A token is saved.', 'fastcgi-cache-for-ploi')); ?>')"></span>
+                        <span class="tw:text-gray-600" x-text="connectionMessage"></span>
                         <button
                             type="button"
                             class="button-link button-link-delete tw:ml-auto"

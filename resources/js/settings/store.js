@@ -47,9 +47,12 @@ export default function ploiCache() {
     },
     needsReconnect: !!s.needsReconnect,
     keyWarning: !!cfg.keyWarning,
-    // A saved token that Ploi rejected on a live call (401/403). Presence ≠ validity:
-    // hasToken means "a token is stored", this means "stored but unusable right now".
-    tokenRejected: false,
+    // Live health of the SAVED token, reconciled by refreshConnection() (load +
+    // Save) off GET /connection — never by Test. Drives the status badge. Seeded
+    // to 'checking' when a token is stored so the dot starts neutral (not green)
+    // until verified. Values mirror ConnectionController's states + the JS-only
+    // 'checking': absent | checking | ok | invalid | missing_permission | unknown.
+    connectionState: s.hasToken ? 'checking' : 'absent',
 
     events: cfg.events || [],
     log: cfg.log || [],
@@ -88,6 +91,20 @@ export default function ploiCache() {
       const n = Number(this.debounce)
       return Number.isInteger(n) && n >= this.cfg.debounceMin && n <= this.cfg.debounceMax
     },
+    // The one line of status copy, keyed by connectionState. Shared with the
+    // after-Save notice (see save()), so the wording lives in exactly one place.
+    get connectionMessage() {
+      return this.cfg.i18n.connection[this.connectionState] || ''
+    },
+    // Dot colour per state; everything else (absent / checking / unknown) stays
+    // neutral grey so a blip or an in-flight check never reads as good or bad.
+    get connectionDot() {
+      return (
+        { ok: 'tw:bg-green-500', invalid: 'tw:bg-red-500', missing_permission: 'tw:bg-amber-500' }[
+          this.connectionState
+        ] || 'tw:bg-gray-300'
+      )
+    },
 
     // --- notices ---
     setNotice(type, text) {
@@ -115,18 +132,56 @@ export default function ploiCache() {
         siteDomain: data.siteDomain || '',
       }
       this.needsReconnect = !!data.needsReconnect
-      // Fresh snapshot adopted; any prior rejection is re-derived by the next load.
-      this.tokenRejected = false
+      // Fresh snapshot adopted; health is re-derived by refreshConnection() (Save)
+      // or stays 'absent' after a disconnect (no token left to probe).
+      this.connectionState = data.hasToken ? 'checking' : 'absent'
     },
 
-    // The single place that reconciles the fetched server/site lists with the
-    // saved connection. Called whenever the token state may have changed (init,
-    // save), so the dropdowns can never silently drift from the saved token.
+    // Map a Ploi probe failure to a saved-token health state (401 invalid, 403
+    // missing permission, else couldn't-verify). Used wherever a live call can
+    // reveal the saved token's health: the load/Save reconcile and picking a server.
+    applyProbeError(e) {
+      this.connectionState = e.status === 401 ? 'invalid' : e.status === 403 ? 'missing_permission' : 'unknown'
+    },
+
+    // The single place that reconciles the saved connection's health AND the
+    // server/site dropdowns. Called whenever the token state may have changed
+    // (init, Save), so the badge and dropdowns never drift from the saved token.
+    // GET /connection probes both required scopes and returns the lists, so it is
+    // one round-trip — and Test never calls it, so testing can't move the badge.
     async refreshConnection() {
       this.servers = []
       this.sites = []
-      if (this.saved.hasToken && !this.needsReconnect) {
-        await this.loadServers() // loads sites too when the saved serverId matches
+      if (!this.saved.hasToken || this.needsReconnect) {
+        this.connectionState = 'absent'
+        return
+      }
+      this.connectionState = 'checking'
+      this.busy.servers = true
+      try {
+        const data = await this.api('GET', '/connection')
+        this.connectionState = data.state || 'unknown'
+        this.servers = data.servers || []
+        // Reuse the saved server's sites the probe already fetched; otherwise load
+        // them when the saved server is present in the list.
+        if (data.sites && data.sites.length && this.serverId) {
+          this.sites = data.sites
+        } else if (this.serverId && this.servers.some((x) => String(x.id) === String(this.serverId))) {
+          await this.loadSites()
+        }
+      } catch (e) {
+        // A decrypt-failure (409) routes to the reconnect banner; any other
+        // failure only colours the badge — no error toast on a load the user
+        // didn't trigger (the badge is the feedback).
+        if (e.code === 'needs_reconnect' || e.status === 409) {
+          this.needsReconnect = true
+          this.saved.hasToken = false
+          this.connectionState = 'absent'
+        } else {
+          this.applyProbeError(e)
+        }
+      } finally {
+        this.busy.servers = false
       }
     },
 
@@ -206,27 +261,6 @@ export default function ploiCache() {
       }
     },
 
-    async loadServers() {
-      this.busy.servers = true
-      try {
-        const data = await this.api('GET', '/servers')
-        this.servers = data.servers || []
-        this.tokenRejected = false
-        if (this.serverId && this.servers.some((x) => String(x.id) === String(this.serverId))) {
-          await this.loadSites()
-        }
-      } catch (e) {
-        // A failed fetch must not leave stale options behind — empty the
-        // dropdowns and, on an auth failure, mark the saved token rejected.
-        this.servers = []
-        this.sites = []
-        if (e.status === 401 || e.status === 403) this.tokenRejected = true
-        this.handleError(e)
-      } finally {
-        this.busy.servers = false
-      }
-    },
-
     async loadSites() {
       if (!this.serverId) {
         this.sites = []
@@ -237,8 +271,10 @@ export default function ploiCache() {
         const data = await this.api('GET', `/servers/${encodeURIComponent(this.serverId)}/sites`)
         this.sites = data.sites || []
       } catch (e) {
+        // A failed fetch must not leave stale options behind; an auth/scope
+        // failure also reflects in the badge (picking an unreadable server).
         this.sites = []
-        if (e.status === 401 || e.status === 403) this.tokenRejected = true
+        this.applyProbeError(e)
         this.handleError(e)
       } finally {
         this.busy.sites = false
@@ -292,11 +328,11 @@ export default function ploiCache() {
         if (submitted || this.servers.length === 0) {
           await this.refreshConnection()
         }
-        // One coherent outcome: a rejection (notice already set by the failed
-        // reload) outranks the target-cleared warning, which outranks success —
-        // never "Saved!" immediately contradicted by an error.
-        if (this.tokenRejected) {
-          // refreshConnection() surfaced the rejection notice; leave it.
+        // One coherent outcome: a token-health problem outranks a cleared target,
+        // which outranks success — never "Saved!" contradicted by a red/amber dot.
+        // refreshConnection() set connectionState; reuse its copy for the notice.
+        if (this.connectionState === 'invalid' || this.connectionState === 'missing_permission') {
+          this.setNotice('error', this.connectionMessage)
         } else if (data.targetCleared) {
           this.setNotice('warning', data.message)
         } else {
