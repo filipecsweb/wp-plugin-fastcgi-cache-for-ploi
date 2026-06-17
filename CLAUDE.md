@@ -23,6 +23,20 @@ conflicts with a habit or a quick shortcut, the rule wins.
 - **No placeholders.** No TODOs, stubs, "implement later," or magic numbers — name and
   centralize constants.
 
+## Comments
+Comments explain what the code CAN'T say. Default to none. Assume a senior reader who can
+read the code in 10 seconds. Write one ONLY for:
+- **WHY:** rationale for a non-obvious choice.
+- **GOTCHA:** side effects or ordering constraints ("don't reorder these").
+- **CONTRACT:** assumptions the code can't enforce ("caller must hold the lock", "expects
+  sorted input").
+- **LINK:** ticket/spec URL, or a browser-bug workaround reference.
+
+NEVER write a comment that restates the code or a well-named symbol, describes where
+something is rendered/placed, would become false if the code were moved or reused, or labels
+obvious structure. Test: if moving the code would make the comment wrong, it's describing
+context, not code — don't write it.
+
 ## Architecture invariants (do not violate)
 - **`foundation/` is a pure kernel.** It ships only generic primitives + the module contract.
   NEVER put plugin-specific code (this plugin's API client, custom tables, domain hooks) in
