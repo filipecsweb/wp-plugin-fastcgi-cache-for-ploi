@@ -8,6 +8,10 @@
 # Distributable archive (built into a staging dir; see .distignore)
 /dist/
 
+# Generated translation template (regenerate with:
+#   wp i18n make-pot . languages/ploi-fastcgi-cache.pot --exclude=dist)
+/languages/*.pot
+
 # Tooling caches
 /.phpunit.cache/
 /.phpunit.result.cache

@@ -14,6 +14,17 @@
 @import "tailwindcss/theme.css" layer(theme) prefix(tw);
 @import "tailwindcss/utilities.css" layer(utilities) prefix(tw);
 
+/*
+ * Keep the generated bundle lean and deterministic. Tailwind v4 auto-detects
+ * sources across the whole project (untracked files included), which otherwise
+ * scrapes `tw:` class names out of Markdown docs (README / CLAUDE / PLAN) and the
+ * built `dist/` copy and bakes those dead utilities into the CSS. Exclude both so
+ * the bundle only carries utilities actually used by the admin markup
+ * (resources/views/**) and scripts (resources/js/**).
+ */
+@source not "../../dist";
+@source not "../../**/*.md";
+
 /* Hide the Alpine root until it is initialised (avoids a flash of raw markup). */
 [x-cloak] {
     display: none !important;
