@@ -113,10 +113,10 @@ defined('ABSPATH') || exit;
                         <?php echo esc_html__('Server', 'fastcgi-cache-for-ploi'); ?>
                         <span x-show="busy.servers" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
                     </span>
-                    <select class="tw:w-full!" x-model="serverId" @change="onServerChange()" :disabled="busy.servers || servers.length === 0">
-                        <option value=""><?php echo esc_html__('— Select a server —', 'fastcgi-cache-for-ploi'); ?></option>
+                    <select class="tw:w-full!" @change="serverId = $event.target.value; onServerChange()" :disabled="busy.servers || servers.length === 0">
+                        <option value="" :selected="!serverId"><?php echo esc_html__('— Select a server —', 'fastcgi-cache-for-ploi'); ?></option>
                         <template x-for="server in servers" :key="server.id">
-                            <option :value="server.id" x-text="server.name"></option>
+                            <option :value="server.id" :selected="String(server.id) === String(serverId)" x-text="server.name"></option>
                         </template>
                     </select>
                     <span class="tw:text-[13px] tw:text-gray-500" x-show="!busy.servers && servers.length === 0" x-text="hasToken
@@ -129,10 +129,10 @@ defined('ABSPATH') || exit;
                         <?php echo esc_html__('Site', 'fastcgi-cache-for-ploi'); ?>
                         <span x-show="busy.sites" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
                     </span>
-                    <select class="tw:w-full!" x-model="siteId" :disabled="busy.sites || !serverId || sites.length === 0">
-                        <option value=""><?php echo esc_html__('— Select a site —', 'fastcgi-cache-for-ploi'); ?></option>
+                    <select class="tw:w-full!" @change="siteId = $event.target.value" :disabled="busy.sites || !serverId || sites.length === 0">
+                        <option value="" :selected="!siteId"><?php echo esc_html__('— Select a site —', 'fastcgi-cache-for-ploi'); ?></option>
                         <template x-for="site in sites" :key="site.id">
-                            <option :value="site.id" x-text="site.domain"></option>
+                            <option :value="site.id" :selected="String(site.id) === String(siteId)" x-text="site.domain"></option>
                         </template>
                     </select>
                     <span class="tw:text-[13px] tw:text-gray-500" x-show="!serverId"><?php echo esc_html__('Choose a server first.', 'fastcgi-cache-for-ploi'); ?></span>

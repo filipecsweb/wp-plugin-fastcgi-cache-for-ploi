@@ -15,6 +15,13 @@ function initialTab(cfg) {
   return keys.includes(fromHash) ? fromHash : keys[0] || 'settings'
 }
 
+// A saved id/label pair as a single-option list — the floor each dropdown resets
+// to, so the saved target is always a selected, visible option even before (or
+// without) a live Ploi probe. Empty when nothing is saved.
+function savedOption(id, labelKey, label) {
+  return id ? [{ id, [labelKey]: label || id }] : []
+}
+
 export default function ploiCache() {
   const cfg = window.PloiCacheConfig || {}
   const s = cfg.settings || {}
@@ -33,9 +40,10 @@ export default function ploiCache() {
     enabled: { ...(s.enabledEvents || {}) },
     debounce: s.debounce ?? cfg.debounceDefault,
 
-    // Fetched from Ploi.
-    servers: [],
-    sites: [],
+    // From Ploi (GET /connection). Seeded with the saved target so it shows
+    // selected on first paint; the probe then adds the other choices.
+    servers: savedOption(s.serverId, 'name', s.serverName),
+    sites: savedOption(s.siteId, 'domain', s.siteDomain),
 
     // Saved snapshot (what flushing uses).
     saved: {
@@ -150,12 +158,16 @@ export default function ploiCache() {
     // GET /connection probes both required scopes and returns the lists, so it is
     // one round-trip — and Test never calls it, so testing can't move the badge.
     async refreshConnection() {
-      this.servers = []
-      this.sites = []
       if (!this.saved.hasToken || this.needsReconnect) {
+        this.servers = []
+        this.sites = []
         this.connectionState = 'absent'
         return
       }
+      // Show the saved target while the probe is in flight; the response then
+      // replaces these with the full lists.
+      this.servers = this.savedServerFloor()
+      this.sites = this.savedSiteFloor()
       this.connectionState = 'checking'
       this.busy.servers = true
       try {
@@ -170,13 +182,15 @@ export default function ploiCache() {
           await this.loadSites()
         }
       } catch (e) {
-        // A decrypt-failure (409) routes to the reconnect banner; any other
-        // failure only colours the badge — no error toast on a load the user
-        // didn't trigger (the badge is the feedback).
+        // A decrypt-failure (409) routes to the reconnect banner (no target to
+        // show); any other failure only colours the badge — no error toast on a
+        // load the user didn't trigger — and the saved target stays visible.
         if (e.code === 'needs_reconnect' || e.status === 409) {
           this.needsReconnect = true
           this.saved.hasToken = false
           this.connectionState = 'absent'
+          this.servers = []
+          this.sites = []
         } else {
           this.applyProbeError(e)
         }
@@ -271,9 +285,9 @@ export default function ploiCache() {
         const data = await this.api('GET', `/servers/${encodeURIComponent(this.serverId)}/sites`)
         this.sites = data.sites || []
       } catch (e) {
-        // A failed fetch must not leave stale options behind; an auth/scope
-        // failure also reflects in the badge (picking an unreadable server).
-        this.sites = []
+        // No stale options: fall back to the saved site (only when this IS the
+        // saved server). An auth/scope failure also reflects in the badge.
+        this.sites = this.savedSiteFloor()
         this.applyProbeError(e)
         this.handleError(e)
       } finally {
@@ -285,6 +299,18 @@ export default function ploiCache() {
       this.siteId = ''
       this.sites = []
       if (this.serverId) this.loadSites()
+    },
+
+    // The saved target as a one-option floor for each dropdown, so the saved
+    // selection stays visible while a probe is in flight or after it fails. The
+    // site floor only applies on the saved server (its site belongs to it).
+    savedServerFloor() {
+      return savedOption(this.saved.serverId, 'name', this.saved.serverName)
+    },
+    savedSiteFloor() {
+      return String(this.serverId) === String(this.saved.serverId)
+        ? savedOption(this.saved.siteId, 'domain', this.saved.siteDomain)
+        : []
     },
 
     selectedServerName() {
