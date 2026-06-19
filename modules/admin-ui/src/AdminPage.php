@@ -77,11 +77,20 @@ abstract class AdminPage
     public function render(): void
     {
         if (! current_user_can($this->capability())) {
-            // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- Intentionally reuses WordPress core's own translation of this standard capability-denied message.
-            wp_die(esc_html__('Sorry, you are not allowed to access this page.', 'default'));
+            wp_die(esc_html($this->accessDeniedMessage()));
         }
 
         $this->renderBody();
+    }
+
+    /**
+     * WHY untranslated: this kernel module stays slug-agnostic, so it carries no
+     * gettext call of its own. Concrete pages override this to return the message
+     * translated under their plugin's text domain.
+     */
+    protected function accessDeniedMessage(): string
+    {
+        return 'Sorry, you are not allowed to access this page.';
     }
 
     /**

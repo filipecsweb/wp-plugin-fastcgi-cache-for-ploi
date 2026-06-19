@@ -51,6 +51,25 @@ Your use of the Ploi service is governed by Ploi's legal terms:
 * Terms of Service: https://ploi.io/terms-of-service
 * Privacy Policy: https://ploi.io/privacy-policy
 
+== Source code & build ==
+
+This plugin ships its complete, human-readable source — nothing is obfuscated, and no code is loaded from an external location.
+
+* PHP source: `fastcgi-cache-for-ploi.php`, `uninstall.php`, `src/`, `foundation/`, `modules/`.
+* Front-end source: `resources/js/` (JavaScript) and `resources/css/` (CSS).
+* Build configuration: `vite.config.js`, `package.json`, `package-lock.json`.
+
+The files in `public/build/` are the minified front-end assets compiled from the source above. To regenerate them:
+
+1. Install Node.js 24 and run `npm install` in the plugin directory.
+2. Run `npm run build`. Vite (https://vitejs.dev) bundles `resources/js/admin.js` and `resources/css/admin.css` into `public/build/`.
+
+Bundled and build-time third-party libraries (all GPL-compatible):
+
+* Alpine.js 3 (declared as `^3.14.1`) — MIT — https://alpinejs.dev — bundled into the compiled admin JavaScript.
+* Tailwind CSS 4 — MIT — https://tailwindcss.com — used at build time to generate the admin stylesheet.
+* Vite 8 — MIT — https://vitejs.dev — the bundler used to produce `public/build/`.
+
 == Installation ==
 
 1. Upload the plugin to `/wp-content/plugins/fastcgi-cache-for-ploi/`, or install it from the **Plugins → Add New** screen in your WordPress admin.

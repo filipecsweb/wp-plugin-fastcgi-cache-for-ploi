@@ -50,6 +50,11 @@ final class SettingsPage extends AdminPage
         return RestServiceProvider::CAPABILITY;
     }
 
+    protected function accessDeniedMessage(): string
+    {
+        return __('Sorry, you are not allowed to access this page.', 'fastcgi-cache-for-ploi');
+    }
+
     protected function pageTitle(): string
     {
         return __('FastCGI Cache for Ploi', 'fastcgi-cache-for-ploi');
