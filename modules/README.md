@@ -7,7 +7,7 @@ the module folder you want, add its PSR-4 root to `composer.json`, and register 
 
 ## The contract
 
-Every module implements [`WPForge\Contracts\ModuleInterface`](../foundation/src/Contracts/ModuleInterface.php):
+Every module implements [`FastCgiCacheForPloi\Foundation\Contracts\ModuleInterface`](../foundation/src/Contracts/ModuleInterface.php):
 
 ```php
 interface ModuleInterface
@@ -28,8 +28,8 @@ exactly like first-party providers.
 // composer.json
 "autoload": {
   "psr-4": {
-    "WPForge\\Module\\AdminUi\\": "modules/admin-ui/src/"
-    // "WPForge\\Module\\Blocks\\": "modules/blocks/src/"  ← when you add it
+    "FastCgiCacheForPloi\\Module\\AdminUi\\": "modules/admin-ui/src/"
+    // "FastCgiCacheForPloi\\Module\\Blocks\\": "modules/blocks/src/"  ← when you add it
   }
 }
 ```
@@ -38,7 +38,7 @@ exactly like first-party providers.
 
 | Module     | Path                 | Namespace                  | Status |
 |------------|----------------------|----------------------------|--------|
-| `admin-ui` | `modules/admin-ui/`  | `WPForge\Module\AdminUi\`  | ✅ Built |
+| `admin-ui` | `modules/admin-ui/`  | `FastCgiCacheForPloi\Module\AdminUi\`  | ✅ Built |
 
 > **admin-ui targets Tailwind CSS v4.** Admin styling is scoped to the plugin's
 > own screen using the v4 **CSS-first** pattern: import only `theme.css` +
@@ -59,7 +59,7 @@ exactly like first-party providers.
 
 ## Planned extension points (NOT implemented)
 
-Each would live as `modules/<name>/src/` under `WPForge\Module\<Name>\` and
+Each would live as `modules/<name>/src/` under `FastCgiCacheForPloi\Module\<Name>\` and
 implement `ModuleInterface`. They are documented here as the seams where future
 work plugs in — there is no stub code for them, only this contract.
 

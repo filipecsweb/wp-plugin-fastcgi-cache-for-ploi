@@ -12,9 +12,9 @@ use FastCgiCacheForPloi\Rest\FlushController;
 use FastCgiCacheForPloi\Rest\LogController;
 use FastCgiCacheForPloi\Rest\SettingsController;
 use FastCgiCacheForPloi\Settings\PloiSettings;
-use WPForge\Provider\ServiceProvider;
-use WPForge\Security\Capability;
-use WPForge\Security\Sanitizer;
+use FastCgiCacheForPloi\Foundation\Provider\ServiceProvider;
+use FastCgiCacheForPloi\Foundation\Security\Capability;
+use FastCgiCacheForPloi\Foundation\Security\Sanitizer;
 
 /**
  * Controllers take the REST namespace as a constructor string, so each is bound
@@ -31,7 +31,7 @@ final class RestServiceProvider extends ServiceProvider
      */
     public const CAPABILITY = 'manage_options';
 
-    /** @var list<class-string<\WPForge\Rest\RestController>> */
+    /** @var list<class-string<\FastCgiCacheForPloi\Foundation\Rest\RestController>> */
     private const CONTROLLERS = [
         ConnectionController::class,
         SettingsController::class,

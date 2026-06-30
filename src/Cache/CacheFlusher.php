@@ -9,7 +9,7 @@ use FastCgiCacheForPloi\Log\FlushLogRepository;
 use FastCgiCacheForPloi\Ploi\PloiApiException;
 use FastCgiCacheForPloi\Ploi\PloiClient;
 use FastCgiCacheForPloi\Settings\PloiSettings;
-use WPForge\Logging\LoggerInterface;
+use FastCgiCacheForPloi\Foundation\Logging\LoggerInterface;
 
 /**
  * CONTRACT: returns null (no error) when token/server/site are unconfigured.

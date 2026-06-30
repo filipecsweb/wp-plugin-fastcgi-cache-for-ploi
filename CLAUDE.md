@@ -1,9 +1,12 @@
 # CLAUDE.md — FastCGI Cache for Ploi
 
 This plugin is built on the **WPForge** base: a reusable kernel in `foundation/`
-(namespace `WPForge\`), opt-in features in `modules/`, and this plugin's own code in
-`src/` (namespace `FastCgiCacheForPloi\`). Read this before changing anything. When a rule here
-conflicts with a habit or a quick shortcut, the rule wins.
+(namespace `FastCgiCacheForPloi\Foundation\` — the bundled kernel is scoped under the
+plugin's own namespace so every shipped class is unique to this plugin, per wordpress.org's
+unique-prefix rule; never reintroduce a generic `WPForge\` namespace or a `wpforge_`/`wpf:`
+identifier), opt-in features in `modules/` (namespace `FastCgiCacheForPloi\Module\…`), and this
+plugin's own code in `src/` (namespace `FastCgiCacheForPloi\`). Read this before changing
+anything. When a rule here conflicts with a habit or a quick shortcut, the rule wins.
 
 ## Code principles
 - **One source of truth.** Every value, rule, or list lives in exactly one place. Need it

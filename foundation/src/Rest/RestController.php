@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Rest;
+namespace FastCgiCacheForPloi\Foundation\Rest;
 
-use WPForge\Security\Capability;
+use FastCgiCacheForPloi\Foundation\Security\Capability;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FastCgiCacheForPloi\Tests\Unit\Foundation;
 
-use WPForge\Security\Crypto;
+use FastCgiCacheForPloi\Foundation\Security\Crypto;
 
 const KEY_A = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; // 32 bytes
 const KEY_B = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'; // 32 bytes
@@ -13,7 +13,7 @@ it('round-trips a value', function (): void {
     $crypto = new Crypto(KEY_A);
     $cipher = $crypto->encrypt('super-secret-token');
 
-    expect($cipher)->toStartWith('wpf:sb1:')
+    expect($cipher)->toStartWith('fccfp:sb1:')
         ->and($cipher)->not->toBe('super-secret-token')
         ->and($crypto->decrypt($cipher))->toBe('super-secret-token')
         ->and($crypto->isEncrypted($cipher))->toBeTrue();
@@ -29,7 +29,7 @@ it('returns null for non-encrypted or tampered input', function (): void {
     $crypto = new Crypto(KEY_A);
 
     expect($crypto->decrypt('not-encrypted'))->toBeNull()
-        ->and($crypto->decrypt('wpf:sb1:' . base64_encode('tooshort')))->toBeNull();
+        ->and($crypto->decrypt('fccfp:sb1:' . base64_encode('tooshort')))->toBeNull();
 });
 
 it('rejects a wrong-length injected key at construction', function (): void {

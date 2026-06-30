@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Container;
+namespace FastCgiCacheForPloi\Foundation\Container;
 
 use Psr\Container\NotFoundExceptionInterface;
 

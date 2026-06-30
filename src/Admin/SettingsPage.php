@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FastCgiCacheForPloi\Admin;
 
 use FastCgiCacheForPloi\Providers\RestServiceProvider;
-use WPForge\Module\AdminUi\AdminPage;
+use FastCgiCacheForPloi\Module\AdminUi\AdminPage;
 
 /**
  * CONTRACT: a null parentSlug() makes this a top-level menu instead of a

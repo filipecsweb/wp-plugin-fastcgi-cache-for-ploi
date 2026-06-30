@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Database;
+namespace FastCgiCacheForPloi\Foundation\Database;
 
 use wpdb;
 

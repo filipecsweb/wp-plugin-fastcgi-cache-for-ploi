@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FastCgiCacheForPloi\Tests\Unit\Foundation;
 
 use Brain\Monkey\Functions;
-use WPForge\Settings\Options;
+use FastCgiCacheForPloi\Foundation\Settings\Options;
 
 beforeEach(function (): void {
     $this->store = [];

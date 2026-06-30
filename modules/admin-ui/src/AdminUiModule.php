@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Module\AdminUi;
+namespace FastCgiCacheForPloi\Module\AdminUi;
 
-use WPForge\Container\Container;
-use WPForge\Contracts\ModuleInterface;
-use WPForge\Contracts\ServiceProviderInterface;
+use FastCgiCacheForPloi\Foundation\Container\Container;
+use FastCgiCacheForPloi\Foundation\Contracts\ModuleInterface;
+use FastCgiCacheForPloi\Foundation\Contracts\ServiceProviderInterface;
 
 /**
  * Gated to is_admin() so menu/asset work never runs on front-end requests.

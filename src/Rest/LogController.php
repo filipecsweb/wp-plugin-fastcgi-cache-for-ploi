@@ -7,7 +7,7 @@ namespace FastCgiCacheForPloi\Rest;
 use FastCgiCacheForPloi\Log\FlushLogEntry;
 use FastCgiCacheForPloi\Log\FlushLogRepository;
 use FastCgiCacheForPloi\Providers\RestServiceProvider;
-use WPForge\Security\Capability;
+use FastCgiCacheForPloi\Foundation\Security\Capability;
 use WP_REST_Request;
 use WP_REST_Response;
 

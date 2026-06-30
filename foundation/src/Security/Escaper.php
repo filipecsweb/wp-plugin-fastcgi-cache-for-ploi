@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Security;
+namespace FastCgiCacheForPloi\Foundation\Security;
 
 final class Escaper
 {

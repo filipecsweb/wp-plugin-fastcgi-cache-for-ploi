@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace WPForge;
+namespace FastCgiCacheForPloi\Foundation;
 
-use WPForge\Assets\Vite;
-use WPForge\Container\Container;
-use WPForge\Contracts\ModuleInterface;
-use WPForge\Contracts\ServiceProviderInterface;
-use WPForge\Hooks\HookRegistrar;
-use WPForge\Http\HttpClient;
-use WPForge\I18n\TextDomain;
-use WPForge\Lifecycle\Lifecycle;
-use WPForge\Logging\Logger;
-use WPForge\Logging\LoggerInterface;
-use WPForge\Security\Capability;
-use WPForge\Security\Crypto;
-use WPForge\Security\Escaper;
-use WPForge\Security\Nonce;
-use WPForge\Security\Sanitizer;
+use FastCgiCacheForPloi\Foundation\Assets\Vite;
+use FastCgiCacheForPloi\Foundation\Container\Container;
+use FastCgiCacheForPloi\Foundation\Contracts\ModuleInterface;
+use FastCgiCacheForPloi\Foundation\Contracts\ServiceProviderInterface;
+use FastCgiCacheForPloi\Foundation\Hooks\HookRegistrar;
+use FastCgiCacheForPloi\Foundation\Http\HttpClient;
+use FastCgiCacheForPloi\Foundation\I18n\TextDomain;
+use FastCgiCacheForPloi\Foundation\Lifecycle\Lifecycle;
+use FastCgiCacheForPloi\Foundation\Logging\Logger;
+use FastCgiCacheForPloi\Foundation\Logging\LoggerInterface;
+use FastCgiCacheForPloi\Foundation\Security\Capability;
+use FastCgiCacheForPloi\Foundation\Security\Crypto;
+use FastCgiCacheForPloi\Foundation\Security\Escaper;
+use FastCgiCacheForPloi\Foundation\Security\Nonce;
+use FastCgiCacheForPloi\Foundation\Security\Sanitizer;
 
 /**
  * Plugin metadata is read from the plugin header at runtime, never hardcoded.
@@ -86,7 +86,7 @@ final class Plugin
 
     public function name(): string
     {
-        return $this->header('Name', 'WPForge Plugin');
+        return $this->header('Name', 'Plugin');
     }
 
     public function textDomain(): string
@@ -255,6 +255,7 @@ final class Plugin
             rtrim($this->dir(), '/') . '/public/build',
             rtrim($this->url(), '/') . '/public/build',
             $this->version(),
+            sanitize_title($this->textDomain()),
         ));
 
         $container->singleton(TextDomain::class, fn (): TextDomain => new TextDomain(

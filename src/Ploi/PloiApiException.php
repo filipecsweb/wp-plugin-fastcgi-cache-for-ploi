@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FastCgiCacheForPloi\Ploi;
 
 use RuntimeException;
-use WPForge\Http\Response;
+use FastCgiCacheForPloi\Foundation\Http\Response;
 
 final class PloiApiException extends RuntimeException
 {

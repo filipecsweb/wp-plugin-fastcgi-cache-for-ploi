@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Hooks;
+namespace FastCgiCacheForPloi\Foundation\Hooks;
 
 use LogicException;
 use ReflectionObject;
@@ -29,7 +29,7 @@ final class HookRegistrar
     private array $memo = [];
 
     public function __construct(
-        private readonly string $cacheGroup = 'wpforge_hooks',
+        private readonly string $cacheGroup,
         private readonly string $cacheVersion = '',
     ) {
     }

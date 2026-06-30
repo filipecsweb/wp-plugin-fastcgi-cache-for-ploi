@@ -8,7 +8,7 @@ use FastCgiCacheForPloi\Ploi\PloiApiException;
 use FastCgiCacheForPloi\Ploi\PloiClient;
 use FastCgiCacheForPloi\Providers\RestServiceProvider;
 use FastCgiCacheForPloi\Settings\PloiSettings;
-use WPForge\Security\Capability;
+use FastCgiCacheForPloi\Foundation\Security\Capability;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;

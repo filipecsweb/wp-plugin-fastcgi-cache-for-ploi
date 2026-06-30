@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Module\AdminUi;
+namespace FastCgiCacheForPloi\Module\AdminUi;
 
 /**
  * One subclass works as either top-level menu or submenu purely via

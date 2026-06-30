@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Logging;
+namespace FastCgiCacheForPloi\Foundation\Logging;
 
 use Stringable;
 
@@ -25,7 +25,7 @@ final class Logger implements LoggerInterface
     ];
 
     public function __construct(
-        private readonly string $channel = 'wpforge',
+        private readonly string $channel,
         private readonly string $minLevel = LogLevel::DEBUG,
     ) {
     }

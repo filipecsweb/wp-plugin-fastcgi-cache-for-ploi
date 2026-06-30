@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Logging;
+namespace FastCgiCacheForPloi\Foundation\Logging;
 
 final class LogLevel
 {

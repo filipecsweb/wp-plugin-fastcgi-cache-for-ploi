@@ -9,11 +9,11 @@ use FastCgiCacheForPloi\Cache\FlushEvents;
 use FastCgiCacheForPloi\Log\FlushLogEntry;
 use FastCgiCacheForPloi\Log\FlushLogRepository;
 use FastCgiCacheForPloi\Settings\PloiSettings;
-use WPForge\Assets\Vite;
-use WPForge\Module\AdminUi\AdminAssets;
-use WPForge\Plugin;
-use WPForge\Provider\ServiceProvider;
-use WPForge\Security\Nonce;
+use FastCgiCacheForPloi\Foundation\Assets\Vite;
+use FastCgiCacheForPloi\Module\AdminUi\AdminAssets;
+use FastCgiCacheForPloi\Foundation\Plugin;
+use FastCgiCacheForPloi\Foundation\Provider\ServiceProvider;
+use FastCgiCacheForPloi\Foundation\Security\Nonce;
 
 final class AdminServiceProvider extends ServiceProvider
 {

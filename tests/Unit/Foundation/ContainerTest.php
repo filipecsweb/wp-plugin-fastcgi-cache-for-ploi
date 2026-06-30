@@ -6,9 +6,9 @@ namespace FastCgiCacheForPloi\Tests\Unit\Foundation;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use WPForge\Container\Container;
-use WPForge\Container\ContainerException;
-use WPForge\Container\NotFoundException;
+use FastCgiCacheForPloi\Foundation\Container\Container;
+use FastCgiCacheForPloi\Foundation\Container\ContainerException;
+use FastCgiCacheForPloi\Foundation\Container\NotFoundException;
 
 final class CtDep
 {

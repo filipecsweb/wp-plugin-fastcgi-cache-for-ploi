@@ -6,7 +6,7 @@ namespace FastCgiCacheForPloi\Tests\Unit\Ploi;
 
 use Brain\Monkey\Functions;
 use FastCgiCacheForPloi\Ploi\PloiApiException;
-use WPForge\Http\Response;
+use FastCgiCacheForPloi\Foundation\Http\Response;
 
 beforeEach(function (): void {
     Functions\when('__')->returnArg(1);

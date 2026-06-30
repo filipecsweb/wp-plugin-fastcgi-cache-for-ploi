@@ -6,8 +6,8 @@ namespace FastCgiCacheForPloi\Rest;
 
 use FastCgiCacheForPloi\Providers\RestServiceProvider;
 use FastCgiCacheForPloi\Settings\PloiSettings;
-use WPForge\Security\Capability;
-use WPForge\Security\Sanitizer;
+use FastCgiCacheForPloi\Foundation\Security\Capability;
+use FastCgiCacheForPloi\Foundation\Security\Sanitizer;
 use WP_REST_Request;
 use WP_REST_Response;
 

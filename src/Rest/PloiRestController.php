@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FastCgiCacheForPloi\Rest;
 
-use WPForge\Rest\RestController;
+use FastCgiCacheForPloi\Foundation\Rest\RestController;
 use WP_Error;
 
 /**

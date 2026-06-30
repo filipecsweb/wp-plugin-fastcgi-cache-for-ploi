@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Lifecycle;
+namespace FastCgiCacheForPloi\Foundation\Lifecycle;
 
 /**
  * Thin wrapper over WordPress activation/deactivation hooks.

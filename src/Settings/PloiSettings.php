@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace FastCgiCacheForPloi\Settings;
 
 use FastCgiCacheForPloi\Cache\FlushEvents;
-use WPForge\Security\Crypto;
-use WPForge\Settings\Options;
+use FastCgiCacheForPloi\Foundation\Security\Crypto;
+use FastCgiCacheForPloi\Foundation\Settings\Options;
 
 /**
  * Typed settings for the plugin, layered over the Foundation Options + Crypto.

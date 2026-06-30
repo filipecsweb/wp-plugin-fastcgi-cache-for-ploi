@@ -16,7 +16,7 @@
  *
  * @package FastCgiCacheForPloi
  *
- * This header is the SINGLE SOURCE OF TRUTH for the plugin version. The WPForge
+ * This header is the SINGLE SOURCE OF TRUTH for the plugin version. The Foundation
  * kernel reads it at runtime via get_file_data() — never hardcode the version
  * anywhere else.
  */
@@ -31,14 +31,14 @@ use FastCgiCacheForPloi\Providers\AdminServiceProvider;
 use FastCgiCacheForPloi\Providers\CoreServiceProvider;
 use FastCgiCacheForPloi\Providers\FlushServiceProvider;
 use FastCgiCacheForPloi\Providers\RestServiceProvider;
-use WPForge\Lifecycle\Lifecycle;
-use WPForge\Module\AdminUi\AdminUiModule;
-use WPForge\Plugin;
+use FastCgiCacheForPloi\Foundation\Lifecycle\Lifecycle;
+use FastCgiCacheForPloi\Module\AdminUi\AdminUiModule;
+use FastCgiCacheForPloi\Foundation\Plugin;
 
 defined('ABSPATH') || exit;
 
 /**
- * Boot the plugin on top of the WPForge Foundation.
+ * Boot the plugin on top of the bundled Foundation kernel.
  *
  *   - Admin-UI module: the settings screen, loaded only in wp-admin.
  *   - Ploi behaviour:  always-on core, REST and flush providers via

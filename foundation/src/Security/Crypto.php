@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Security;
+namespace FastCgiCacheForPloi\Foundation\Security;
 
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- The message contains only a libsodium byte-length constant; it is a boot-time configuration guard, never echoed as HTML.
 
@@ -18,7 +18,7 @@ namespace WPForge\Security;
  */
 final class Crypto
 {
-    private const PREFIX = 'wpf:sb1:';
+    private const PREFIX = 'fccfp:sb1:';
 
     /**
      * @param string|null $key Optional 32-byte key; derived from salts when null.

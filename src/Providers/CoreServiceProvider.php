@@ -10,11 +10,11 @@ use FastCgiCacheForPloi\Log\FlushLogRepository;
 use FastCgiCacheForPloi\Ploi\PloiClient;
 use FastCgiCacheForPloi\Settings\OptionNames;
 use FastCgiCacheForPloi\Settings\PloiSettings;
-use WPForge\Database\Migrator;
-use WPForge\Plugin;
-use WPForge\Provider\ServiceProvider;
-use WPForge\Security\Crypto;
-use WPForge\Settings\Options;
+use FastCgiCacheForPloi\Foundation\Database\Migrator;
+use FastCgiCacheForPloi\Foundation\Plugin;
+use FastCgiCacheForPloi\Foundation\Provider\ServiceProvider;
+use FastCgiCacheForPloi\Foundation\Security\Crypto;
+use FastCgiCacheForPloi\Foundation\Settings\Options;
 
 /**
  * Binds the always-on plugin services into the container.

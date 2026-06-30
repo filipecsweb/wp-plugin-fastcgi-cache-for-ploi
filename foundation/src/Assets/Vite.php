@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Assets;
+namespace FastCgiCacheForPloi\Foundation\Assets;
 
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- ViteException messages contain only internal manifest entry keys; they surface at build/boot via wp_die/log, never echoed as HTML.
 
@@ -30,6 +30,7 @@ final class Vite
         private readonly string $buildPath,
         private readonly string $buildUrl,
         private readonly string $version = '',
+        private readonly string $handlePrefix = 'vite',
         private readonly string $devServer = 'http://localhost:5173',
     ) {
     }
@@ -114,7 +115,7 @@ final class Vite
             // Derive the style handle from the content-hashed filename so a CSS
             // chunk shared by multiple entries collapses to a single <link>
             // (WordPress dedupes styles by handle, not by URL).
-            $styleHandle = 'wpforge-vite-' . sanitize_title(pathinfo($style, PATHINFO_FILENAME));
+            $styleHandle = $this->handlePrefix . '-' . sanitize_title(pathinfo($style, PATHINFO_FILENAME));
             wp_enqueue_style($styleHandle, $this->buildUrl . '/' . $style, [], $this->version);
         }
 

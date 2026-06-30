@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Provider;
+namespace FastCgiCacheForPloi\Foundation\Provider;
 
-use WPForge\Container\Container;
-use WPForge\Contracts\ServiceProviderInterface;
-use WPForge\Hooks\HookRegistrar;
+use FastCgiCacheForPloi\Foundation\Container\Container;
+use FastCgiCacheForPloi\Foundation\Contracts\ServiceProviderInterface;
+use FastCgiCacheForPloi\Foundation\Hooks\HookRegistrar;
 
 /**
  * Subclasses overriding boot() MUST call parent::boot() or $subscribers'

@@ -6,8 +6,8 @@ namespace FastCgiCacheForPloi\Tests\Unit\Settings;
 
 use Brain\Monkey\Functions;
 use FastCgiCacheForPloi\Settings\PloiSettings;
-use WPForge\Security\Crypto;
-use WPForge\Settings\Options;
+use FastCgiCacheForPloi\Foundation\Security\Crypto;
+use FastCgiCacheForPloi\Foundation\Settings\Options;
 
 beforeEach(function (): void {
     $this->store = [];

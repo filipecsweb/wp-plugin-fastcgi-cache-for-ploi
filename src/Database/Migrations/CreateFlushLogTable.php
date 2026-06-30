@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FastCgiCacheForPloi\Database\Migrations;
 
 use FastCgiCacheForPloi\Log\FlushLogRepository;
-use WPForge\Database\Migration;
+use FastCgiCacheForPloi\Foundation\Database\Migration;
 
 final class CreateFlushLogTable extends Migration
 {

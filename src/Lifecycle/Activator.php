@@ -6,7 +6,7 @@ namespace FastCgiCacheForPloi\Lifecycle;
 
 use FastCgiCacheForPloi\Database\Migrations\CreateFlushLogTable;
 use FastCgiCacheForPloi\Settings\OptionNames;
-use WPForge\Database\Migrator;
+use FastCgiCacheForPloi\Foundation\Database\Migrator;
 
 /**
  * No container: activation fires before the plugin's providers boot.

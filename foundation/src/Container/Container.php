@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Container;
+namespace FastCgiCacheForPloi\Foundation\Container;
 
 use Closure;
 use Psr\Container\ContainerExceptionInterface;

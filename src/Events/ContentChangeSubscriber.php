@@ -7,7 +7,7 @@ namespace FastCgiCacheForPloi\Events;
 use FastCgiCacheForPloi\Cache\FlushReason;
 use FastCgiCacheForPloi\Cache\FlushScheduler;
 use FastCgiCacheForPloi\Settings\PloiSettings;
-use WPForge\Hooks\Action;
+use FastCgiCacheForPloi\Foundation\Hooks\Action;
 use WP_Post;
 
 /**

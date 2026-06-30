@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Settings;
+namespace FastCgiCacheForPloi\Foundation\Settings;
 
 /**
  * Typed accessor over a single wp_options row stored as an associative array.

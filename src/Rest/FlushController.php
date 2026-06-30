@@ -9,7 +9,7 @@ use FastCgiCacheForPloi\Cache\FlushReason;
 use FastCgiCacheForPloi\Log\FlushLogEntry;
 use FastCgiCacheForPloi\Providers\RestServiceProvider;
 use FastCgiCacheForPloi\Settings\PloiSettings;
-use WPForge\Security\Capability;
+use FastCgiCacheForPloi\Foundation\Security\Capability;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;

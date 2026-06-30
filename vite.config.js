@@ -12,7 +12,7 @@ const hotFile = path.resolve('public/build/hot')
  */
 function wpHotFile() {
   return {
-    name: 'wpforge-hot-file',
+    name: 'fastcgi-cache-for-ploi-hot-file',
     apply: 'serve',
     configureServer(server) {
       const write = () => {

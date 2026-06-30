@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Hooks;
+namespace FastCgiCacheForPloi\Foundation\Hooks;
 
 use Attribute;
 

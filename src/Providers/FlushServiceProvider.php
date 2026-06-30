@@ -6,7 +6,7 @@ namespace FastCgiCacheForPloi\Providers;
 
 use FastCgiCacheForPloi\Cache\FlushScheduler;
 use FastCgiCacheForPloi\Events\ContentChangeSubscriber;
-use WPForge\Provider\ServiceProvider;
+use FastCgiCacheForPloi\Foundation\Provider\ServiceProvider;
 
 /**
  * Cron callback can't be an #[Action], so it's wired manually here unlike the

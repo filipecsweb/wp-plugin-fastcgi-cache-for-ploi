@@ -38,8 +38,8 @@ Three concentric layers, one installable plugin:
 
 | Layer | Path | Namespace | Role |
 |------|------|-----------|------|
-| **Foundation** (reusable kernel) | `foundation/src/` | `WPForge\` | DI container, attribute hooks, lifecycle, typed Options, dbDelta migrations, HTTP wrapper, security (incl. sodium Crypto), PSR-3 logger, REST base, Vite enqueuer, i18n |
-| **admin-ui module** (opt-in) | `modules/admin-ui/src/` | `WPForge\Module\AdminUi\` | Reusable admin-screen machinery (top-level or submenu, screen-scoped assets, Tailwind v4 isolation) |
+| **Foundation** (reusable kernel) | `foundation/src/` | `FastCgiCacheForPloi\Foundation\` | DI container, attribute hooks, lifecycle, typed Options, dbDelta migrations, HTTP wrapper, security (incl. sodium Crypto), PSR-3 logger, REST base, Vite enqueuer, i18n |
+| **admin-ui module** (opt-in) | `modules/admin-ui/src/` | `FastCgiCacheForPloi\Module\AdminUi\` | Reusable admin-screen machinery (top-level or submenu, screen-scoped assets, Tailwind v4 isolation) |
 | **Ploi plugin** (this proof) | `src/` | `FastCgiCacheForPloi\` | Settings, Ploi client, flush engine, event subscriber, REST controllers, flush-log table |
 
 Copying `foundation/` alone gives a clean kernel with **zero modules attached**.

@@ -12,10 +12,10 @@ plugin therefore stores it **encrypted at rest** and keeps the encryption key
 
 Tokens are sealed with libsodium authenticated encryption
 (`sodium_crypto_secretbox`, XSalsa20-Poly1305) via the Foundation's
-`WPForge\Security\Crypto` primitive:
+`FastCgiCacheForPloi\Foundation\Security\Crypto` primitive:
 
 - A random 24-byte nonce per encryption (never reused).
-- Ciphertext is stored as `wpf:sb1:` + base64(`nonce` ‖ `ciphertext`).
+- Ciphertext is stored as `fccfp:sb1:` + base64(`nonce` ‖ `ciphertext`).
 - Decryption is **total**: any failure (tampering, truncation, wrong key,
   rotated salts) returns `null` and never throws or fatals.
 

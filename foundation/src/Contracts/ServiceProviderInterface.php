@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Contracts;
+namespace FastCgiCacheForPloi\Foundation\Contracts;
 
 /**
  * A service provider wires a slice of the plugin into the container.

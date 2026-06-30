@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Contracts;
+namespace FastCgiCacheForPloi\Foundation\Contracts;
 
-use WPForge\Container\Container;
+use FastCgiCacheForPloi\Foundation\Container\Container;
 
 /**
  * The opt-in module contract.

@@ -11,10 +11,10 @@ use FastCgiCacheForPloi\Events\ContentChangeSubscriber;
 use FastCgiCacheForPloi\Log\FlushLogRepository;
 use FastCgiCacheForPloi\Ploi\PloiClient;
 use FastCgiCacheForPloi\Settings\PloiSettings;
-use WPForge\Http\HttpClient;
-use WPForge\Logging\Logger;
-use WPForge\Security\Crypto;
-use WPForge\Settings\Options;
+use FastCgiCacheForPloi\Foundation\Http\HttpClient;
+use FastCgiCacheForPloi\Foundation\Logging\Logger;
+use FastCgiCacheForPloi\Foundation\Security\Crypto;
+use FastCgiCacheForPloi\Foundation\Settings\Options;
 
 if (! defined('MINUTE_IN_SECONDS')) {
     define('MINUTE_IN_SECONDS', 60);

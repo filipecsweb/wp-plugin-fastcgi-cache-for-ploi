@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\I18n;
+namespace FastCgiCacheForPloi\Foundation\I18n;
 
 /**
  * Loads the plugin's translations.

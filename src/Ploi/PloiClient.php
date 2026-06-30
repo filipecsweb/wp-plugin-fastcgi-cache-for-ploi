@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace FastCgiCacheForPloi\Ploi;
 
-use WPForge\Http\HttpClient;
-use WPForge\Http\Response;
+use FastCgiCacheForPloi\Foundation\Http\HttpClient;
+use FastCgiCacheForPloi\Foundation\Http\Response;
 
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- PloiApiException::fromResponse() receives a Response object (esc_html is inapplicable); its message is surfaced as an escaped WP_Error/JSON response and escaped at output, not here.
 

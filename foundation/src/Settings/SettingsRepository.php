@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Settings;
+namespace FastCgiCacheForPloi\Foundation\Settings;
 
 /**
  * Thin wrapper over the WordPress Settings API.

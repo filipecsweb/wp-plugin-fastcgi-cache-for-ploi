@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace FastCgiCacheForPloi\Tests\Unit\Foundation;
 
 use Brain\Monkey\Functions;
-use WPForge\Hooks\Action;
-use WPForge\Hooks\Filter;
-use WPForge\Hooks\HookRegistrar;
+use FastCgiCacheForPloi\Foundation\Hooks\Action;
+use FastCgiCacheForPloi\Foundation\Hooks\Filter;
+use FastCgiCacheForPloi\Foundation\Hooks\HookRegistrar;
 
 final class HrSubscriber
 {
@@ -44,12 +44,12 @@ beforeEach(function (): void {
 });
 
 it('wires attribute-declared actions and filters', function (): void {
-    (new HookRegistrar())->register(new HrSubscriber());
+    (new HookRegistrar('test_hooks'))->register(new HrSubscriber());
 
     expect($GLOBALS['hr_actions'])->toContain('save_post')
         ->and($GLOBALS['hr_filters'])->toContain('the_title');
 });
 
 it('fails loud on a non-public annotated method', function (): void {
-    (new HookRegistrar())->register(new HrBadSubscriber());
+    (new HookRegistrar('test_hooks'))->register(new HrBadSubscriber());
 })->throws(\LogicException::class);

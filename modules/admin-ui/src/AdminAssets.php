@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Module\AdminUi;
+namespace FastCgiCacheForPloi\Module\AdminUi;
 
-use WPForge\Assets\Vite;
+use FastCgiCacheForPloi\Foundation\Assets\Vite;
 
 /**
  * Enqueues a Vite-built admin bundle, scoped to a single admin screen.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WPForge\Http;
+namespace FastCgiCacheForPloi\Foundation\Http;
 
 use WP_Error;
 

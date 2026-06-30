@@ -9,7 +9,7 @@
 declare(strict_types=1);
 
 use FastCgiCacheForPloi\Lifecycle\Uninstaller;
-use WPForge\Plugin;
+use FastCgiCacheForPloi\Foundation\Plugin;
 
 defined('WP_UNINSTALL_PLUGIN') || exit;
 
