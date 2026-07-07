@@ -113,10 +113,6 @@ No. Flushes happen via a background request to the Ploi API after content change
 
 Click **Disconnect** on the settings screen to remove the saved token, or deactivate/uninstall the plugin. With no token saved, the plugin makes no requests to Ploi.
 
-== Screenshots ==
-
-1. The settings screen: connect with a Ploi API token, choose your server and site, pick which events trigger a flush, and review the recent-flushes log.
-
 == Changelog ==
 
 = 1.0.0 =
