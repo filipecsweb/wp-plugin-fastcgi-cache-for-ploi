@@ -101,4 +101,13 @@ abstract class AdminPage
     {
         return $this->hookSuffix;
     }
+
+    /**
+     * Built from the slug (not the menu registration), so it's valid before
+     * register() runs on admin_menu.
+     */
+    public function url(): string
+    {
+        return admin_url(add_query_arg('page', $this->slug(), $this->parentSlug() ?? 'admin.php'));
+    }
 }
