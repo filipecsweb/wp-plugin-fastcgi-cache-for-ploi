@@ -27,12 +27,13 @@ export const TOKENS = {
 
 /**
  * Route-mock globs for the deleted-target specs. The plugin's REST routes live under
- * a fixed namespace (RestServiceProvider::NAMESPACE = 'fastcgi-cache-for-ploi/v1');
- * the browser fetches them at `{site}/wp-json/<namespace>/<route>`. These globs match
- * the UI's own fetch() calls. They do NOT match page.request (the harness's REST
- * client), which bypasses page.route — so a spec can mock the UI while the harness
- * still reads/writes real state.
+ * a fixed namespace; the browser fetches them at `{site}/wp-json/<namespace>/<route>`.
+ * These globs match the UI's own fetch() calls. They do NOT match page.request (the
+ * harness's REST client), which bypasses page.route — so a spec can mock the UI while
+ * the harness still reads/writes real state.
  */
+// NS mirrors the PHP source of truth (RestServiceProvider::NAMESPACE); any drift
+// is caught by these mocks no longer matching, which fails the mocked specs.
 const NS = 'fastcgi-cache-for-ploi/v1'
 export const MOCK = {
   connection: `**/${NS}/connection`,

@@ -94,7 +94,7 @@ Definition of done for any new admin control:
      `button-link-delete` only sets the red color and renders as a raw button
      without the `button-link` reset).
 2. Make sure it's covered by the styling smoke test
-   (`tests/e2e/settings.spec.js` → "Admin controls use native wp-admin styling").
+   (`tests/e2e/styling.spec.js` → "native wp-admin styling (preflight is OFF)").
    That test fails if any `<button>` / `<a role=button>` / `.button` lacks a
    recognized native class. If a control legitimately uses a non-`.button` core
    class, add it to that test's `ALLOWLIST` rather than skipping the check.

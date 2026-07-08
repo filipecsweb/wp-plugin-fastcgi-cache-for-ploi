@@ -3,7 +3,7 @@
 Automatically flush a [Ploi](https://ploi.io)-managed site's **FastCGI cache**
 whenever your content changes — and flush on demand from a clean settings screen.
 
-Built on **WPForge**, a small, reusable WordPress plugin Foundation (PHP 8.2+,
+Built on a small, reusable WordPress plugin **Foundation** (PHP 8.2+,
 PSR-11 DI container, attribute-based hooks, vendored Vite enqueuer, opt-in
 modules). The Foundation is the product; this plugin is the proof that exercises
 every one of its primitives.
@@ -30,21 +30,7 @@ every one of its primitives.
 - PHP **8.2+** with the **sodium** extension (bundled in PHP 8.2+)
 - WordPress **6.5+**
 - A Ploi account and API token
-- For development: Composer, Node **24** (see `.nvmrc`), and [Herd](https://herd.laravel.com) + [DBngin](https://dbngin.com)
-
-## How it's built
-
-Three concentric layers, one installable plugin:
-
-| Layer | Path | Namespace | Role |
-|------|------|-----------|------|
-| **Foundation** (reusable kernel) | `foundation/src/` | `FastCgiCacheForPloi\Foundation\` | DI container, attribute hooks, lifecycle, typed Options, dbDelta migrations, HTTP wrapper, security (incl. sodium Crypto), PSR-3 logger, REST base, Vite enqueuer, i18n |
-| **admin-ui module** (opt-in) | `modules/admin-ui/src/` | `FastCgiCacheForPloi\Module\AdminUi\` | Reusable admin-screen machinery (top-level or submenu, screen-scoped assets, Tailwind v4 isolation) |
-| **Ploi plugin** (this proof) | `src/` | `FastCgiCacheForPloi\` | Settings, Ploi client, flush engine, event subscriber, REST controllers, flush-log table |
-
-Copying `foundation/` alone gives a clean kernel with **zero modules attached**.
-See [`modules/README.md`](modules/README.md) for the module contract and the
-catalogue of available / planned modules.
+- For development: Composer, Node (the version pinned in `.nvmrc`), and [Herd](https://herd.laravel.com) + [DBngin](https://dbngin.com)
 
 ## Installation
 
@@ -163,20 +149,6 @@ CI provisions its own WordPress from scratch with WP-CLI (`wp core download/inst
 + a symlinked plugin + the PHP built-in server) — see `.github/workflows/ci.yml`.
 The full quality gate (`composer qa` across PHP 8.2/8.3/8.4, asset build, and this
 E2E job) runs there on every push.
-
-## Project layout
-
-```
-foundation/src/        WPForge kernel (reusable)
-modules/admin-ui/src/  admin-ui module (opt-in)
-src/                   FastCGI Cache for Ploi plugin code
-resources/             Alpine + Tailwind v4 sources (built into public/build/)
-tests/Unit/            Pest unit tests
-tests/e2e/             Playwright E2E
-docs/security.md       Encryption key management & residual risk
-fastcgi-cache-for-ploi.php Plugin bootstrap (version = single source of truth)
-uninstall.php          Drops the table + options on uninstall
-```
 
 ## License
 

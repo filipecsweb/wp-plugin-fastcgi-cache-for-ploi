@@ -6,7 +6,8 @@ namespace FastCgiCacheForPloi\Module\AdminUi;
 
 /**
  * One subclass works as either top-level menu or submenu purely via
- * parentSlug()'s return.
+ * parentSlug()'s return. CONTRACT: a null parentSlug() makes the page a
+ * top-level menu instead of a submenu.
  */
 abstract class AdminPage
 {

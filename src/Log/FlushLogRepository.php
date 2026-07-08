@@ -15,6 +15,18 @@ final class FlushLogRepository
     public const TABLE = 'fastcgi_cache_for_ploi_flush_log';
 
     /**
+     * The fully-prefixed table name — the single definition shared by this
+     * repository, the migration, and uninstall, so the three can't drift.
+     */
+    public static function tableName(): string
+    {
+        /** @var \wpdb $wpdb */
+        global $wpdb;
+
+        return $wpdb->prefix . self::TABLE;
+    }
+
+    /**
      * How many recent rows the "Recent flushes" table shows. Single source for
      * both the initial server-side hydration (AdminServiceProvider) and the
      * GET /log refresh (LogController), so the two can't show different counts.
@@ -25,10 +37,7 @@ final class FlushLogRepository
 
     public function __construct()
     {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $this->table = $wpdb->prefix . self::TABLE;
+        $this->table = self::tableName();
     }
 
     public function insert(FlushLogEntry $entry): int

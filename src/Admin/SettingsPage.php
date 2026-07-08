@@ -7,10 +7,6 @@ namespace FastCgiCacheForPloi\Admin;
 use FastCgiCacheForPloi\Providers\RestServiceProvider;
 use FastCgiCacheForPloi\Module\AdminUi\AdminPage;
 
-/**
- * CONTRACT: a null parentSlug() makes this a top-level menu instead of a
- * submenu.
- */
 final class SettingsPage extends AdminPage
 {
     public const SLUG = 'fastcgi-cache-for-ploi';

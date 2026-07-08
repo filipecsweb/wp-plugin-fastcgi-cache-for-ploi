@@ -45,7 +45,9 @@
         "cbf": "phpcbf",
         "stan": "phpstan analyse --memory-limit=1G",
         "test": "pest",
+        "versions": "bin/check-version-consistency.sh",
         "qa": [
+            "@versions",
             "@cs",
             "@stan",
             "@test"
@@ -56,6 +58,7 @@
         "cbf": "Auto-fix PHPCS violations.",
         "stan": "Run PHPStan at max level with WordPress stubs.",
         "test": "Run the Pest unit suite.",
-        "qa": "Run cs + stan + test (full quality gate)."
+        "versions": "Check the min PHP / min WP declarations agree across header, readme, composer, phpcs, phpstan and CI.",
+        "qa": "Run versions + cs + stan + test (full quality gate)."
     }
 }

@@ -15,7 +15,7 @@ final class Uninstaller
         /** @var \wpdb $wpdb */
         global $wpdb;
 
-        $table = $wpdb->prefix . FlushLogRepository::TABLE;
+        $table = FlushLogRepository::tableName();
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Dropping our own custom table on uninstall; $table derives from $wpdb->prefix (trusted) and caching does not apply to DDL.
         $wpdb->query("DROP TABLE IF EXISTS {$table}");
 

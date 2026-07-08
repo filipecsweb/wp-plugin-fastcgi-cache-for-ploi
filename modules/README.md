@@ -1,4 +1,4 @@
-# WPForge Modules
+# Foundation Modules
 
 Modules are **opt-in units** that extend the pure Foundation kernel. They live
 here, _outside_ `foundation/`, so that copying `foundation/` alone yields a clean

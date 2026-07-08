@@ -16,7 +16,7 @@ final class CreateFlushLogTable extends Migration
 
     public function up(): void
     {
-        $table   = $this->tableName(FlushLogRepository::TABLE);
+        $table   = FlushLogRepository::tableName();
         $collate = $this->charsetCollate();
 
         // dbDelta is whitespace-sensitive: two spaces after PRIMARY KEY, one
@@ -43,7 +43,7 @@ final class CreateFlushLogTable extends Migration
         /** @var \wpdb $wpdb */
         global $wpdb;
 
-        $table = $this->tableName(FlushLogRepository::TABLE);
+        $table = FlushLogRepository::tableName();
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Dropping our own custom table on migration rollback; $table derives from $wpdb->prefix (trusted), the schema change is intentional, and caching does not apply to DDL.
         $wpdb->query("DROP TABLE IF EXISTS {$table}");
     }

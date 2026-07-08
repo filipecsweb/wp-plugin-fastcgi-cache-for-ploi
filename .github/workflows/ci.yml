@@ -21,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Version consistency (min PHP / min WP declarations)
+        run: bin/check-version-consistency.sh
+
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
