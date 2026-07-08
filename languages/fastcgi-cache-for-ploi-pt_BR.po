@@ -1,0 +1,421 @@
+# Copyright (C) 2026 Filipe Seabra
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: FastCGI Cache for Ploi 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/fastcgi-cache-for-ploi\n"
+"Last-Translator: Filipe Seabra <filipecseabra@gmail.com>\n"
+"Language-Team: Português do Brasil\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"POT-Creation-Date: 2026-07-08T04:04:04+00:00\n"
+"PO-Revision-Date: 2026-07-08T04:10:00+00:00\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: fastcgi-cache-for-ploi\n"
+
+#. Plugin Name of the plugin
+#: fastcgi-cache-for-ploi.php
+#: src/Admin/SettingsPage.php:56
+msgid "FastCGI Cache for Ploi"
+msgstr "FastCGI Cache for Ploi"
+
+#. Plugin URI of the plugin
+#: fastcgi-cache-for-ploi.php
+msgid "https://wordpress.org/plugins/fastcgi-cache-for-ploi/"
+msgstr "https://wordpress.org/plugins/fastcgi-cache-for-ploi/"
+
+#. Description of the plugin
+#: fastcgi-cache-for-ploi.php
+msgid "Automatically flush a Ploi-managed site's FastCGI cache when content changes."
+msgstr "Limpa automaticamente o cache FastCGI de um site gerenciado pela Ploi quando o conteúdo muda."
+
+#. Author of the plugin
+#: fastcgi-cache-for-ploi.php
+msgid "Filipe Seabra"
+msgstr "Filipe Seabra"
+
+#. Author URI of the plugin
+#: fastcgi-cache-for-ploi.php
+msgid "https://github.com/filipecsweb"
+msgstr "https://github.com/filipecsweb"
+
+#: fastcgi-cache-for-ploi.php:58
+msgid "FastCGI Cache for Ploi: dependencies are missing. Run \"composer install\" in the plugin directory."
+msgstr "FastCGI Cache for Ploi: as dependências não foram instaladas. Execute \"composer install\" no diretório do plugin."
+
+#. translators: %s: plugin version number.
+#: resources/views/partials/admin-footer.php:18
+#, php-format
+msgid "Version %s"
+msgstr "Versão %s"
+
+#: resources/views/partials/admin-footer.php:24
+msgid "Ploi is a trademark of its respective owner. This plugin is not affiliated with or endorsed by Ploi."
+msgstr "Ploi é uma marca registrada de seu respectivo proprietário. Este plugin não é afiliado à Ploi nem endossado por ela."
+
+#: resources/views/partials/logs-tab.php:17
+msgid "Recent flushes"
+msgstr "Limpezas recentes"
+
+#: resources/views/partials/logs-tab.php:22
+msgid "Refresh"
+msgstr "Atualizar"
+
+#: resources/views/partials/logs-tab.php:29
+msgid "No flushes recorded yet."
+msgstr "Nenhuma limpeza registrada até agora."
+
+#: resources/views/partials/logs-tab.php:35
+msgid "When"
+msgstr "Quando"
+
+#: resources/views/partials/logs-tab.php:36
+msgid "Trigger"
+msgstr "Gatilho"
+
+#: resources/views/partials/logs-tab.php:37
+msgid "Target"
+msgstr "Destino"
+
+#: resources/views/partials/logs-tab.php:38
+msgid "Result"
+msgstr "Resultado"
+
+#: resources/views/partials/logs-tab.php:39
+msgid "Duration"
+msgstr "Duração"
+
+#: resources/views/partials/logs-tab.php:53
+msgid "Success"
+msgstr "Sucesso"
+
+#: resources/views/partials/logs-tab.php:54
+msgid "Failed"
+msgstr "Falhou"
+
+#: resources/views/partials/modal.php:43
+msgid "Close"
+msgstr "Fechar"
+
+#: resources/views/partials/notices.php:21
+msgid "Reconnect required."
+msgstr "Reconexão necessária."
+
+#: resources/views/partials/notices.php:30
+msgid "Harden your token's encryption key"
+msgstr "Reforce a chave de criptografia do seu token"
+
+#: resources/views/partials/notices.php:33
+msgid "Your WordPress security keys (salts) aren't defined in <code>wp-config.php</code>. Define them — or add a dedicated key — so the key that encrypts your token lives in <code>wp-config.php</code>, separate from your database: <code>define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '…' );</code>"
+msgstr "As chaves de segurança (salts) do WordPress não estão definidas no <code>wp-config.php</code>. Defina-as — ou adicione uma chave dedicada — para que a chave que criptografa seu token fique no <code>wp-config.php</code>, separada do banco de dados: <code>define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '…' );</code>"
+
+#: resources/views/partials/save-button.php:18
+#: resources/views/partials/target-form.php:55
+msgid "Saving…"
+msgstr "Salvando…"
+
+#: resources/views/partials/save-button.php:19
+msgid "Save settings"
+msgstr "Salvar configurações"
+
+#: resources/views/partials/settings-tab.php:17
+msgid "Connection"
+msgstr "Conexão"
+
+#: resources/views/partials/settings-tab.php:22
+msgid "Connecting validates your token with Ploi and stores it encrypted; a saved token is never shown again. Disconnect to enter a different one."
+msgstr "Ao conectar, seu token é validado na Ploi e armazenado criptografado; um token salvo nunca é exibido novamente. Desconecte para informar outro."
+
+#: resources/views/partials/settings-tab.php:27
+msgid "Ploi API token"
+msgstr "Token da API da Ploi"
+
+#: resources/views/partials/settings-tab.php:37
+msgid "Connected — disconnect to enter a new token"
+msgstr "Conectado — desconecte para informar um novo token"
+
+#: resources/views/partials/settings-tab.php:38
+msgid "Enter your Ploi API token"
+msgstr "Informe seu token da API da Ploi"
+
+#: resources/views/partials/settings-tab.php:45
+msgid "Connecting…"
+msgstr "Conectando…"
+
+#: resources/views/partials/settings-tab.php:46
+msgid "Connect"
+msgstr "Conectar"
+
+#: resources/views/partials/settings-tab.php:53
+msgid "Disconnecting…"
+msgstr "Desconectando…"
+
+#: resources/views/partials/settings-tab.php:54
+msgid "Disconnect"
+msgstr "Desconectar"
+
+#. translators: 1: <strong>-wrapped breadcrumb to the Ploi API keys screen; 2: opening <a> tag; 3: closing </a> tag; 4: <code>-wrapped example token name.
+#: resources/views/partials/settings-tab.php:63
+#, php-format
+msgid "Paste a Ploi API token to connect. Create one in %1$s (%2$sopen ↗%3$s) and name it something like %4$s so it's easy to find and revoke later."
+msgstr "Cole um token da API da Ploi para conectar. Crie um em %1$s (%2$sabrir ↗%3$s) e dê a ele um nome como %4$s para facilitar encontrá-lo e revogá-lo depois."
+
+#: resources/views/partials/settings-tab.php:64
+msgid "Ploi → API keys"
+msgstr "Ploi → API keys"
+
+#: resources/views/partials/settings-tab.php:67
+msgid "FastCGI Cache — yoursite.com"
+msgstr "FastCGI Cache — seusite.com.br"
+
+#: resources/views/partials/settings-tab.php:73
+msgid "Flush target (Server and Site)"
+msgstr "Destino da limpeza (servidor e site)"
+
+#: resources/views/partials/settings-tab.php:75
+msgid "Currently flushing:"
+msgstr "Destino atual:"
+
+#: resources/views/partials/settings-tab.php:81
+msgid "Change"
+msgstr "Alterar"
+
+#: resources/views/partials/settings-tab.php:82
+msgid "Select target"
+msgstr "Selecionar destino"
+
+#: resources/views/partials/settings-tab.php:87
+msgid "Flushing…"
+msgstr "Limpando…"
+
+#: resources/views/partials/settings-tab.php:88
+msgid "Flush now"
+msgstr "Limpar agora"
+
+#: resources/views/partials/settings-tab.php:99
+msgid "Flush automatically when…"
+msgstr "Limpar automaticamente quando…"
+
+#: resources/views/partials/settings-tab.php:121
+msgid "Change flush target"
+msgstr "Alterar destino da limpeza"
+
+#: resources/views/partials/tab-nav.php:17
+msgid "Settings sections"
+msgstr "Seções de configurações"
+
+#: resources/views/partials/target-form.php:22
+msgid "Server"
+msgstr "Servidor"
+
+#: resources/views/partials/target-form.php:26
+msgid "— Select a server —"
+msgstr "— Selecione um servidor —"
+
+#: resources/views/partials/target-form.php:31
+msgid "No servers found for this token."
+msgstr "Nenhum servidor encontrado para este token."
+
+#: resources/views/partials/target-form.php:36
+msgid "Site"
+msgstr "Site"
+
+#: resources/views/partials/target-form.php:40
+msgid "— Select a site —"
+msgstr "— Selecione um site —"
+
+#: resources/views/partials/target-form.php:45
+msgid "Choose a server first."
+msgstr "Escolha um servidor primeiro."
+
+#: resources/views/partials/target-form.php:50
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: resources/views/partials/target-form.php:56
+msgid "Save target"
+msgstr "Salvar destino"
+
+#: resources/views/partials/toast-host.php:53
+msgid "Dismiss this notice."
+msgstr "Dispensar este aviso."
+
+#: resources/views/settings.php:17
+msgid "Automatically flush your Ploi-managed site's FastCGI cache when content changes."
+msgstr "Limpe automaticamente o cache FastCGI do seu site gerenciado pela Ploi quando o conteúdo mudar."
+
+#: src/Admin/SettingsPage.php:51
+msgid "Sorry, you are not allowed to access this page."
+msgstr "Sem permissão para acessar esta página."
+
+#: src/Admin/SettingsPage.php:61
+msgid "FastCGI Cache"
+msgstr "FastCGI Cache"
+
+#: src/Admin/SettingsPage.php:73
+#: src/Admin/SettingsPage.php:99
+msgid "Settings"
+msgstr "Configurações"
+
+#: src/Admin/SettingsPage.php:74
+msgid "Logs"
+msgstr "Registros"
+
+#: src/Cache/FlushEvents.php:60
+msgid "A published post, page or custom post type is created, updated, or changes status."
+msgstr "Um post, página ou tipo de post personalizado publicado é criado, atualizado ou muda de status."
+
+#: src/Cache/FlushEvents.php:61
+msgid "A published post is moved to trash or permanently deleted."
+msgstr "Um post publicado é movido para a lixeira ou excluído permanentemente."
+
+#: src/Cache/FlushEvents.php:62
+msgid "A comment is submitted, approved, unapproved, spammed or deleted."
+msgstr "Um comentário é enviado, aprovado, reprovado, marcado como spam ou excluído."
+
+#: src/Cache/FlushEvents.php:63
+msgid "The active theme changes."
+msgstr "O tema ativo é alterado."
+
+#: src/Cache/FlushEvents.php:64
+msgid "Customizer settings are saved."
+msgstr "As configurações do personalizador são salvas."
+
+#: src/Cache/FlushEvents.php:65
+msgid "A navigation menu is created or updated."
+msgstr "Um menu de navegação é criado ou atualizado."
+
+#: src/Cache/FlushReason.php:40
+msgid "Post published or updated"
+msgstr "Post publicado ou atualizado"
+
+#: src/Cache/FlushReason.php:41
+msgid "Post deleted"
+msgstr "Post excluído"
+
+#: src/Cache/FlushReason.php:42
+msgid "Comment posted or moderated"
+msgstr "Comentário publicado ou moderado"
+
+#: src/Cache/FlushReason.php:43
+msgid "Theme switched"
+msgstr "Tema alterado"
+
+#: src/Cache/FlushReason.php:44
+msgid "Customizer changes published"
+msgstr "Alterações do personalizador publicadas"
+
+#: src/Cache/FlushReason.php:45
+msgid "Navigation menu updated"
+msgstr "Menu de navegação atualizado"
+
+#: src/Cache/FlushReason.php:46
+msgid "Manual flush"
+msgstr "Limpeza manual"
+
+#: src/Log/FlushLogEntry.php:111
+msgid "Ploi rejected the token as wrong or expired."
+msgstr "A Ploi rejeitou o token por ser inválido ou expirado."
+
+#: src/Log/FlushLogEntry.php:112
+msgid "Ploi could not find the server or site — it may have been deleted."
+msgstr "A Ploi não encontrou o servidor ou o site — ele pode ter sido excluído."
+
+#: src/Log/FlushLogEntry.php:113
+msgid "Ploi rejected the flush — FastCGI caching may not be enabled for this site."
+msgstr "A Ploi rejeitou a limpeza — o cache FastCGI pode não estar habilitado para este site."
+
+#: src/Ploi/PloiApiException.php:28
+msgid "Your Ploi API token was rejected. Check the token and try again."
+msgstr "Seu token da API da Ploi foi rejeitado. Verifique o token e tente novamente."
+
+#: src/Ploi/PloiApiException.php:35
+msgid "This Ploi API token is missing a required permission. Use a token with the Servers and Sites scopes."
+msgstr "Este token da API da Ploi não tem uma permissão necessária. Use um token com os escopos Servers e Sites."
+
+#. translators: %d: HTTP status code.
+#: src/Ploi/PloiApiException.php:57
+#, php-format
+msgid "The Ploi API request failed (HTTP %d)."
+msgstr "A requisição à API da Ploi falhou (HTTP %d)."
+
+#: src/Providers/AdminServiceProvider.php:80
+msgid "Settings saved."
+msgstr "Configurações salvas."
+
+#: src/Providers/AdminServiceProvider.php:81
+msgid "Connected to Ploi. Now choose a flush target."
+msgstr "Conectado à Ploi. Agora escolha um destino de limpeza."
+
+#: src/Providers/AdminServiceProvider.php:82
+msgid "Flush target updated."
+msgstr "Destino da limpeza atualizado."
+
+#: src/Providers/AdminServiceProvider.php:83
+msgid "Token removed. Add a new token to reconnect."
+msgstr "Token removido. Adicione um novo token para reconectar."
+
+#: src/Providers/AdminServiceProvider.php:84
+msgid "Something went wrong. Please try again."
+msgstr "Algo deu errado. Tente novamente."
+
+#: src/Providers/AdminServiceProvider.php:85
+msgid "Add a Ploi API token first."
+msgstr "Adicione um token da API da Ploi primeiro."
+
+#: src/Providers/AdminServiceProvider.php:90
+msgid "Your saved token could not be read — your site's security keys may have changed. Re-enter your Ploi API token and click Connect."
+msgstr "Seu token salvo não pôde ser lido — as chaves de segurança do seu site podem ter mudado. Informe novamente seu token da API da Ploi e clique em Conectar."
+
+#: src/Providers/AdminServiceProvider.php:94
+msgid "Ploi rejected your saved token. Re-enter a valid Ploi API token and click Connect."
+msgstr "A Ploi rejeitou seu token salvo. Informe um token válido da API da Ploi e clique em Conectar."
+
+#: src/Providers/AdminServiceProvider.php:95
+msgid "Your saved token is missing a required permission. Re-enter a token with the Servers and Sites scopes and click Connect."
+msgstr "Seu token salvo não tem uma permissão necessária. Informe um token com os escopos Servers e Sites e clique em Conectar."
+
+#: src/Providers/AdminServiceProvider.php:101
+msgid "Couldn't reach Ploi right now. Try again in a moment."
+msgstr "Não foi possível conectar à Ploi agora. Tente novamente em instantes."
+
+#: src/Providers/AdminServiceProvider.php:105
+msgid "The saved server no longer exists in Ploi. Choose a new server and site."
+msgstr "O servidor salvo não existe mais na Ploi. Escolha um novo servidor e site."
+
+#: src/Providers/AdminServiceProvider.php:106
+msgid "The saved site no longer exists in Ploi. Choose another site."
+msgstr "O site salvo não existe mais na Ploi. Escolha outro site."
+
+#: src/Rest/ConnectionController.php:81
+msgid "Enter a Ploi API token to connect."
+msgstr "Informe um token da API da Ploi para conectar."
+
+#: src/Rest/FlushController.php:49
+msgid "Add a token, then choose a server and site before flushing."
+msgstr "Adicione um token e escolha um servidor e um site antes de limpar o cache."
+
+#: src/Rest/FlushController.php:57
+msgid "Nothing to flush — the plugin is not configured."
+msgstr "Nada para limpar — o plugin não está configurado."
+
+#: src/Rest/FlushController.php:75
+msgid "FastCGI cache flushed."
+msgstr "Cache FastCGI limpo."
+
+#: src/Rest/FlushController.php:94
+msgid "The flush request failed."
+msgstr "A solicitação de limpeza falhou."
+
+#. translators: 1: friendly explanation, 2: raw message from the Ploi API.
+#: src/Rest/FlushController.php:99
+#, php-format
+msgid "%1$s (Ploi: %2$s)"
+msgstr "%1$s (Ploi: %2$s)"
+
+#: src/Rest/PloiRestController.php:36
+msgid "Your saved token could not be read. Please re-enter your Ploi API token."
+msgstr "Seu token salvo não pôde ser lido. Informe novamente seu token da API da Ploi."
