@@ -83,6 +83,25 @@ final class SettingsPage extends AdminPage
         return array_column($this->tabs(), 'key');
     }
 
+    /**
+     * Prepends a Settings link to the plugin's row on the Plugins screen,
+     * matching core's convention of listing it before Deactivate.
+     *
+     * @param array<string, string> $actions
+     *
+     * @return array<string, string>
+     */
+    public function pluginActionLinks(array $actions): array
+    {
+        $link = sprintf(
+            '<a href="%s">%s</a>',
+            esc_url($this->url()),
+            esc_html__('Settings', 'fastcgi-cache-for-ploi')
+        );
+
+        return ['settings' => $link] + $actions;
+    }
+
     protected function renderBody(): void
     {
         require $this->viewPath;

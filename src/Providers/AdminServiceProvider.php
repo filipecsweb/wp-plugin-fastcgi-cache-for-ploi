@@ -33,9 +33,14 @@ final class AdminServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $page = $this->container->make(SettingsPage::class);
+        $page   = $this->container->make(SettingsPage::class);
+        $plugin = $this->container->make(Plugin::class);
 
         add_action('admin_menu', [$page, 'register']);
+
+        // WHY manual: the hook name embeds the runtime plugin basename, which a
+        // compile-time #[Filter] attribute can't express.
+        add_filter('plugin_action_links_' . $plugin->basename(), [$page, 'pluginActionLinks']);
 
         add_action('admin_enqueue_scripts', function (string $hookSuffix) use ($page): void {
             $assets = new AdminAssets($this->container->make(Vite::class));

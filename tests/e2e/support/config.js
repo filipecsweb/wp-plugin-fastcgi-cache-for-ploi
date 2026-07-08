@@ -8,6 +8,7 @@ const WP_PREFIX = process.env.WP_PATH_PREFIX || ''
 
 export const LOGIN_PATH = `${WP_PREFIX}/wp-login.php`
 export const SETTINGS_PATH = `${WP_PREFIX}/wp-admin/options-general.php?page=fastcgi-cache-for-ploi`
+export const PLUGINS_PATH = `${WP_PREFIX}/wp-admin/plugins.php`
 
 export const ADMIN = {
   login: process.env.WP_ADMIN_USER || '',
