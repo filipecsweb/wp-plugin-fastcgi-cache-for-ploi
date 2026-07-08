@@ -5,7 +5,8 @@
 # The shipped ZIP = runtime PHP (fastcgi-cache-for-ploi.php, uninstall.php, src/,
 # foundation/, modules/, resources/views/) + the production Composer autoloader
 # (vendor/, installed with --no-dev) + the built, minified front-end assets
-# (public/build/) + the translations template (languages/). The front-end SOURCE
+# (public/build/) + translations (languages/: the .pot template and the bundled
+# .po/.mo locales, e.g. pt_BR). The front-end SOURCE
 # (resources/js, resources/css) and its build config (vite.config.*, package.json,
 # package-lock.json) do NOT ship: the complete human-readable source lives in the
 # public GitHub repo, which satisfies the wordpress.org source-availability guideline.
