@@ -20,9 +20,12 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-# Slug = the repo directory name — same single-sourcing as bin/build.sh.
-slug="$(basename "$repo_root")"
-main_file="$slug.php"
+# The main plugin file is the one top-level PHP file with a plugin header —
+# found by content, NOT by directory name: CI checks out into the repository
+# name (wp-plugin-…), which differs from the plugin slug the local dir uses.
+main_file="$(grep -lE '^[[:space:]]*\*?[[:space:]]*Plugin Name:' ./*.php 2>/dev/null | head -1 || true)"
+main_file="${main_file#./}"
+[ -n "$main_file" ] || { echo "ERROR: no top-level PHP file with a 'Plugin Name:' header" >&2; exit 1; }
 
 # The tools load the local override when present; check the file actually used.
 phpcs_file=phpcs.xml
