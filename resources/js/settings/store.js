@@ -328,10 +328,15 @@ export default function ploiCache() {
         const data = await api.request('POST', '/flush', {})
         // CONTRACT: FlushController always returns data.message on success, so no client fallback.
         notifier.notify('success', data.message)
-        await this.loadLog()
       } catch (e) {
         handleError(e)
       } finally {
+        // WHY: a failed flush still writes a log row server-side (CacheFlusher logs the
+        // attempt before FlushController maps it to an error), so refresh regardless of
+        // outcome — the audit table must show the new row without a manual reload. Safe
+        // in finally: loadLog owns its own busy/error handling and never throws.
+        // Pre-flight rejections that write no row (400/409) just re-render current data.
+        await this.loadLog()
         this.busy.flush = false
       }
     },
