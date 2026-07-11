@@ -95,4 +95,31 @@ test.describe('Deleted flush target (F1–F4)', () => {
     await expect(settings.errorToast).toContainText(/deleted|no longer (exists|available)|may have been removed/i)
     // The `connected` fixture restores the canonical target in teardown.
   })
+
+  // F5 is the un-mocked counterpart to F2/F3: it does NOT mock /connection. Instead it
+  // poisons the SAVED server id and lets the LIVE probe run, so the real GET /connection
+  // must keep the token healthy and hydrate the server list despite the saved server's
+  // 404. (F1–F4 mock /connection, so only this test exercises that endpoint path.)
+  test('a real deleted SERVER (healthy token) is reconciled from the live probe (F5)', async ({ connected, admin, api, settings }) => {
+    // Point the saved server at a non-existent Ploi id (the /target route does not
+    // re-probe); the token stays healthy.
+    await api.setTarget({ server_id: '999999999', site_id: '999999999', server_name: 'Ghost', site_domain: 'ghost.example' })
+    await admin.reload()
+
+    // openTargetModal waits for serversLoaded — it only flips true when the live probe
+    // returns state:ok WITH servers, which is exactly what the fix restores. A probe that
+    // collapsed to state:unknown/servers:[] would leave this hanging (the old bug).
+    await settings.openTargetModal()
+
+    // The modal reconciles the gone server (not a generic "cannot reach Ploi" toast):
+    // the stale id is cleared, Save target is disabled, and the live server list is
+    // available to pick a replacement.
+    await expect(settings.modal).toContainText(/no longer|deleted|couldn.?t find|not found|removed/i)
+    await expect(settings.errorToast).toBeHidden()
+    const state = await settings.state()
+    expect(state.serverId).toBe('')
+    expect(state.servers.length).toBeGreaterThan(0)
+    await expect(settings.saveTargetButton).toBeDisabled()
+    // The `connected` fixture restores the canonical target in teardown.
+  })
 })

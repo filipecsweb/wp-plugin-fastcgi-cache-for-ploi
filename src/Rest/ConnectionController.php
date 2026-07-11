@@ -164,39 +164,80 @@ final class ConnectionController extends PloiRestController
     private function probeToken(string $token, string $preferServerId = ''): array
     {
         try {
-            $servers     = $this->client->servers($token);
-            $probeServer = $preferServerId !== '' ? $preferServerId : (string) ($servers[0]['id'] ?? '');
+            $servers = $this->client->servers($token);
+        } catch (PloiApiException $exception) {
+            return $this->probeFailed($exception);
+        }
 
-            // No server to probe the Sites scope against (the account has none):
-            // the token is valid and Servers-scoped — healthy, nothing to flush.
-            if ($probeServer === '') {
-                return [
-                    'state'          => self::STATE_OK,
-                    'servers'        => $servers,
-                    'sites'          => [],
-                    'probedServerId' => '',
-                    'exception'      => null,
-                ];
+        $probeServer = $preferServerId !== '' ? $preferServerId : (string) ($servers[0]['id'] ?? '');
+
+        // No server to probe the Sites scope against (the account has none): the
+        // token is valid and Servers-scoped — healthy, nothing to flush.
+        if ($probeServer === '') {
+            return $this->probeHealthy($servers, [], '');
+        }
+
+        try {
+            $sites = $this->client->sites($token, $probeServer);
+        } catch (PloiApiException $exception) {
+            // A 404 means the probed server is GONE, not that the token is bad. Ploi
+            // checks the token's scope BEFORE the resource, so a token missing the
+            // Sites scope gets 403 (mapped below), never 404 — a 404 proves both
+            // scopes are healthy. Keep the token OK and hand back the server list so
+            // the client can reconcile the deleted saved server (its now-nonexistent
+            // sites are simply empty); collapsing to "unknown, no servers" would
+            // strand the client on a generic "can't reach Ploi" toast.
+            if ($exception->statusCode() === 404) {
+                return $this->probeHealthy($servers, [], '');
             }
 
-            $sites = $this->client->sites($token, $probeServer);
-
-            return [
-                'state'          => self::STATE_OK,
-                'servers'        => $servers,
-                'sites'          => $sites,
-                'probedServerId' => $probeServer,
-                'exception'      => null,
-            ];
-        } catch (PloiApiException $exception) {
-            return [
-                'state'          => $this->stateFor($exception),
-                'servers'        => [],
-                'sites'          => [],
-                'probedServerId' => '',
-                'exception'      => $exception,
-            ];
+            return $this->probeFailed($exception);
         }
+
+        return $this->probeHealthy($servers, $sites, $probeServer);
+    }
+
+    /**
+     * @param list<array<string, string>> $servers
+     * @param list<array<string, string>> $sites
+     *
+     * @return array{
+     *     state: string,
+     *     servers: list<array<string, string>>,
+     *     sites: list<array<string, string>>,
+     *     probedServerId: string,
+     *     exception: null
+     * }
+     */
+    private function probeHealthy(array $servers, array $sites, string $probedServerId): array
+    {
+        return [
+            'state'          => self::STATE_OK,
+            'servers'        => $servers,
+            'sites'          => $sites,
+            'probedServerId' => $probedServerId,
+            'exception'      => null,
+        ];
+    }
+
+    /**
+     * @return array{
+     *     state: string,
+     *     servers: list<array<string, string>>,
+     *     sites: list<array<string, string>>,
+     *     probedServerId: string,
+     *     exception: PloiApiException
+     * }
+     */
+    private function probeFailed(PloiApiException $exception): array
+    {
+        return [
+            'state'          => $this->stateFor($exception),
+            'servers'        => [],
+            'sites'          => [],
+            'probedServerId' => '',
+            'exception'      => $exception,
+        ];
     }
 
     /**
