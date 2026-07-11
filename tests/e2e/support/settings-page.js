@@ -28,6 +28,12 @@ export class SettingsPage {
     this.settingsTab = page.getByRole('tab', { name: 'Settings' })
     this.logsTab = page.getByRole('tab', { name: 'Logs' })
     this.recentFlushesHeading = page.getByRole('heading', { name: 'Recent flushes' })
+    // The "Recent flushes" audit table and its rows (newest first). The manual
+    // Refresh button re-reads the log on demand; specs that assert an automatic
+    // refresh must never click it.
+    this.logTable = this.root.locator('table.wp-list-table')
+    this.logRows = this.logTable.locator('tbody tr')
+    this.logRefreshButton = this.root.getByRole('button', { name: 'Refresh' })
 
     // Change-target modal.
     this.modal = page.getByRole('dialog', { name: 'Change flush target' })
@@ -66,6 +72,26 @@ export class SettingsPage {
         serversLoaded: d.serversLoaded,
         targetModalOpen: d.targetModalOpen,
       }
+    })
+  }
+
+  /**
+   * Live view of the shared `log` state — the source of truth for asserting a
+   * refresh happened. `topId` is the newest row's id (null when empty); a change in
+   * it proves the table re-read without a manual Refresh/reload.
+   */
+  logState() {
+    return this.page.evaluate(() => {
+      const d = window.Alpine.$data(document.querySelector('[x-data*=ploiCache]'))
+      return { length: d.log.length, topId: d.log[0] ? d.log[0].id : null, busy: d.busy.flush }
+    })
+  }
+
+  /** Resolve once a full flush cycle (including the finally-block loadLog) has settled. */
+  async waitForFlushSettled() {
+    await this.page.waitForFunction(() => {
+      const d = window.Alpine.$data(document.querySelector('[x-data*=ploiCache]'))
+      return d.busy.flush === false
     })
   }
 
