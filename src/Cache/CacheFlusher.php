@@ -13,6 +13,8 @@ use FastCgiCacheForPloi\Foundation\Logging\LoggerInterface;
 
 /**
  * CONTRACT: returns null (no error) when token/server/site are unconfigured.
+ *
+ * @since 1.0.0
  */
 final class CacheFlusher
 {

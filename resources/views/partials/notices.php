@@ -9,6 +9,8 @@
  * `.notice:not(.inline)` up to just below the page <h1>, which would yank these
  * Alpine-bound banners out of the `x-data` scope.
  *
+ * @since 1.0.0
+ *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
 

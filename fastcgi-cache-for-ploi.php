@@ -15,6 +15,7 @@
  * Domain Path:       /languages
  *
  * @package FastCgiCacheForPloi
+ * @since 1.0.0
  *
  * This header is the SINGLE SOURCE OF TRUTH for the plugin version. The Foundation
  * kernel reads it at runtime via get_file_data() — never hardcode the version

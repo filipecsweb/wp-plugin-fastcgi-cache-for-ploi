@@ -5,6 +5,8 @@
  * wp_rest nonce. Distinguishes the SAVED snapshot (what auto-flush / manual flush
  * actually use) from the editable working copy, and surfaces both Ploi API errors
  * and the decrypt-failed reconnect path (HTTP 409 / code "needs_reconnect").
+ *
+ * @since 1.0.0
  */
 import createApiClient from './api.js'
 import createNotifier from './notifier.js'

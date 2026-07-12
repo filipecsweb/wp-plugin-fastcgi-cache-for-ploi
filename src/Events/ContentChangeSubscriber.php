@@ -18,6 +18,8 @@ use WP_Post;
  * toggle — so turning a toggle off stops a flush from ALL of that event's
  * underlying hooks. No hook bypasses the gate. When the target isn't ready
  * (no token/server/site), trigger() returns silently: a no-op, never an error.
+ *
+ * @since 1.0.0
  */
 final class ContentChangeSubscriber
 {

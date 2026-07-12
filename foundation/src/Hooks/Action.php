@@ -6,6 +6,9 @@ namespace FastCgiCacheForPloi\Foundation\Hooks;
 
 use Attribute;
 
+/**
+ * @since 1.0.0
+ */
 #[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 final class Action
 {

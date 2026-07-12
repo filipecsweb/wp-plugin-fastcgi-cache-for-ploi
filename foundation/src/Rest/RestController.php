@@ -12,6 +12,8 @@ use WP_REST_Response;
 /**
  * guard() expects the 'wp_rest' nonce in the X-WP-Nonce header (how the admin
  * UI sends it).
+ *
+ * @since 1.0.0
  */
 abstract class RestController
 {

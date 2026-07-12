@@ -13,6 +13,8 @@ use FastCgiCacheForPloi\Foundation\Assets\Vite;
  * wp-admin page. Combined with the admin-ui module's Tailwind v4 setup
  * (preflight excluded, tw: prefix, utilities in a low-priority cascade layer),
  * wp-admin styling stays untouched.
+ *
+ * @since 1.0.0
  */
 final class AdminAssets
 {

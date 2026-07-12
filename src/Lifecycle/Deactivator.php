@@ -6,6 +6,9 @@ namespace FastCgiCacheForPloi\Lifecycle;
 
 use FastCgiCacheForPloi\Cache\FlushScheduler;
 
+/**
+ * @since 1.0.0
+ */
 final class Deactivator
 {
     public static function deactivate(): void

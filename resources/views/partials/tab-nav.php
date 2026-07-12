@@ -5,6 +5,8 @@
  * only: it sets the state var on click; persisting/syncing that value (e.g. to
  * the URL hash) is the owning component's concern.
  *
+ * @since 1.0.0
+ *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  * @var list<array{key: string, label: string}> $tabs     Tabs in display order.
  * @var string                                   $stateVar Alpine property holding the active key.

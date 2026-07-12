@@ -8,6 +8,8 @@ use Stringable;
 
 /**
  * PSR-3-style logger interface (kept dependency-free; not the psr/log package).
+ *
+ * @since 1.0.0
  */
 interface LoggerInterface
 {

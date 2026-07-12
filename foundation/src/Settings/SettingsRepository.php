@@ -10,6 +10,8 @@ namespace FastCgiCacheForPloi\Foundation\Settings;
  * Registering the option through register_setting() gives WordPress a known
  * sanitize callback and default even when the UI is driven by REST/Alpine
  * rather than an option.php form.
+ *
+ * @since 1.0.0
  */
 final class SettingsRepository
 {

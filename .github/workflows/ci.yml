@@ -24,6 +24,9 @@ jobs:
       - name: Version consistency (min PHP / min WP declarations)
         run: bin/check-version-consistency.sh
 
+      - name: Docblock @since presence (tagged PHP/JS tiers)
+        run: bin/check-since-tags.sh
+
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:

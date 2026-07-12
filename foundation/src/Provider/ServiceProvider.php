@@ -11,6 +11,8 @@ use FastCgiCacheForPloi\Foundation\Hooks\HookRegistrar;
 /**
  * Subclasses overriding boot() MUST call parent::boot() or $subscribers'
  * attribute hooks won't wire.
+ *
+ * @since 1.0.0
  */
 abstract class ServiceProvider implements ServiceProviderInterface
 {

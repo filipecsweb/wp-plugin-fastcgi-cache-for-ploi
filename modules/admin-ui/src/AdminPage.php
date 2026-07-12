@@ -8,6 +8,8 @@ namespace FastCgiCacheForPloi\Module\AdminUi;
  * One subclass works as either top-level menu or submenu purely via
  * parentSlug()'s return. CONTRACT: a null parentSlug() makes the page a
  * top-level menu instead of a submenu.
+ *
+ * @since 1.0.0
  */
 abstract class AdminPage
 {
@@ -105,6 +107,8 @@ abstract class AdminPage
     /**
      * Built from the slug (not the menu registration), so it's valid before
      * register() runs on admin_menu.
+     *
+     * @since 1.0.1
      */
     public function url(): string
     {

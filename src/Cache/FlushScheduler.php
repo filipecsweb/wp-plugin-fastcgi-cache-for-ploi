@@ -11,6 +11,8 @@ namespace FastCgiCacheForPloi\Cache;
  * trigger schedules one cron event COALESCE_SECONDS out and records the reason;
  * every further trigger inside the window sees the event already scheduled and does
  * nothing. When the event fires, exactly one flush runs.
+ *
+ * @since 1.0.0
  */
 final class FlushScheduler
 {

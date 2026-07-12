@@ -14,6 +14,8 @@ namespace FastCgiCacheForPloi\Foundation\Settings;
  * on EVERY request — so it must hold only small, bounded configuration. Growing
  * or time-series data (e.g. the flush log) belongs in a dedicated table, never
  * here.
+ *
+ * @since 1.0.0
  */
 final class Options
 {

@@ -11,6 +11,8 @@ use FastCgiCacheForPloi\Foundation\Provider\ServiceProvider;
 /**
  * Cron callback can't be an #[Action], so it's wired manually here unlike the
  * $subscribers hooks.
+ *
+ * @since 1.0.0
  */
 final class FlushServiceProvider extends ServiceProvider
 {

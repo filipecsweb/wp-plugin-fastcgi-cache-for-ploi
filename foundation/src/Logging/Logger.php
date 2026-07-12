@@ -9,6 +9,8 @@ use Stringable;
 /**
  * minLevel gates output so production noise can be tuned; context is
  * interpolated PSR-3 {placeholder} style.
+ *
+ * @since 1.0.0
  */
 final class Logger implements LoggerInterface
 {

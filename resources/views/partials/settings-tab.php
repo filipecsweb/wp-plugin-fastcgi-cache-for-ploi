@@ -4,6 +4,8 @@
  * Bindings below resolve against the ambient x-data="ploiCache" root
  * (settings.php); this partial defines no x-data of its own.
  *
+ * @since 1.0.0
+ *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
 

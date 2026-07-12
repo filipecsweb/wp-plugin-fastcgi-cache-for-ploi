@@ -12,6 +12,8 @@ use Psr\Container\NotFoundExceptionInterface;
  * Extends ContainerException so it is caught by `catch (ContainerException)` and
  * `catch (\RuntimeException)` alike, while implementing NotFoundExceptionInterface
  * (which extends ContainerExceptionInterface) to satisfy PSR-11.
+ *
+ * @since 1.0.0
  */
 final class NotFoundException extends ContainerException implements NotFoundExceptionInterface
 {

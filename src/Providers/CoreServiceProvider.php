@@ -22,6 +22,8 @@ use FastCgiCacheForPloi\Foundation\Settings\Options;
  * Notably re-binds the Foundation's Crypto to source its key from a dedicated
  * wp-config constant when available (keeping it off the database and independent
  * of login-salt rotation — see docs/security.md), falling back to wp_salt().
+ *
+ * @since 1.0.0
  */
 final class CoreServiceProvider extends ServiceProvider
 {

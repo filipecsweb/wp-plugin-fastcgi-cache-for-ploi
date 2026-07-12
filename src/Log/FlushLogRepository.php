@@ -9,6 +9,8 @@ namespace FastCgiCacheForPloi\Log;
  *
  * The table name is derived from $wpdb->prefix (trusted), never user input, so
  * interpolating it into queries is safe; values always use $wpdb->prepare().
+ *
+ * @since 1.0.0
  */
 final class FlushLogRepository
 {

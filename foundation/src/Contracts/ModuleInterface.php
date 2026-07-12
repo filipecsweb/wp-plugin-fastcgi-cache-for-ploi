@@ -17,6 +17,8 @@ use FastCgiCacheForPloi\Foundation\Container\Container;
  * request.
  *
  * @see modules/README.md for the catalogue of available / planned modules.
+ *
+ * @since 1.0.0
  */
 interface ModuleInterface
 {

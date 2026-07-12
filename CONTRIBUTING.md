@@ -29,6 +29,48 @@ Every PR must be **classified** before it can merge: it either carries a **versi
 milestone** (it produces a user-facing changelog entry) or the **`skip-changelog`**
 label (it does not). A CI gate enforces this — a PR with neither fails.
 
+## Docblock provenance (`@since` / `@version`)
+
+Every PHP and JS source file in the tagged tiers records **when its code was introduced** with a
+`@since <version>` docblock tag. A CI gate (`bin/check-since-tags.sh`, also wired into
+`composer qa`) fails the build if any file in the tagged tiers below lacks an `@since`.
+
+**Where `@since` goes (granularity):**
+
+- **PHP types** (`class` / `interface` / `trait` / `enum`) → the type's own docblock.
+- **View templates** (`resources/views`) and the two **root bootstrap files** (the
+  plugin main file + `uninstall.php`) → the file-level header docblock (beside
+  `@package` on the root files).
+- **JS source modules** (`resources/js`) → the file-level block comment.
+- **Format:** bare semver, one space, after any description and before
+  `@param`/`@return` — e.g. `@since 1.0.1`.
+
+**Two deliberate deviations from a literal "tag every construct" reading:**
+
+1. **Methods/functions are not tagged at baseline.** Every member of a type shipped in
+   the same release as the type, so a per-method `@since` would only restate the type's
+   tag. A member carries its own `@since` *only* when introduced after its enclosing
+   type (see the going-forward rule).
+2. **Class files carry `@since` on the type docblock, not a separate file header.** One
+   PSR-4 type per file makes the type docblock the natural, move-safe home; class files
+   get no second file-level header.
+
+**Going-forward rule (the standard for new code):**
+
+- A **new type, file, or JS export** gets `@since` at creation.
+- A **new member added to an existing type** — a method, or a public constant / enum
+  case — gets *its own* `@since`. This is the "when changed" half of the record.
+- The **version value = the version of the PR's GitHub milestone** (the same source of
+  truth the changelog uses — see *Releasing*). A `skip-changelog` PR that adds a
+  construct but carries no milestone uses the milestone of the release it first ships in.
+
+**`@version`** is reserved for a genuinely, independently-versioned file (e.g. a vendored
+file tracking its own upstream version). Nothing here is versioned independently today,
+so `@version` is applied **nowhere** — a documented rule awaiting a real case.
+
+**Out of scope by design:** `tests/` and build configs (`vite.config.js`,
+`playwright.config.js`) are neither tagged nor checked.
+
 ## Releasing
 
 Each release is a milestone. Name the milestone after the version it ships
@@ -45,7 +87,9 @@ To cut a release:
    the milestone's merged PRs and prints a `readme.txt` changelog block on stdout;
    a report on stderr flags orphaned PRs (merged, user-facing, no milestone),
    stale entries, and PR-template violations. Resolve anything the report surfaces
-   before continuing.
+   before continuing. Also confirm `@since` provenance: for each PR in the milestone,
+   any `@since` it added must equal the milestone version — a re-milestoned PR can
+   otherwise leave an `@since` citing a version it no longer ships in.
 2. **Open a release PR.** Paste the generated block into `readme.txt` and bump the
    version headers. A human reviews and merges it like any other PR.
 3. **Publish the GitHub Release.** Tag the merged release commit and publish a

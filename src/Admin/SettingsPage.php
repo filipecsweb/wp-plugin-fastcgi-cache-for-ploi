@@ -7,6 +7,9 @@ namespace FastCgiCacheForPloi\Admin;
 use FastCgiCacheForPloi\Providers\RestServiceProvider;
 use FastCgiCacheForPloi\Module\AdminUi\AdminPage;
 
+/**
+ * @since 1.0.0
+ */
 final class SettingsPage extends AdminPage
 {
     public const SLUG = 'fastcgi-cache-for-ploi';
@@ -86,6 +89,8 @@ final class SettingsPage extends AdminPage
     /**
      * Prepends a Settings link to the plugin's row on the Plugins screen,
      * matching core's convention of listing it before Deactivate.
+     *
+     * @since 1.0.1
      *
      * @param array<string, string> $actions
      *

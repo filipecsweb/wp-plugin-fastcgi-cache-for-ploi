@@ -4,6 +4,7 @@
  * Uninstall routine for FastCGI Cache for Ploi.
  *
  * @package FastCgiCacheForPloi
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

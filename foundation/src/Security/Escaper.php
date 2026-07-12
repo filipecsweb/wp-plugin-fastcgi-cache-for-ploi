@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace FastCgiCacheForPloi\Foundation\Security;
 
+/**
+ * @since 1.0.0
+ */
 final class Escaper
 {
     public function html(string $value): string

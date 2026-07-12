@@ -4,6 +4,8 @@
  * GOTCHA: shares the ploiCache root's `log` state, so a Settings-tab flush
  * updates this table even while hidden.
  *
+ * @since 1.0.0
+ *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
 

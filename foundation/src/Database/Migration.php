@@ -9,6 +9,8 @@ use wpdb;
 /**
  * version() must be stable and unique: the Migrator keys off it to run each
  * migration exactly once.
+ *
+ * @since 1.0.0
  */
 abstract class Migration
 {

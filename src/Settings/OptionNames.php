@@ -12,6 +12,8 @@ namespace FastCgiCacheForPloi\Settings;
  * Migrator) and the TEARDOWN sites (Activator, Uninstaller) can never disagree:
  * a drifted suffix would orphan an option row on uninstall, which the plugin's
  * "no orphans left in the DB" rule forbids.
+ *
+ * @since 1.0.0
  */
 final class OptionNames
 {

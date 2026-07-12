@@ -10,6 +10,8 @@ namespace FastCgiCacheForPloi\Foundation\Lifecycle;
  * Uninstall is intentionally NOT handled here: register_uninstall_hook() cannot
  * accept closures or instance methods, so uninstall is driven by the canonical
  * uninstall.php file at the plugin root.
+ *
+ * @since 1.0.0
  */
 final class Lifecycle
 {

@@ -4,6 +4,8 @@
  * GOTCHA: each notice MUST keep .inline — wp-admin common.js hoists
  * .notice:not(.inline) below the <h1>, out of the Alpine x-data scope.
  *
+ * @since 1.0.0
+ *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
 

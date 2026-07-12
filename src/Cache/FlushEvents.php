@@ -7,6 +7,8 @@ namespace FastCgiCacheForPloi\Cache;
 /**
  * GOTCHA: keys()/defaults() are __()-free (safe pre-init); all()/description()
  * call __() and require init.
+ *
+ * @since 1.0.0
  */
 final class FlushEvents
 {

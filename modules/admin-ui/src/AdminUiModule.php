@@ -10,6 +10,8 @@ use FastCgiCacheForPloi\Foundation\Contracts\ServiceProviderInterface;
 
 /**
  * Gated to is_admin() so menu/asset work never runs on front-end requests.
+ *
+ * @since 1.0.0
  */
 final class AdminUiModule implements ModuleInterface
 {

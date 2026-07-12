@@ -19,6 +19,8 @@ use FastCgiCacheForPloi\Foundation\Security\Sanitizer;
 /**
  * Controllers take the REST namespace as a constructor string, so each is bound
  * explicitly (no autowire).
+ *
+ * @since 1.0.0
  */
 final class RestServiceProvider extends ServiceProvider
 {

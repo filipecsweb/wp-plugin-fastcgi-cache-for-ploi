@@ -16,6 +16,8 @@ use WP_REST_Response;
 
 /**
  * Flushes synchronously, bypassing the debounce that the event-driven path uses.
+ *
+ * @since 1.0.0
  */
 final class FlushController extends PloiRestController
 {

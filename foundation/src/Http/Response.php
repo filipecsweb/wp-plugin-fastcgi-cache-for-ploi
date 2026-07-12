@@ -8,6 +8,8 @@ use WP_Error;
 
 /**
  * An immutable HTTP response value object wrapping a wp_remote_* result.
+ *
+ * @since 1.0.0
  */
 final class Response
 {

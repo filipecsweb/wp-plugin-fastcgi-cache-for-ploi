@@ -10,6 +10,8 @@ namespace FastCgiCacheForPloi\Foundation\Contracts;
  * register() runs for ALL providers before any boot() runs, so register()
  * must only bind services (never assume another provider has booted), while
  * boot() may resolve services and attach WordPress hooks.
+ *
+ * @since 1.0.0
  */
 interface ServiceProviderInterface
 {

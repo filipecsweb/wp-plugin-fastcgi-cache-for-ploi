@@ -6,6 +6,8 @@ namespace FastCgiCacheForPloi\Foundation\I18n;
 
 /**
  * Loads the plugin's translations.
+ *
+ * @since 1.0.0
  */
 final class TextDomain
 {
