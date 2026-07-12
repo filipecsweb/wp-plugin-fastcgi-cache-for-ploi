@@ -51,5 +51,10 @@ jobs:
           # The GitHub repo is wp-plugin-fastcgi-cache-for-ploi; without this the
           # action would default SLUG to the repo name and hit the wrong SVN URL.
           SLUG: fastcgi-cache-for-ploi
+          # Assets live at .wordpress-org/assets/, one level below the action's
+          # default ASSETS_DIR (.wordpress-org). Without this the action copies the
+          # whole assets/ subfolder into SVN and nests it as assets/assets/, so the
+          # banner/icon go missing on the plugin page.
+          ASSETS_DIR: .wordpress-org/assets
           # VERSION is intentionally not set: the action derives it from the
           # release tag and strips a leading "v" (v1.2.3 -> 1.2.3).
