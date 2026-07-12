@@ -14,6 +14,9 @@ use Attribute;
 #[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 final class Filter
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         public readonly string $hook,
         public readonly int $priority = 10,

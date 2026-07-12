@@ -20,6 +20,9 @@ use FastCgiCacheForPloi\Foundation\Security\Nonce;
  */
 final class AdminServiceProvider extends ServiceProvider
 {
+    /**
+     * @since 1.0.0
+     */
     public function register(): void
     {
         $this->container->singleton(SettingsPage::class, function (): SettingsPage {
@@ -34,6 +37,12 @@ final class AdminServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * @since 1.0.1 Also registers the plugin_action_links filter that adds the
+     *     Settings-row link (hook name embeds the runtime basename, so it can't
+     *     be a compile-time #[Filter]).
+     * @since 1.0.0
+     */
     public function boot(): void
     {
         $page   = $this->container->make(SettingsPage::class);
@@ -60,6 +69,8 @@ final class AdminServiceProvider extends ServiceProvider
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<string, mixed>
      */
     private function config(SettingsPage $page): array
@@ -119,6 +130,8 @@ final class AdminServiceProvider extends ServiceProvider
      * sources them from the database. Mirrors WordPress's own wp_salt() fallback, so
      * the warning flags only the at-risk install — a standard install with real salts
      * is safe and sees nothing.
+     *
+     * @since 1.0.0
      */
     private function keyIsDatabaseDerived(): bool
     {

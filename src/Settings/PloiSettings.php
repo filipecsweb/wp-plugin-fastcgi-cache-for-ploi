@@ -20,17 +20,47 @@ use FastCgiCacheForPloi\Foundation\Settings\Options;
  */
 final class PloiSettings
 {
+    /**
+     * @since 1.0.0
+     */
     private const KEY_TOKEN       = 'token';
+    /**
+     * @since 1.0.0
+     */
     private const KEY_SERVER_ID   = 'server_id';
+    /**
+     * @since 1.0.0
+     */
     private const KEY_SERVER_NAME = 'server_name';
+    /**
+     * @since 1.0.0
+     */
     private const KEY_SITE_ID     = 'site_id';
+    /**
+     * @since 1.0.0
+     */
     private const KEY_SITE_DOMAIN = 'site_domain';
+    /**
+     * @since 1.0.0
+     */
     private const KEY_EVENTS      = 'events';
+    /**
+     * @since 1.0.0
+     */
     private const KEY_RECONNECT   = 'needs_reconnect';
 
+    /**
+     * @since 1.0.0
+     */
     private bool $tokenLoaded = false;
+    /**
+     * @since 1.0.0
+     */
     private ?string $tokenPlain = null;
 
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         private readonly Options $options,
         private readonly Crypto $crypto,
@@ -38,6 +68,8 @@ final class PloiSettings
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<string, mixed>
      */
     public static function defaults(): array
@@ -47,6 +79,9 @@ final class PloiSettings
         ];
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function token(): ?string
     {
         if ($this->tokenLoaded) {
@@ -73,6 +108,9 @@ final class PloiSettings
         return $this->tokenPlain = $plain;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function setToken(string $plain): void
     {
         $this->options->fill([
@@ -86,17 +124,25 @@ final class PloiSettings
 
     /**
      * Cheap presence check (no decryption) for hot-path auto-flush gating.
+     *
+     * @since 1.0.0
      */
     public function hasStoredToken(): bool
     {
         return $this->options->getString(self::KEY_TOKEN, '') !== '';
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function hasToken(): bool
     {
         return $this->token() !== null;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function needsReconnect(): bool
     {
         return $this->options->getBool(self::KEY_RECONNECT, false);
@@ -108,6 +154,8 @@ final class PloiSettings
      * clean "no token" state — NOT the decrypt-failure "needs reconnect" state —
      * so the reconnect flag is reset rather than raised. Event toggles are a user
      * preference and are deliberately preserved.
+     *
+     * @since 1.0.0
      */
     public function disconnect(): void
     {
@@ -119,26 +167,41 @@ final class PloiSettings
         $this->tokenPlain  = null;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function serverId(): string
     {
         return $this->options->getString(self::KEY_SERVER_ID, '');
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function serverName(): string
     {
         return $this->options->getString(self::KEY_SERVER_NAME, '');
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function siteId(): string
     {
         return $this->options->getString(self::KEY_SITE_ID, '');
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function siteDomain(): string
     {
         return $this->options->getString(self::KEY_SITE_DOMAIN, '');
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function setTarget(string $serverId, string $siteId, string $serverName = '', string $siteDomain = ''): void
     {
         $this->options->fill([
@@ -150,6 +213,8 @@ final class PloiSettings
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<string, string>
      */
     private static function blankTarget(): array
@@ -163,6 +228,8 @@ final class PloiSettings
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<string, bool>
      */
     public function events(): array
@@ -179,12 +246,17 @@ final class PloiSettings
         return $events;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function isEventEnabled(string $key): bool
     {
         return $this->events()[$key] ?? false;
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<array-key, mixed> $events
      */
     public function setEvents(array $events): void
@@ -200,6 +272,8 @@ final class PloiSettings
 
     /**
      * Full readiness check; decrypts the token (not for hot paths).
+     *
+     * @since 1.0.0
      */
     public function isConfigured(): bool
     {
@@ -208,6 +282,8 @@ final class PloiSettings
 
     /**
      * Hot-path readiness check; avoids decryption.
+     *
+     * @since 1.0.0
      */
     public function isReadyForAutoFlush(): bool
     {
@@ -218,6 +294,8 @@ final class PloiSettings
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

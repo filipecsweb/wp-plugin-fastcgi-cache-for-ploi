@@ -24,15 +24,22 @@ interface ModuleInterface
 {
     /**
      * Must be unique and stable across releases (used as a persisted key).
+     *
+     * @since 1.0.0
      */
     public function name(): string;
 
     /**
      * Service-provider classes this module contributes to the kernel.
      *
+     * @since 1.0.0
+     *
      * @return list<class-string<ServiceProviderInterface>>
      */
     public function providers(): array;
 
+    /**
+     * @since 1.0.0
+     */
     public function isEnabled(Container $container): bool;
 }

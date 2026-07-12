@@ -14,6 +14,8 @@ use WP_Error;
 final class Response
 {
     /**
+     * @since 1.0.0
+     *
      * @param array<array-key, mixed> $headers
      */
     public function __construct(
@@ -24,37 +26,57 @@ final class Response
     ) {
     }
 
+    /**
+     * @since 1.0.0
+     */
     public static function fromError(WP_Error $error): self
     {
         return new self(0, '', [], $error->get_error_message());
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function status(): int
     {
         return $this->status;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function ok(): bool
     {
         return $this->error === null && $this->status >= 200 && $this->status < 300;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function failed(): bool
     {
         return ! $this->ok();
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function body(): string
     {
         return $this->body;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function error(): ?string
     {
         return $this->error;
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<array-key, mixed>
      */
     public function headers(): array
@@ -62,6 +84,9 @@ final class Response
         return $this->headers;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function json(): mixed
     {
         if ($this->body === '') {
@@ -72,6 +97,8 @@ final class Response
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<mixed>
      */
     public function array(): array

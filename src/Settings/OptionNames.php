@@ -17,14 +17,26 @@ namespace FastCgiCacheForPloi\Settings;
  */
 final class OptionNames
 {
+    /**
+     * @since 1.0.0
+     */
     public const SETTINGS_SUFFIX   = '_settings';
+    /**
+     * @since 1.0.0
+     */
     public const MIGRATIONS_SUFFIX = '_migrations';
 
+    /**
+     * @since 1.0.0
+     */
     public static function settings(string $prefix): string
     {
         return $prefix . self::SETTINGS_SUFFIX;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public static function migrations(string $prefix): string
     {
         return $prefix . self::MIGRATIONS_SUFFIX;

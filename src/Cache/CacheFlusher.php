@@ -18,8 +18,14 @@ use FastCgiCacheForPloi\Foundation\Logging\LoggerInterface;
  */
 final class CacheFlusher
 {
+    /**
+     * @since 1.0.0
+     */
     private const KEEP_LOG_ROWS = 100;
 
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         private readonly PloiSettings $settings,
         private readonly PloiClient $client,
@@ -28,6 +34,9 @@ final class CacheFlusher
     ) {
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function flush(FlushReason $reason): ?FlushLogEntry
     {
         $token    = $this->settings->token();

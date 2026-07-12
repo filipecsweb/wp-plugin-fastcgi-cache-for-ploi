@@ -20,14 +20,28 @@ namespace FastCgiCacheForPloi\Foundation\Assets;
  */
 final class Vite
 {
-    /** @var array<string, mixed>|null */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<string, mixed>|null
+     */
     private ?array $manifestCache = null;
 
-    /** @var array<string, bool> */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<string, bool>
+     */
     private array $moduleHandles = [];
 
+    /**
+     * @since 1.0.0
+     */
     private bool $moduleFilterAdded = false;
 
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         private readonly string $buildPath,
         private readonly string $buildUrl,
@@ -37,6 +51,9 @@ final class Vite
     ) {
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function isDev(): bool
     {
         return is_file($this->hotFile());
@@ -44,6 +61,8 @@ final class Vite
 
     /**
      * Enqueue a JS entry (e.g. "resources/js/admin.js").
+     *
+     * @since 1.0.0
      *
      * @param list<string> $deps
      */
@@ -61,6 +80,8 @@ final class Vite
     /**
      * Enqueue a standalone CSS entry. In dev the JS client injects styles, so
      * this is a no-op there.
+     *
+     * @since 1.0.0
      */
     public function enqueueStyle(string $entry, string $handle): void
     {
@@ -77,6 +98,8 @@ final class Vite
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param list<string> $deps
      */
     private function enqueueDev(string $entry, string $handle, array $deps, bool $inFooter): void
@@ -94,6 +117,8 @@ final class Vite
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param list<string> $deps
      */
     private function enqueueBuilt(string $entry, string $handle, array $deps, bool $inFooter): void
@@ -127,6 +152,8 @@ final class Vite
 
     /**
      * Recursively gather the CSS files for an entry and its imported chunks.
+     *
+     * @since 1.0.0
      *
      * @param array<string, mixed> $manifest
      * @param list<string>         $seen
@@ -163,6 +190,9 @@ final class Vite
         return $styles;
     }
 
+    /**
+     * @since 1.0.0
+     */
     private function registerModuleHandle(string $handle): void
     {
         $this->moduleHandles[$handle] = true;
@@ -173,6 +203,9 @@ final class Vite
         }
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function filterModuleTag(string $tag, string $handle, string $src): string
     {
         unset($src); // The original $tag already carries the (escaped) src.
@@ -194,6 +227,8 @@ final class Vite
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<string, mixed>
      */
     private function manifest(): array
@@ -229,6 +264,9 @@ final class Vite
         throw new ViteException('Vite build manifest not found. Run "npm run build".');
     }
 
+    /**
+     * @since 1.0.0
+     */
     private function devOrigin(): string
     {
         $contents = (string) file_get_contents($this->hotFile());
@@ -237,6 +275,9 @@ final class Vite
         return $contents !== '' ? rtrim($contents, '/') : rtrim($this->devServer, '/');
     }
 
+    /**
+     * @since 1.0.0
+     */
     private function hotFile(): string
     {
         return $this->buildPath . '/hot';

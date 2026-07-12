@@ -27,15 +27,25 @@ use ReflectionObject;
  */
 final class HookRegistrar
 {
-    /** @var array<class-string, list<array{type:string, hook:string, method:string, priority:int, args:int}>> */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<class-string, list<array{type:string, hook:string, method:string, priority:int, args:int}>>
+     */
     private array $memo = [];
 
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         private readonly string $cacheGroup,
         private readonly string $cacheVersion = '',
     ) {
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function register(object $service): void
     {
         foreach ($this->discover($service) as $binding) {
@@ -54,6 +64,8 @@ final class HookRegistrar
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return list<array{type: string, hook: string, method: string, priority: int, args: int}>
      */
     private function discover(object $service): array
@@ -89,6 +101,8 @@ final class HookRegistrar
 
     /**
      * Coerce a cached array back into the binding shape (wp_cache_get is mixed).
+     *
+     * @since 1.0.0
      *
      * @param array<mixed> $rows
      *
@@ -128,6 +142,8 @@ final class HookRegistrar
 
     /**
      * The cold path: reflect over the service's methods once.
+     *
+     * @since 1.0.0
      *
      * @return list<array{type: string, hook: string, method: string, priority: int, args: int}>
      */

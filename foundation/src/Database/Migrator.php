@@ -9,11 +9,16 @@ namespace FastCgiCacheForPloi\Foundation\Database;
  */
 final class Migrator
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(private readonly string $versionsOption)
     {
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param iterable<Migration> $migrations
      */
     public function migrate(iterable $migrations): void
@@ -35,6 +40,8 @@ final class Migrator
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param iterable<Migration> $migrations
      */
     public function rollback(iterable $migrations): void
@@ -55,12 +62,17 @@ final class Migrator
         update_option($this->versionsOption, $applied, false);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function hasRun(string $version): bool
     {
         return in_array($version, $this->applied(), true);
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return list<string>
      */
     private function applied(): array

@@ -11,6 +11,9 @@ use FastCgiCacheForPloi\Cache\FlushScheduler;
  */
 final class Deactivator
 {
+    /**
+     * @since 1.0.0
+     */
     public static function deactivate(): void
     {
         wp_clear_scheduled_hook(FlushScheduler::CRON_HOOK);

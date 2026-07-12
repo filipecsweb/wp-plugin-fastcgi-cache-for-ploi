@@ -9,47 +9,73 @@ namespace FastCgiCacheForPloi\Foundation\Security;
  */
 final class Sanitizer
 {
+    /**
+     * @since 1.0.0
+     */
     public function text(string $value): string
     {
         return sanitize_text_field($value);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function textarea(string $value): string
     {
         return sanitize_textarea_field($value);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function key(string $value): string
     {
         return sanitize_key($value);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function slug(string $value): string
     {
         return sanitize_title($value);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function email(string $value): string
     {
         return sanitize_email($value);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function url(string $value): string
     {
         return esc_url_raw($value);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function int(mixed $value): int
     {
         return (int) (is_scalar($value) ? $value : 0);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function bool(mixed $value): bool
     {
         return (bool) filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<mixed> $value
      *
      * @return list<string>

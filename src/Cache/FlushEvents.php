@@ -15,6 +15,8 @@ final class FlushEvents
     /**
      * i18n: __()-free, safe before init.
      *
+     * @since 1.0.0
+     *
      * @return list<string>
      */
     public static function keys(): array
@@ -25,6 +27,8 @@ final class FlushEvents
     /**
      * i18n: __()-free, safe before init.
      *
+     * @since 1.0.0
+     *
      * @return array<string, bool>
      */
     public static function defaults(): array
@@ -34,6 +38,8 @@ final class FlushEvents
 
     /**
      * i18n: calls __(), only safe at/after init.
+     *
+     * @since 1.0.0
      *
      * @return list<array{key: string, label: string, description: string, default: bool}>
      */
@@ -55,6 +61,8 @@ final class FlushEvents
 
     /**
      * i18n: calls __(), only safe at/after init; Manual has no toggle so returns ''.
+     *
+     * @since 1.0.0
      */
     private static function description(FlushReason $reason): string
     {

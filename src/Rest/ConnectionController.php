@@ -23,12 +23,26 @@ final class ConnectionController extends PloiRestController
      * missing_permission route to the persistent reconnect banner (requireReconnect);
      * ok and unknown (any other non-auth failure, or no saved token) go to a transient
      * toast, so they must stay in lockstep.
+     *
+     * @since 1.0.0
      */
     private const STATE_OK                 = 'ok';
+    /**
+     * @since 1.0.0
+     */
     private const STATE_INVALID            = 'invalid';
+    /**
+     * @since 1.0.0
+     */
     private const STATE_MISSING_PERMISSION = 'missing_permission';
+    /**
+     * @since 1.0.0
+     */
     private const STATE_UNKNOWN            = 'unknown';
 
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         string $namespace,
         Capability $capability,
@@ -38,6 +52,9 @@ final class ConnectionController extends PloiRestController
         parent::__construct($namespace, $capability);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function registerRoutes(): void
     {
         $this->registerRoute('/connection', [
@@ -75,6 +92,8 @@ final class ConnectionController extends PloiRestController
      * Connect: validate a token against BOTH required scopes and persist it ONLY
      * if it passes, so a saved token is always known-good at save time. A bad or
      * under-scoped token is rejected with its Ploi message and never stored.
+     *
+     * @since 1.0.0
      */
     public function connect(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
@@ -99,6 +118,8 @@ final class ConnectionController extends PloiRestController
      * Live health of the SAVED connection: probes both scopes and returns the state
      * plus the servers (and the saved server's sites) so the client hydrates the
      * target dropdowns without a second round-trip.
+     *
+     * @since 1.0.0
      */
     public function status(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
@@ -128,6 +149,8 @@ final class ConnectionController extends PloiRestController
     /**
      * Returns the post-disconnect settings snapshot so the client re-syncs like a
      * save.
+     *
+     * @since 1.0.0
      */
     public function disconnect(WP_REST_Request $request): WP_REST_Response
     {
@@ -136,6 +159,9 @@ final class ConnectionController extends PloiRestController
         return $this->respond($this->settings->toArray());
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function sites(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
         $server = $this->stringParam($request, 'server');
@@ -155,6 +181,11 @@ final class ConnectionController extends PloiRestController
      * callers branch on a value instead of repeating the try/catch. The fetched
      * servers + probed server's sites ride along so status() can hydrate the
      * dropdowns without a second Ploi round-trip.
+     *
+     * @since 1.0.1 Reworked for the deleted-server fix: split the servers-fetch and
+     *     sites-probe error paths, treat a 404 on the sites probe as a gone server
+     *     (token stays healthy), and extract probeHealthy()/probeFailed().
+     * @since 1.0.0
      *
      * @return array{
      *     state: string,
@@ -251,6 +282,8 @@ final class ConnectionController extends PloiRestController
      * Shared null-token -> reconnect gate + PloiApiException mapping for the
      * saved-token routes.
      *
+     * @since 1.0.0
+     *
      * @param callable(string): WP_REST_Response $fn
      */
     private function withToken(callable $fn): WP_REST_Response|WP_Error
@@ -268,6 +301,9 @@ final class ConnectionController extends PloiRestController
         }
     }
 
+    /**
+     * @since 1.0.0
+     */
     private function ploiError(PloiApiException $exception): WP_Error
     {
         return $this->error('ploi_error', $exception->getMessage(), $this->statusFor($exception));
@@ -276,6 +312,8 @@ final class ConnectionController extends PloiRestController
     /**
      * Non-auth failures (5xx, network) map to UNKNOWN, never INVALID — don't tell
      * users to re-enter a good token.
+     *
+     * @since 1.0.0
      */
     private function stateFor(PloiApiException $exception): string
     {
@@ -286,6 +324,9 @@ final class ConnectionController extends PloiRestController
         };
     }
 
+    /**
+     * @since 1.0.0
+     */
     private function statusFor(PloiApiException $exception): int
     {
         $status = $exception->statusCode();

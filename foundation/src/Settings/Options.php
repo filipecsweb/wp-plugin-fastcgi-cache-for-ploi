@@ -19,10 +19,16 @@ namespace FastCgiCacheForPloi\Foundation\Settings;
  */
 final class Options
 {
-    /** @var array<string, mixed>|null */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<string, mixed>|null
+     */
     private ?array $cache = null;
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $defaults
      */
     public function __construct(
@@ -32,6 +38,8 @@ final class Options
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<string, mixed>
      */
     public function all(): array
@@ -39,6 +47,9 @@ final class Options
         return array_merge($this->defaults, $this->load());
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function get(string $key, mixed $default = null): mixed
     {
         $data = $this->all();
@@ -46,6 +57,9 @@ final class Options
         return array_key_exists($key, $data) ? $data[$key] : $default;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function getString(string $key, string $default = ''): string
     {
         $value = $this->get($key, $default);
@@ -53,6 +67,9 @@ final class Options
         return is_scalar($value) ? (string) $value : $default;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function getInt(string $key, int $default = 0): int
     {
         $value = $this->get($key, $default);
@@ -60,6 +77,9 @@ final class Options
         return is_numeric($value) ? (int) $value : $default;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function getBool(string $key, bool $default = false): bool
     {
         $value = $this->get($key, $default);
@@ -76,6 +96,8 @@ final class Options
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<mixed> $default
      *
      * @return array<mixed>
@@ -87,17 +109,25 @@ final class Options
         return is_array($value) ? $value : $default;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function has(string $key): bool
     {
         return array_key_exists($key, $this->all());
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function set(string $key, mixed $value): void
     {
         $this->fill([$key => $value]);
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $values
      */
     public function fill(array $values): void
@@ -105,6 +135,9 @@ final class Options
         $this->persist(array_merge($this->load(), $values));
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function forget(string $key): void
     {
         $data = $this->load();
@@ -112,6 +145,9 @@ final class Options
         $this->persist($data);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function delete(): void
     {
         delete_option($this->name);
@@ -119,6 +155,8 @@ final class Options
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<string, mixed>
      */
     private function load(): array
@@ -140,6 +178,8 @@ final class Options
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $data
      */
     private function persist(array $data): void

@@ -14,14 +14,26 @@ use wpdb;
  */
 abstract class Migration
 {
+    /**
+     * @since 1.0.0
+     */
     abstract public function version(): string;
 
+    /**
+     * @since 1.0.0
+     */
     abstract public function up(): void;
 
+    /**
+     * @since 1.0.0
+     */
     public function down(): void
     {
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function dbDelta(string $sql): void
     {
         if (! function_exists('dbDelta')) {
@@ -31,16 +43,25 @@ abstract class Migration
         dbDelta($sql);
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function charsetCollate(): string
     {
         return $this->wpdb()->get_charset_collate();
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function tableName(string $name): string
     {
         return $this->wpdb()->prefix . $name;
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function wpdb(): wpdb
     {
         /** @var wpdb $wpdb */

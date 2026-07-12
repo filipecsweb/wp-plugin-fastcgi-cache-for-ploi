@@ -20,6 +20,9 @@ use WP_REST_Response;
  */
 final class SettingsController extends PloiRestController
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         string $namespace,
         Capability $capability,
@@ -29,6 +32,9 @@ final class SettingsController extends PloiRestController
         parent::__construct($namespace, $capability);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function registerRoutes(): void
     {
         $this->registerRoute('/settings', [
@@ -51,6 +57,9 @@ final class SettingsController extends PloiRestController
         ]);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function show(WP_REST_Request $request): WP_REST_Response
     {
         return $this->respond($this->settings->toArray());
@@ -59,6 +68,8 @@ final class SettingsController extends PloiRestController
     /**
      * Persist ONLY the flush target (server + site). The change-target modal selects
      * from Ploi's own live list, so the IDs are valid by construction — no re-probe.
+     *
+     * @since 1.0.0
      */
     public function saveTarget(WP_REST_Request $request): WP_REST_Response
     {
@@ -72,6 +83,9 @@ final class SettingsController extends PloiRestController
         return $this->respond($this->settings->toArray());
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function save(WP_REST_Request $request): WP_REST_Response
     {
         $events = $request->get_param('events');

@@ -23,12 +23,18 @@ use WP_Post;
  */
 final class ContentChangeSubscriber
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         private readonly PloiSettings $settings,
         private readonly FlushScheduler $scheduler,
     ) {
     }
 
+    /**
+     * @since 1.0.0
+     */
     #[Action('save_post', priority: 10, acceptedArgs: 3)]
     public function onSavePost(int $postId, WP_Post $post, bool $update): void
     {
@@ -43,6 +49,9 @@ final class ContentChangeSubscriber
         $this->trigger(FlushReason::PostSave);
     }
 
+    /**
+     * @since 1.0.0
+     */
     #[Action('transition_post_status', priority: 10, acceptedArgs: 3)]
     public function onTransitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post): void
     {
@@ -62,6 +71,9 @@ final class ContentChangeSubscriber
         $this->trigger(FlushReason::PostSave);
     }
 
+    /**
+     * @since 1.0.0
+     */
     #[Action('deleted_post', priority: 10, acceptedArgs: 2)]
     public function onDeletedPost(int $postId, WP_Post $post): void
     {
@@ -72,6 +84,9 @@ final class ContentChangeSubscriber
         $this->trigger(FlushReason::PostDelete);
     }
 
+    /**
+     * @since 1.0.0
+     */
     #[Action('comment_post', priority: 10, acceptedArgs: 2)]
     public function onNewComment(int $commentId, int|string $approved): void
     {
@@ -83,36 +98,54 @@ final class ContentChangeSubscriber
         $this->trigger(FlushReason::Comment);
     }
 
+    /**
+     * @since 1.0.0
+     */
     #[Action('transition_comment_status', priority: 10, acceptedArgs: 3)]
     public function onCommentStatusChange(string $newStatus, string $oldStatus, object $comment): void
     {
         $this->trigger(FlushReason::Comment);
     }
 
+    /**
+     * @since 1.0.0
+     */
     #[Action('edit_comment', priority: 10, acceptedArgs: 1)]
     public function onEditComment(int $commentId): void
     {
         $this->trigger(FlushReason::Comment);
     }
 
+    /**
+     * @since 1.0.0
+     */
     #[Action('switch_theme', priority: 10, acceptedArgs: 0)]
     public function onSwitchTheme(): void
     {
         $this->trigger(FlushReason::Theme);
     }
 
+    /**
+     * @since 1.0.0
+     */
     #[Action('customize_save_after', priority: 10, acceptedArgs: 0)]
     public function onCustomizerSave(): void
     {
         $this->trigger(FlushReason::Customizer);
     }
 
+    /**
+     * @since 1.0.0
+     */
     #[Action('wp_update_nav_menu', priority: 10, acceptedArgs: 0)]
     public function onNavMenuUpdate(): void
     {
         $this->trigger(FlushReason::Menu);
     }
 
+    /**
+     * @since 1.0.0
+     */
     private function trigger(FlushReason $reason): void
     {
         if (! $this->settings->isEventEnabled($reason->value)) {

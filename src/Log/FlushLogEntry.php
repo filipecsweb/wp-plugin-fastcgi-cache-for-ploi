@@ -13,6 +13,9 @@ use FastCgiCacheForPloi\Cache\FlushReason;
  */
 final class FlushLogEntry
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         public readonly string $reason,
         public readonly string $serverId,
@@ -26,6 +29,9 @@ final class FlushLogEntry
     ) {
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function withId(int $id): self
     {
         return new self(
@@ -42,6 +48,8 @@ final class FlushLogEntry
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<array-key, mixed> $row
      */
     public static function fromRow(array $row): self
@@ -62,6 +70,8 @@ final class FlushLogEntry
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array
@@ -106,6 +116,8 @@ final class FlushLogEntry
      * flush, and its raw "The given data was invalid." is opaque; we can't prove
      * 422 is exclusive to that case, so we hedge ("may not be enabled"). Bad
      * server/site IDs return 404, not 422.
+     *
+     * @since 1.0.0
      */
     public static function failureHint(int $httpCode): ?string
     {
@@ -117,11 +129,17 @@ final class FlushLogEntry
         };
     }
 
+    /**
+     * @since 1.0.0
+     */
     private static function asString(mixed $value): string
     {
         return is_scalar($value) ? (string) $value : '';
     }
 
+    /**
+     * @since 1.0.0
+     */
     private static function asInt(mixed $value): int
     {
         return is_numeric($value) ? (int) $value : 0;

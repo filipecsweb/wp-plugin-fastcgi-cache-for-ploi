@@ -16,9 +16,16 @@ use FastCgiCacheForPloi\Foundation\Provider\ServiceProvider;
  */
 final class FlushServiceProvider extends ServiceProvider
 {
-    /** @var list<class-string> */
+    /**
+     * @since 1.0.0
+     *
+     * @var list<class-string>
+     */
     protected array $subscribers = [ContentChangeSubscriber::class];
 
+    /**
+     * @since 1.0.0
+     */
     public function boot(): void
     {
         parent::boot();

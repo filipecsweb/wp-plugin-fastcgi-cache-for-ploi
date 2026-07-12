@@ -16,22 +16,33 @@ use FastCgiCacheForPloi\Foundation\Contracts\ServiceProviderInterface;
 final class AdminUiModule implements ModuleInterface
 {
     /**
+     * @since 1.0.0
+     *
      * @param list<class-string<ServiceProviderInterface>> $providers
      */
     public function __construct(private readonly array $providers)
     {
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function name(): string
     {
         return 'admin-ui';
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function providers(): array
     {
         return $this->providers;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function isEnabled(Container $container): bool
     {
         return is_admin();

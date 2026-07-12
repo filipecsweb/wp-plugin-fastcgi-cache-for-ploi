@@ -18,11 +18,16 @@ use FastCgiCacheForPloi\Foundation\Assets\Vite;
  */
 final class AdminAssets
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(private readonly Vite $vite)
     {
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $localize Data exposed to JS as a global object.
      */
     public function enqueueOnScreen(
