@@ -16,17 +16,30 @@ use FastCgiCacheForPloi\Foundation\Hooks\HookRegistrar;
  */
 abstract class ServiceProvider implements ServiceProviderInterface
 {
-    /** @var list<class-string> */
+    /**
+     * @since 1.0.0
+     *
+     * @var list<class-string>
+     */
     protected array $subscribers = [];
 
+    /**
+     * @since 1.0.0
+     */
     public function __construct(protected readonly Container $container)
     {
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function register(): void
     {
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function boot(): void
     {
         if ($this->subscribers === []) {

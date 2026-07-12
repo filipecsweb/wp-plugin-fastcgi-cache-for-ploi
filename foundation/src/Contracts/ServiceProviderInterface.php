@@ -15,7 +15,13 @@ namespace FastCgiCacheForPloi\Foundation\Contracts;
  */
 interface ServiceProviderInterface
 {
+    /**
+     * @since 1.0.0
+     */
     public function register(): void;
 
+    /**
+     * @since 1.0.0
+     */
     public function boot(): void;
 }

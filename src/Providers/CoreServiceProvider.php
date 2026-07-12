@@ -32,9 +32,14 @@ final class CoreServiceProvider extends ServiceProvider
      * source for the NAME, read both here (to derive the Crypto key) and by
      * AdminServiceProvider (to decide whether to show the "DB-derived key"
      * warning), so the two checks can never test different constant names.
+     *
+     * @since 1.0.0
      */
     public const KEY_CONSTANT = 'FASTCGI_CACHE_FOR_PLOI_KEY';
 
+    /**
+     * @since 1.0.0
+     */
     public function register(): void
     {
         $container = $this->container;

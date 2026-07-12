@@ -17,20 +17,31 @@ use WP_REST_Response;
  */
 abstract class RestController
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         protected readonly string $namespace,
         protected readonly Capability $capability,
     ) {
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function hook(): void
     {
         add_action('rest_api_init', [$this, 'registerRoutes']);
     }
 
+    /**
+     * @since 1.0.0
+     */
     abstract public function registerRoutes(): void;
 
     /**
+     * @since 1.0.0
+     *
      * @param array<array-key, mixed> $args
      */
     protected function registerRoute(string $route, array $args): void
@@ -46,6 +57,8 @@ abstract class RestController
 
     /**
      * Build a permission_callback enforcing nonce + capability.
+     *
+     * @since 1.0.0
      *
      * @return callable(WP_REST_Request<array<string, mixed>>): (bool|WP_Error)
      */
@@ -77,6 +90,8 @@ abstract class RestController
     /**
      * Read a request parameter as a string (get_param() returns mixed).
      *
+     * @since 1.0.0
+     *
      * @param WP_REST_Request<array<string, mixed>> $request
      */
     protected function stringParam(WP_REST_Request $request, string $key): string
@@ -86,11 +101,17 @@ abstract class RestController
         return is_string($value) ? $value : '';
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function respond(mixed $data, int $status = 200): WP_REST_Response
     {
         return new WP_REST_Response($data, $status);
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function error(string $code, string $message, int $status = 400): WP_Error
     {
         return new WP_Error($code, $message, ['status' => $status]);

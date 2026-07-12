@@ -12,16 +12,25 @@ use FastCgiCacheForPloi\Foundation\Http\Response;
  */
 final class PloiApiException extends RuntimeException
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(string $message, private readonly int $statusCode = 0)
     {
         parent::__construct($message);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function statusCode(): int
     {
         return $this->statusCode;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public static function fromResponse(Response $response): self
     {
         $status = $response->status();
@@ -46,6 +55,8 @@ final class PloiApiException extends RuntimeException
     /**
      * Single home for parsing Ploi's error envelope; shared by fromResponse() and
      * CacheFlusher so messages can't drift.
+     *
+     * @since 1.0.0
      */
     public static function messageFromResponse(Response $response): string
     {

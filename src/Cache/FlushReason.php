@@ -14,17 +14,40 @@ namespace FastCgiCacheForPloi\Cache;
  */
 enum FlushReason: string
 {
+    /**
+     * @since 1.0.0
+     */
     case PostSave   = 'post_save';
+    /**
+     * @since 1.0.0
+     */
     case PostDelete = 'post_delete';
+    /**
+     * @since 1.0.0
+     */
     case Comment    = 'comment';
+    /**
+     * @since 1.0.0
+     */
     case Theme      = 'theme';
+    /**
+     * @since 1.0.0
+     */
     case Customizer = 'customizer';
+    /**
+     * @since 1.0.0
+     */
     case Menu       = 'menu';
+    /**
+     * @since 1.0.0
+     */
     case Manual     = 'manual';
 
     /**
      * Canonical event-key source FlushEvents reads from, so keys can't drift from
      * the enum.
+     *
+     * @since 1.0.0
      *
      * @return list<self>
      */
@@ -36,6 +59,9 @@ enum FlushReason: string
         ));
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function label(): string
     {
         return match ($this) {

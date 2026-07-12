@@ -27,19 +27,40 @@ use FastCgiCacheForPloi\Foundation\Security\Sanitizer;
  */
 final class Plugin
 {
+    /**
+     * @since 1.0.0
+     */
     private Container $container;
 
-    /** @var list<class-string<ServiceProviderInterface>> */
+    /**
+     * @since 1.0.0
+     *
+     * @var list<class-string<ServiceProviderInterface>>
+     */
     private array $providers = [];
 
-    /** @var list<ModuleInterface> */
+    /**
+     * @since 1.0.0
+     *
+     * @var list<ModuleInterface>
+     */
     private array $modules = [];
 
+    /**
+     * @since 1.0.0
+     */
     private bool $booted = false;
 
-    /** @var array<string, string>|null */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<string, string>|null
+     */
     private ?array $headers = null;
 
+    /**
+     * @since 1.0.0
+     */
     public function __construct(private readonly string $file)
     {
         $this->container = new Container();
@@ -51,46 +72,73 @@ final class Plugin
         $this->container->singleton(Lifecycle::class, fn (): Lifecycle => new Lifecycle($this->file));
     }
 
+    /**
+     * @since 1.0.0
+     */
     public static function create(string $file): self
     {
         return new self($file);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function container(): Container
     {
         return $this->container;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function file(): string
     {
         return $this->file;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function dir(): string
     {
         return plugin_dir_path($this->file);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function url(): string
     {
         return plugin_dir_url($this->file);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function basename(): string
     {
         return plugin_basename($this->file);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function version(): string
     {
         return $this->header('Version', '0.0.0');
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function name(): string
     {
         return $this->header('Name', 'Plugin');
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function textDomain(): string
     {
         $domain = $this->header('TextDomain');
@@ -98,11 +146,17 @@ final class Plugin
         return $domain !== '' ? $domain : sanitize_key(basename($this->file, '.php'));
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function optionPrefix(): string
     {
         return str_replace('-', '_', $this->textDomain());
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function header(string $key, string $default = ''): string
     {
         if ($this->headers === null) {
@@ -128,6 +182,9 @@ final class Plugin
         return $value !== '' ? $value : $default;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function lifecycle(): Lifecycle
     {
         return $this->container->make(Lifecycle::class);
@@ -141,6 +198,8 @@ final class Plugin
      * plugins_loaded, so wiring them inside a provider's boot() would never run
      * on that request.
      *
+     * @since 1.0.0
+     *
      * @param callable(Lifecycle): void $register
      */
     public function withLifecycle(callable $register): self
@@ -151,6 +210,8 @@ final class Plugin
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param list<class-string<ServiceProviderInterface>> $providers
      */
     public function withProviders(array $providers): self
@@ -163,6 +224,8 @@ final class Plugin
     /**
      * Module providers are merged in at boot() only if isEnabled() is true for
      * this request.
+     *
+     * @since 1.0.0
      */
     public function withModule(ModuleInterface $module): self
     {
@@ -172,6 +235,8 @@ final class Plugin
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param list<ModuleInterface> $modules
      */
     public function withModules(array $modules): self
@@ -186,6 +251,8 @@ final class Plugin
     /**
      * Run the two-phase provider lifecycle: register() everything first so all
      * bindings exist, then boot() everything.
+     *
+     * @since 1.0.0
      */
     public function boot(): void
     {
@@ -231,6 +298,8 @@ final class Plugin
     /**
      * Plugin-specific primitives (Options, Migrator, SettingsRepository) live in
      * plugin providers because they need plugin-specific names.
+     *
+     * @since 1.0.0
      */
     private function registerFoundation(): void
     {

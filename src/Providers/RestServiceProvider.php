@@ -24,16 +24,25 @@ use FastCgiCacheForPloi\Foundation\Security\Sanitizer;
  */
 final class RestServiceProvider extends ServiceProvider
 {
+    /**
+     * @since 1.0.0
+     */
     public const NAMESPACE = 'fastcgi-cache-for-ploi/v1';
 
     /**
      * The capability required to manage this plugin. Single source for every REST
      * guard AND the admin settings screen (SettingsPage::capability()), so the
      * access policy lives in exactly one place.
+     *
+     * @since 1.0.0
      */
     public const CAPABILITY = 'manage_options';
 
-    /** @var list<class-string<\FastCgiCacheForPloi\Foundation\Rest\RestController>> */
+    /**
+     * @since 1.0.0
+     *
+     * @var list<class-string<\FastCgiCacheForPloi\Foundation\Rest\RestController>>
+     */
     private const CONTROLLERS = [
         ConnectionController::class,
         SettingsController::class,
@@ -41,6 +50,9 @@ final class RestServiceProvider extends ServiceProvider
         LogController::class,
     ];
 
+    /**
+     * @since 1.0.0
+     */
     public function register(): void
     {
         $container = $this->container;
@@ -73,6 +85,9 @@ final class RestServiceProvider extends ServiceProvider
         ));
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function boot(): void
     {
         foreach (self::CONTROLLERS as $controller) {

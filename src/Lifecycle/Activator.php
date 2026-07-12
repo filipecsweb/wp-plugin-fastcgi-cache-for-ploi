@@ -15,6 +15,9 @@ use FastCgiCacheForPloi\Foundation\Database\Migrator;
  */
 final class Activator
 {
+    /**
+     * @since 1.0.0
+     */
     public static function activate(string $optionPrefix): void
     {
         (new Migrator(OptionNames::migrations($optionPrefix)))->migrate([new CreateFlushLogTable()]);

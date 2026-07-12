@@ -16,10 +16,16 @@ use WP_Error;
  */
 final class HttpClient
 {
-    /** @var array<string, string> */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<string, string>
+     */
     private array $headers;
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, string> $headers
      */
     public function __construct(
@@ -31,6 +37,9 @@ final class HttpClient
         $this->baseUrl = rtrim($baseUrl, '/');
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function withBaseUrl(string $baseUrl): self
     {
         $clone          = clone $this;
@@ -39,12 +48,17 @@ final class HttpClient
         return $clone;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function withToken(string $token): self
     {
         return $this->withHeaders(['Authorization' => 'Bearer ' . $token]);
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, string> $headers
      */
     public function withHeaders(array $headers): self
@@ -55,6 +69,9 @@ final class HttpClient
         return $clone;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function withTimeout(int $seconds): self
     {
         $clone          = clone $this;
@@ -64,6 +81,8 @@ final class HttpClient
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, scalar> $query
      */
     public function get(string $path, array $query = []): Response
@@ -78,6 +97,8 @@ final class HttpClient
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $body
      */
     public function post(string $path, array $body = []): Response
@@ -86,6 +107,8 @@ final class HttpClient
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed>|null $body
      */
     public function request(string $method, string $url, ?array $body = null): Response
@@ -128,6 +151,9 @@ final class HttpClient
         );
     }
 
+    /**
+     * @since 1.0.0
+     */
     private function url(string $path): string
     {
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {

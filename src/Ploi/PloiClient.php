@@ -20,20 +20,33 @@ use FastCgiCacheForPloi\Foundation\Http\Response;
  */
 final class PloiClient
 {
+    /**
+     * @since 1.0.0
+     */
     private const BASE_URL = 'https://ploi.io';
 
     /**
      * Page size for Ploi list endpoints — fetch the full list in one request.
+     *
+     * @since 1.0.0
      */
     private const PER_PAGE = 100;
 
+    /**
+     * @since 1.0.0
+     */
     private const TIMEOUT_SECONDS = 20;
 
+    /**
+     * @since 1.0.0
+     */
     public function __construct(private readonly HttpClient $http)
     {
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return list<array<string, string>>
      */
     public function servers(string $token): array
@@ -48,6 +61,8 @@ final class PloiClient
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return list<array<string, string>>
      */
     public function sites(string $token, string $serverId): array
@@ -64,6 +79,9 @@ final class PloiClient
         return $this->mapList($response->array(), 'domain');
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function flush(string $serverId, string $siteId, string $token): Response
     {
         return $this->authed($token)->post(sprintf(
@@ -73,6 +91,9 @@ final class PloiClient
         ));
     }
 
+    /**
+     * @since 1.0.0
+     */
     private function authed(string $token): HttpClient
     {
         return $this->http
@@ -82,6 +103,8 @@ final class PloiClient
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<mixed> $payload
      *
      * @return list<array<string, string>>

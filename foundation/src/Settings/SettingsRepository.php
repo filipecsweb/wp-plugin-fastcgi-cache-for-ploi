@@ -15,11 +15,16 @@ namespace FastCgiCacheForPloi\Foundation\Settings;
  */
 final class SettingsRepository
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(private readonly string $group)
     {
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array{
      *     type?: string,
      *     description?: string,
@@ -33,17 +38,25 @@ final class SettingsRepository
         register_setting($this->group, $option, $args);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function unregister(string $option): void
     {
         unregister_setting($this->group, $option);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function section(string $id, string $title, string $page, ?callable $render = null): void
     {
         add_settings_section($id, $title, $render ?? '__return_null', $page);
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array{label_for?: string, class?: string} $args
      */
     public function field(

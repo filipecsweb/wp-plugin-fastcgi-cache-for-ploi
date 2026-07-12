@@ -13,6 +13,10 @@ use FastCgiCacheForPloi\Settings\OptionNames;
  */
 final class Uninstaller
 {
+    /**
+     * @since 1.0.1 Prepared the DROP TABLE with %i and guarded the prepare() result (Plugin Check fix).
+     * @since 1.0.0
+     */
     public static function uninstall(string $optionPrefix): void
     {
         /** @var \wpdb $wpdb */

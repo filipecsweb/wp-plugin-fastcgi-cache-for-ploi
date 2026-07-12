@@ -14,7 +14,11 @@ use Stringable;
  */
 final class Logger implements LoggerInterface
 {
-    /** @var array<string, int> */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<string, int>
+     */
     private const LEVELS = [
         LogLevel::DEBUG     => 0,
         LogLevel::INFO      => 1,
@@ -26,6 +30,9 @@ final class Logger implements LoggerInterface
         LogLevel::EMERGENCY => 7,
     ];
 
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         private readonly string $channel,
         private readonly string $minLevel = LogLevel::DEBUG,
@@ -33,6 +40,8 @@ final class Logger implements LoggerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $context
      */
     public function log(string $level, string|Stringable $message, array $context = []): void
@@ -54,6 +63,8 @@ final class Logger implements LoggerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $context
      */
     public function emergency(string|Stringable $message, array $context = []): void
@@ -62,6 +73,8 @@ final class Logger implements LoggerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $context
      */
     public function alert(string|Stringable $message, array $context = []): void
@@ -70,6 +83,8 @@ final class Logger implements LoggerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $context
      */
     public function critical(string|Stringable $message, array $context = []): void
@@ -78,6 +93,8 @@ final class Logger implements LoggerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $context
      */
     public function error(string|Stringable $message, array $context = []): void
@@ -86,6 +103,8 @@ final class Logger implements LoggerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $context
      */
     public function warning(string|Stringable $message, array $context = []): void
@@ -94,6 +113,8 @@ final class Logger implements LoggerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $context
      */
     public function notice(string|Stringable $message, array $context = []): void
@@ -102,6 +123,8 @@ final class Logger implements LoggerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $context
      */
     public function info(string|Stringable $message, array $context = []): void
@@ -110,6 +133,8 @@ final class Logger implements LoggerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $context
      */
     public function debug(string|Stringable $message, array $context = []): void
@@ -117,6 +142,9 @@ final class Logger implements LoggerInterface
         $this->log(LogLevel::DEBUG, $message, $context);
     }
 
+    /**
+     * @since 1.0.0
+     */
     private function shouldLog(string $level): bool
     {
         $current   = self::LEVELS[$level] ?? 0;
@@ -126,6 +154,8 @@ final class Logger implements LoggerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $context
      */
     private function interpolate(string $message, array $context): string

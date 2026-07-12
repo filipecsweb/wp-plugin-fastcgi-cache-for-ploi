@@ -16,6 +16,9 @@ use WP_REST_Response;
  */
 final class LogController extends PloiRestController
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         string $namespace,
         Capability $capability,
@@ -24,6 +27,9 @@ final class LogController extends PloiRestController
         parent::__construct($namespace, $capability);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function registerRoutes(): void
     {
         $this->registerRoute('/log', [
@@ -33,6 +39,9 @@ final class LogController extends PloiRestController
         ]);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function index(WP_REST_Request $request): WP_REST_Response
     {
         $entries = array_map(

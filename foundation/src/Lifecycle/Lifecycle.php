@@ -15,11 +15,16 @@ namespace FastCgiCacheForPloi\Foundation\Lifecycle;
  */
 final class Lifecycle
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(private readonly string $file)
     {
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param callable(): void $callback
      */
     public function onActivate(callable $callback): void
@@ -28,6 +33,8 @@ final class Lifecycle
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param callable(): void $callback
      */
     public function onDeactivate(callable $callback): void

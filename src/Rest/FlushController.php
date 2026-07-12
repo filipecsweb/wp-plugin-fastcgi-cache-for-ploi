@@ -21,6 +21,9 @@ use WP_REST_Response;
  */
 final class FlushController extends PloiRestController
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         string $namespace,
         Capability $capability,
@@ -30,6 +33,9 @@ final class FlushController extends PloiRestController
         parent::__construct($namespace, $capability);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function registerRoutes(): void
     {
         $this->registerRoute('/flush', [
@@ -39,6 +45,9 @@ final class FlushController extends PloiRestController
         ]);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function flush(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
         if (! $this->settings->isConfigured()) {
@@ -86,6 +95,8 @@ final class FlushController extends PloiRestController
      * so this notice and the log row stay in lockstep; here we only COMPOSE that
      * hint with Ploi's raw message (kept for debugging), or fall back to the raw
      * message when we have no specific gloss for the status.
+     *
+     * @since 1.0.0
      */
     private function failureNotice(int $httpCode, ?string $raw): string
     {

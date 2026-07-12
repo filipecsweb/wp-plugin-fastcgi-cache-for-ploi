@@ -20,9 +20,14 @@ namespace FastCgiCacheForPloi\Foundation\Security;
  */
 final class Crypto
 {
+    /**
+     * @since 1.0.0
+     */
     private const PREFIX = 'fccfp:sb1:';
 
     /**
+     * @since 1.0.0
+     *
      * @param string|null $key Optional 32-byte key; derived from salts when null.
      *
      * @throws \InvalidArgumentException When an injected key is not exactly 32 bytes.
@@ -40,6 +45,8 @@ final class Crypto
     /**
      * sodium_memzero scrubs only this by-value copy; callers own their secret's
      * (and the option cache's) lifetime.
+     *
+     * @since 1.0.0
      */
     public function encrypt(string $plaintext): string
     {
@@ -52,6 +59,9 @@ final class Crypto
         return $token;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function decrypt(string $payload): ?string
     {
         if (! $this->isEncrypted($payload)) {
@@ -84,11 +94,17 @@ final class Crypto
         return $plain === false ? null : $plain;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function isEncrypted(string $value): bool
     {
         return str_starts_with($value, self::PREFIX);
     }
 
+    /**
+     * @since 1.0.0
+     */
     private function key(): string
     {
         if ($this->key !== null) {

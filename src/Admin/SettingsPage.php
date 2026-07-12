@@ -12,16 +12,27 @@ use FastCgiCacheForPloi\Module\AdminUi\AdminPage;
  */
 final class SettingsPage extends AdminPage
 {
+    /**
+     * @since 1.0.0
+     */
     public const SLUG = 'fastcgi-cache-for-ploi';
 
     /**
      * Tab keys. Single source of truth for the screen's two tabs — the view
      * renders the nav + panels from these, the Alpine store keys its panels off
      * them, and the URL hash uses them (#settings / #logs).
+     *
+     * @since 1.0.0
      */
     public const TAB_SETTINGS = 'settings';
+    /**
+     * @since 1.0.0
+     */
     public const TAB_LOGS     = 'logs';
 
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         private readonly string $viewPath,
         private readonly string $footerPath,
@@ -30,11 +41,17 @@ final class SettingsPage extends AdminPage
     ) {
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function slug(): string
     {
         return self::SLUG;
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function parentSlug(): string
     {
         return 'options-general.php';
@@ -43,22 +60,33 @@ final class SettingsPage extends AdminPage
     /**
      * Gate the screen with the same capability the REST routes enforce, from the
      * one shared definition.
+     *
+     * @since 1.0.0
      */
     protected function capability(): string
     {
         return RestServiceProvider::CAPABILITY;
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function accessDeniedMessage(): string
     {
         return __('Sorry, you are not allowed to access this page.', 'fastcgi-cache-for-ploi');
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function pageTitle(): string
     {
         return __('FastCGI Cache for Ploi', 'fastcgi-cache-for-ploi');
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function menuTitle(): string
     {
         return __('FastCGI Cache', 'fastcgi-cache-for-ploi');
@@ -67,6 +95,8 @@ final class SettingsPage extends AdminPage
     /**
      * i18n: safe to call __() here — only invoked at render/enqueue, well after
      * init.
+     *
+     * @since 1.0.0
      *
      * @return list<array{key: string, label: string}>
      */
@@ -79,6 +109,8 @@ final class SettingsPage extends AdminPage
     }
 
     /**
+     * @since 1.0.0
+     *
      * @return list<string>
      */
     public function tabKeys(): array
@@ -107,6 +139,9 @@ final class SettingsPage extends AdminPage
         return ['settings' => $link] + $actions;
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function renderBody(): void
     {
         require $this->viewPath;
@@ -116,6 +151,8 @@ final class SettingsPage extends AdminPage
      * CONTRACT: $name must be a trusted internal literal — it is require'd,
      * never sanitized.
      *
+     * @since 1.0.0
+     *
      * @param array<string, mixed> $data
      */
     protected function partial(string $name, array $data = []): void
@@ -124,16 +161,25 @@ final class SettingsPage extends AdminPage
         require dirname($this->viewPath) . '/partials/' . $name . '.php';
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function renderFooter(): void
     {
         require $this->footerPath;
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function footerName(): string
     {
         return $this->pluginName;
     }
 
+    /**
+     * @since 1.0.0
+     */
     protected function footerVersion(): string
     {
         return $this->version;

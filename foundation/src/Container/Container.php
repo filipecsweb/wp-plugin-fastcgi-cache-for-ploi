@@ -24,19 +24,37 @@ use ReflectionParameter;
  */
 final class Container implements ContainerInterface
 {
-    /** @var array<string, Closure(self, array<string, mixed>): mixed> */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<string, Closure(self, array<string, mixed>): mixed>
+     */
     private array $bindings = [];
 
-    /** @var array<string, bool> */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<string, bool>
+     */
     private array $shared = [];
 
-    /** @var array<string, mixed> */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<string, mixed>
+     */
     private array $instances = [];
 
-    /** @var array<string, true> */
+    /**
+     * @since 1.0.0
+     *
+     * @var array<string, true>
+     */
     private array $building = [];
 
     /**
+     * @since 1.0.0
+     *
      * @param Closure(self, array<string, mixed>): mixed|class-string|null $concrete
      */
     public function bind(string $id, Closure|string|null $concrete = null, bool $shared = false): void
@@ -56,6 +74,8 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param Closure(self, array<string, mixed>): mixed|class-string|null $concrete
      */
     public function singleton(string $id, Closure|string|null $concrete = null): void
@@ -63,6 +83,9 @@ final class Container implements ContainerInterface
         $this->bind($id, $concrete, true);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function instance(string $id, mixed $instance): void
     {
         $this->instances[$id] = $instance;
@@ -71,6 +94,8 @@ final class Container implements ContainerInterface
 
     /**
      * Resolve an entry, autowiring unregistered-but-instantiable classes.
+     *
+     * @since 1.0.0
      *
      * @template TMake of object
      *
@@ -118,6 +143,8 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @template TGet of object
      *
      * @param class-string<TGet>|string $id
@@ -133,11 +160,17 @@ final class Container implements ContainerInterface
         return $this->make($id);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function has(string $id): bool
     {
         return isset($this->bindings[$id]) || array_key_exists($id, $this->instances);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function forget(string $id): void
     {
         unset($this->bindings[$id], $this->shared[$id], $this->instances[$id]);
@@ -145,6 +178,8 @@ final class Container implements ContainerInterface
 
     /**
      * Instantiate a concrete class, resolving its constructor dependencies.
+     *
+     * @since 1.0.0
      *
      * @param array<array-key, mixed> $parameters
      */
@@ -176,6 +211,8 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * @since 1.0.0
+     *
      * @param array<array-key, mixed> $parameters
      */
     private function resolveParameter(ReflectionParameter $parameter, array $parameters, string $concrete): mixed

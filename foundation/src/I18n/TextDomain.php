@@ -11,12 +11,18 @@ namespace FastCgiCacheForPloi\Foundation\I18n;
  */
 final class TextDomain
 {
+    /**
+     * @since 1.0.0
+     */
     public function __construct(
         private readonly string $domain,
         private readonly string $relativePath,
     ) {
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function load(): void
     {
         // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Retained so bundled /languages translations load on installs outside wordpress.org; on wordpress.org, translations also auto-load by slug.

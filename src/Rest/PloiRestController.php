@@ -22,6 +22,8 @@ abstract class PloiRestController extends RestController
 {
     /**
      * 502 for Ploi failures with no client-mappable status.
+     *
+     * @since 1.0.0
      */
     protected const STATUS_UPSTREAM_FAILURE = 502;
 
@@ -30,6 +32,8 @@ abstract class PloiRestController extends RestController
      * contract the admin JS keys off (resources/js/settings/store.js), so they
      * must stay in lockstep across every controller that can hit this path —
      * which is exactly why this lives here once.
+     *
+     * @since 1.0.0
      */
     protected function reconnectError(): WP_Error
     {
@@ -46,6 +50,8 @@ abstract class PloiRestController extends RestController
      * banner; every other failure is transient. Surfacing the real status (instead
      * of flattening to {@see self::STATUS_UPSTREAM_FAILURE}) is what lets an action
      * like Flush trigger that banner, exactly like the connection probe does.
+     *
+     * @since 1.0.0
      */
     protected function isReconnectStatus(int $status): bool
     {

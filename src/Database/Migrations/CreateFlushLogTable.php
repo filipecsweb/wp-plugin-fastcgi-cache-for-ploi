@@ -12,11 +12,17 @@ use FastCgiCacheForPloi\Foundation\Database\Migration;
  */
 final class CreateFlushLogTable extends Migration
 {
+    /**
+     * @since 1.0.0
+     */
     public function version(): string
     {
         return '2024_06_01_create_flush_log';
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function up(): void
     {
         $table   = FlushLogRepository::tableName();
@@ -41,6 +47,9 @@ final class CreateFlushLogTable extends Migration
         $this->dbDelta($sql);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public function down(): void
     {
         /** @var \wpdb $wpdb */
