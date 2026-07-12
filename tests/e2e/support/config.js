@@ -40,4 +40,5 @@ export const MOCK = {
   connection: `**/${NS}/connection`,
   sites: `**/${NS}/servers/*/sites`,
   flush: `**/${NS}/flush`,
+  log: `**/${NS}/log`,
 }
