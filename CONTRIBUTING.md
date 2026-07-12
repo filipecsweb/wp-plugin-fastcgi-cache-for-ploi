@@ -31,45 +31,47 @@ label (it does not). A CI gate enforces this — a PR with neither fails.
 
 ## Docblock provenance (`@since` / `@version`)
 
-Every PHP and JS source file in the tagged tiers records **when its code was introduced** with a
-`@since <version>` docblock tag. A CI gate (`bin/check-since-tags.sh`, also wired into
-`composer qa`) fails the build if any file in the tagged tiers below lacks an `@since`.
+`@since <version>` (phpDoc) records when code was introduced and when it notably changed.
+The CI gate (`bin/check-since-tags.sh`, also in `composer qa`) is **presence-only**: it
+fails the build when a tagged-tier file has no `@since`. Per-member completeness and
+change-line accuracy are review-enforced (a member-level linter is a possible follow-up).
 
-**Where `@since` goes (granularity):**
+**PHP — one `@since` per construct:**
 
-- **PHP types** (`class` / `interface` / `trait` / `enum`) → the type's own docblock.
-- **View templates** (`resources/views`) and the two **root bootstrap files** (the
-  plugin main file + `uninstall.php`) → the file-level header docblock (beside
-  `@package` on the root files).
-- **JS source modules** (`resources/js`) → the file-level block comment.
-- **Format:** bare semver, one space, after any description and before
-  `@param`/`@return` — e.g. `@since 1.0.1`.
+- The **type** (`class`/`interface`/`trait`/`enum`), on its own docblock — never a separate
+  file header.
+- **Every member:** each method (public, protected, **and** private, including abstract and
+  interface methods), declared property, constant, and enum case gets its own tag — never
+  one shared tag for a group.
+- **Parameters get none**, promoted constructor properties included (they are parameters).
+- Placement: after any description, before `@param`/`@return`/`@var`, and **above** any
+  attribute line; keep existing CONTRACT/WHY/GOTCHA prose.
 
-**Two deliberate deviations from a literal "tag every construct" reading:**
+**JS modules, view templates, and the two root bootstrap files** (`fastcgi-cache-for-ploi.php`,
+`uninstall.php`) carry a single **file-level** `@since` only — no per-export or per-member tags.
 
-1. **Methods/functions are not tagged at baseline.** Every member of a type shipped in
-   the same release as the type, so a per-method `@since` would only restate the type's
-   tag. A member carries its own `@since` *only* when introduced after its enclosing
-   type (see the going-forward rule).
-2. **Class files carry `@since` on the type docblock, not a separate file header.** One
-   PSR-4 type per file makes the type docblock the natural, move-safe home; class files
-   get no second file-level header.
+**Format:** bare semver, one space — `@since 1.0.1`.
 
-**Going-forward rule (the standard for new code):**
+**Changes = stacked `@since`, newest-first** (phpDoc reads repeats as a changelog). Add a
+line above the introduction line only when a construct's **own** body or signature notably
+changes — not when a helper it calls changes, and not for trivial edits (rename, formatting,
+comments). Each change line carries a short description; the introduction line carries none.
 
-- A **new type, file, or JS export** gets `@since` at creation.
-- A **new member added to an existing type** — a method, or a public constant / enum
-  case — gets *its own* `@since`. This is the "when changed" half of the record.
-- The **version value = the version of the PR's GitHub milestone** (the same source of
-  truth the changelog uses — see *Releasing*). A `skip-changelog` PR that adds a
-  construct but carries no milestone uses the milestone of the release it first ships in.
+```php
+/**
+ * @since 1.0.1 <what changed>
+ * @since 1.0.0
+ */
+```
 
-**`@version`** is reserved for a genuinely, independently-versioned file (e.g. a vendored
-file tracking its own upstream version). Nothing here is versioned independently today,
-so `@version` is applied **nowhere** — a documented rule awaiting a real case.
+**Version value = the PR's GitHub milestone** (the changelog's source of truth — see
+*Releasing*): a new construct, or a notable own-code change to one, is stamped with that
+milestone; a `skip-changelog` PR with no milestone uses the release it first ships in.
 
-**Out of scope by design:** `tests/` and build configs (`vite.config.js`,
-`playwright.config.js`) are neither tagged nor checked.
+**`@version`** is reserved for a genuinely independently-versioned file (e.g. a vendored file
+tracking its upstream version) — used **nowhere** today.
+
+**Out of scope:** `tests/` and build configs (`vite.config.js`, `playwright.config.js`).
 
 ## Releasing
 
