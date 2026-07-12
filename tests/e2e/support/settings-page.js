@@ -22,6 +22,18 @@ export class SettingsPage {
     this.disconnectButton = this.root.getByRole('button', { name: 'Disconnect', exact: true })
     this.targetButton = this.root.getByRole('button', { name: /^(Select target|Change)$/ })
     this.flushNowButton = this.root.getByRole('button', { name: /^Flush now/ })
+    // FIL-29 decorative dashicons: aria-hidden, so they don't alter the buttons'
+    // accessible names above. Both the change/flush buttons and their icons are anchored
+    // on the unique dashicon (structure, NOT accessible name): the change button's name
+    // flips Change↔Select target with canFlush and the flush button's flips to "Flushing…"
+    // while busy, either of which would break a name-based locator mid-test. Anchoring on
+    // `:has(.dashicons-*)` also lets a dropped aria-hidden fail with a labelled assertion
+    // rather than a name-mismatch timeout. The spinner is the child the flush icon swaps
+    // with, keyed by its x-show.
+    this.changeButton = this.root.locator('button:has(.dashicons-edit)')
+    this.changeIcon = this.changeButton.locator('.dashicons-edit')
+    this.flushNowIcon = this.root.locator('.dashicons-update')
+    this.flushNowSpinner = this.root.locator('button:has(.dashicons-update) [x-show="busy.flush"]')
     this.saveSettingsButton = this.root.getByRole('button', { name: 'Save settings' })
     this.eventCheckboxes = this.root.locator('input[type="checkbox"]')
 
@@ -196,6 +208,29 @@ export class SettingsPage {
     return this.page.evaluate(() => {
       const wrap = document.querySelector('.ploi-cache-admin table.wp-list-table').parentElement
       return { scrollWidth: wrap.scrollWidth, clientWidth: wrap.clientWidth, scrollsHorizontally: wrap.scrollWidth > wrap.clientWidth }
+    })
+  }
+
+  /**
+   * FIL-29 destructive-tint facts: the Disconnect button's computed text/border
+   * colour vs a neutral secondary `.button`. The tint is a `tw:` colour utility with
+   * the `!` variant (wp-admin's `.button` colour is unlayered and would otherwise
+   * win), so a working tint reads as a red distinct from the untinted buttons.
+   */
+  disconnectColorFacts() {
+    return this.page.evaluate(() => {
+      const btn = (re) => [...document.querySelectorAll('.ploi-cache-admin button')].find((b) => re.test(b.textContent) && b.offsetParent !== null)
+      const disconnect = getComputedStyle(btn(/Disconnect/))
+      // Match the busy label too, so this stays robust if ever read mid-flush.
+      const neutral = getComputedStyle(btn(/Flush now|Flushing/))
+      // Reference red from a throwaway node carrying the same utility, so the check is
+      // "Disconnect is red-600" regardless of how this browser serialises the colour.
+      const probe = document.createElement('span')
+      probe.className = 'tw:text-red-600!'
+      document.querySelector('.ploi-cache-admin').appendChild(probe)
+      const redRef = getComputedStyle(probe).color
+      probe.remove()
+      return { color: disconnect.color, borderColor: disconnect.borderColor, neutralColor: neutral.color, redRef }
     })
   }
 

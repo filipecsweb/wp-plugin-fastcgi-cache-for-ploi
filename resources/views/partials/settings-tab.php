@@ -4,6 +4,8 @@
  * Bindings below resolve against the ambient x-data="ploiCache" root
  * (settings.php); this partial defines no x-data of its own.
  *
+ * @since 1.0.1 Restyled the Disconnect button as destructive (red text/border, greyed
+ *     while busy) and added decorative dashicons to Change (edit) and Flush now (update).
  * @since 1.0.0
  *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
@@ -48,7 +50,7 @@ defined('ABSPATH') || exit;
                                 : '<?php echo esc_js(__('Connect', 'fastcgi-cache-for-ploi')); ?>'"></span>
                         </span>
                     </button>
-                    <button type="button" class="button" x-show="hasToken" @click="disconnect()" :disabled="busy.disconnect">
+                    <button type="button" class="button tw:text-red-600! tw:border-red-600! tw:disabled:text-gray-400! tw:disabled:border-gray-300!" x-show="hasToken" @click="disconnect()" :disabled="busy.disconnect">
                         <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
                             <span x-show="busy.disconnect" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
                             <span x-text="busy.disconnect
@@ -79,11 +81,17 @@ defined('ABSPATH') || exit;
                     </p>
                     <span class="tw:text-[13px] tw:text-gray-500" x-show="!canFlush && flushDisabledReason" x-text="flushDisabledReason"></span>
                     <div class="tw:flex tw:flex-wrap tw:items-center tw:gap-3">
-                        <button type="button" class="button" x-show="hasToken && !needsReconnect" @click="openTargetModal()" x-text="canFlush
-                            ? '<?php echo esc_js(__('Change', 'fastcgi-cache-for-ploi')); ?>'
-                            : '<?php echo esc_js(__('Select target', 'fastcgi-cache-for-ploi')); ?>'"></button>
+                        <button type="button" class="button" x-show="hasToken && !needsReconnect" @click="openTargetModal()">
+                            <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
+                                <span class="dashicons dashicons-edit tw:text-[16px]! tw:h-[16px]! tw:w-[16px]! tw:leading-none!" aria-hidden="true"></span>
+                                <span x-text="canFlush
+                                    ? '<?php echo esc_js(__('Change', 'fastcgi-cache-for-ploi')); ?>'
+                                    : '<?php echo esc_js(__('Select target', 'fastcgi-cache-for-ploi')); ?>'"></span>
+                            </span>
+                        </button>
                         <button type="button" class="button tw:ml-auto" @click="flushNow()" :disabled="!canFlush || busy.flush">
                             <span class="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">
+                                <span x-show="!busy.flush" class="dashicons dashicons-update tw:text-[16px]! tw:h-[16px]! tw:w-[16px]! tw:leading-none!" aria-hidden="true"></span>
                                 <span x-show="busy.flush" class="tw:inline-block tw:box-border tw:h-3.5 tw:w-3.5 tw:animate-spin tw:rounded-full tw:border-2 tw:border-current tw:border-t-transparent"></span>
                                 <span x-text="busy.flush
                                     ? '<?php echo esc_js(__('Flushing…', 'fastcgi-cache-for-ploi')); ?>'
