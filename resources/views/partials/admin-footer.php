@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * @since 1.0.0
+ *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
 

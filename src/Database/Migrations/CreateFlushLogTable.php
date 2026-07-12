@@ -7,6 +7,9 @@ namespace FastCgiCacheForPloi\Database\Migrations;
 use FastCgiCacheForPloi\Log\FlushLogRepository;
 use FastCgiCacheForPloi\Foundation\Database\Migration;
 
+/**
+ * @since 1.0.0
+ */
 final class CreateFlushLogTable extends Migration
 {
     public function version(): string

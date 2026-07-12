@@ -1,6 +1,10 @@
-// CONTRACT: register as an Alpine global store — Alpine.store('toasts', toastStore()).
-// Decoupled from any screen: raise a toast from anywhere with
-// $store.toasts.add(type, text, opts) (or this.$store.toasts.add inside a component).
+/**
+ * CONTRACT: register as an Alpine global store — Alpine.store('toasts', toastStore()).
+ * Decoupled from any screen: raise a toast from anywhere with
+ * $store.toasts.add(type, text, opts) (or this.$store.toasts.add inside a component).
+ *
+ * @since 1.0.0
+ */
 const DEFAULT_TIMEOUT = 10000
 
 let nextId = 0

@@ -8,6 +8,8 @@ use FastCgiCacheForPloi\Cache\FlushReason;
 
 /**
  * Column order is locked: it backs the on-disk table schema.
+ *
+ * @since 1.0.0
  */
 final class FlushLogEntry
 {

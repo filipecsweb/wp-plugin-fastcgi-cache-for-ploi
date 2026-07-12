@@ -22,6 +22,8 @@ use FastCgiCacheForPloi\Foundation\Security\Sanitizer;
 
 /**
  * Plugin metadata is read from the plugin header at runtime, never hardcoded.
+ *
+ * @since 1.0.0
  */
 final class Plugin
 {

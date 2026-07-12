@@ -10,6 +10,8 @@ use FastCgiCacheForPloi\Foundation\Database\Migrator;
 
 /**
  * No container: activation fires before the plugin's providers boot.
+ *
+ * @since 1.0.0
  */
 final class Activator
 {

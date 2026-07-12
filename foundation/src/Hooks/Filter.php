@@ -8,6 +8,8 @@ use Attribute;
 
 /**
  * CONTRACT: the target method must return the (possibly modified) filtered value.
+ *
+ * @since 1.0.0
  */
 #[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 final class Filter

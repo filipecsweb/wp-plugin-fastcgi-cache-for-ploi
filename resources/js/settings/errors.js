@@ -2,6 +2,8 @@
  * The reconnect reason codes shared by the saved-token failure path and the i18n
  * banner copy (cfg.i18n.reconnect[reason]). One JS source for the vocabulary; the
  * same codes are mirrored server-side as the wire contract.
+ *
+ * @since 1.0.0
  */
 export const RECONNECT_REASON = Object.freeze({
   UNREADABLE: 'unreadable',

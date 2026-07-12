@@ -15,6 +15,8 @@ use WP_Error;
  * kernel. It centralises the two things more than one controller needs to agree
  * on — the "saved token can't be decrypted, reconnect" error and the
  * upstream-failure HTTP status — so they live in exactly one place.
+ *
+ * @since 1.0.0
  */
 abstract class PloiRestController extends RestController
 {

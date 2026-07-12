@@ -8,6 +8,9 @@ use FastCgiCacheForPloi\Cache\FlushScheduler;
 use FastCgiCacheForPloi\Log\FlushLogRepository;
 use FastCgiCacheForPloi\Settings\OptionNames;
 
+/**
+ * @since 1.0.0
+ */
 final class Uninstaller
 {
     public static function uninstall(string $optionPrefix): void

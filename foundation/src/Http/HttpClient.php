@@ -11,6 +11,8 @@ use WP_Error;
  *
  * with*() methods return clones, so a configured client can be safely shared
  * and specialised per request without leaking state.
+ *
+ * @since 1.0.0
  */
 final class HttpClient
 {

@@ -46,8 +46,10 @@
         "stan": "phpstan analyse --memory-limit=1G",
         "test": "pest",
         "versions": "bin/check-version-consistency.sh",
+        "since": "bin/check-since-tags.sh",
         "qa": [
             "@versions",
+            "@since",
             "@cs",
             "@stan",
             "@test"
@@ -59,6 +61,7 @@
         "stan": "Run PHPStan at max level with WordPress stubs.",
         "test": "Run the Pest unit suite.",
         "versions": "Check the min PHP / min WP declarations agree across header, readme, composer, phpcs, phpstan and CI.",
-        "qa": "Run versions + cs + stan + test (full quality gate)."
+        "since": "Check every file in the docblock-tagged PHP/JS tiers declares an @since tag.",
+        "qa": "Run versions + since + cs + stan + test (full quality gate)."
     }
 }

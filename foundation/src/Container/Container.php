@@ -19,6 +19,8 @@ use ReflectionParameter;
  * - bind()/singleton()/instance() register entries.
  * - get() resolves only registered entries (PSR-11 contract: has() === true).
  * - make() additionally autowires any instantiable class via reflection.
+ *
+ * @since 1.0.0
  */
 final class Container implements ContainerInterface
 {

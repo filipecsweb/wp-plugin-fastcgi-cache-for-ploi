@@ -7,6 +7,8 @@
  *
  * CONTRACT: requires the 'toasts' Alpine store (registered in admin.js).
  *
+ * @since 1.0.0
+ *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
 

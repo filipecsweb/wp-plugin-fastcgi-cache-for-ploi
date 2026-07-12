@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace FastCgiCacheForPloi\Foundation\Logging;
 
+/**
+ * @since 1.0.0
+ */
 final class LogLevel
 {
     public const EMERGENCY = 'emergency';

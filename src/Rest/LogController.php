@@ -11,6 +11,9 @@ use FastCgiCacheForPloi\Foundation\Security\Capability;
 use WP_REST_Request;
 use WP_REST_Response;
 
+/**
+ * @since 1.0.0
+ */
 final class LogController extends PloiRestController
 {
     public function __construct(

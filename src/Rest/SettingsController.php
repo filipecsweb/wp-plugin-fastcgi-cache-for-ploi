@@ -15,6 +15,8 @@ use WP_REST_Response;
  * /settings persists ONLY the event toggles. The Ploi token is owned by /connection
  * and the flush target by /target, so neither is writable here — each piece of state
  * has a single writer.
+ *
+ * @since 1.0.0
  */
 final class SettingsController extends PloiRestController
 {

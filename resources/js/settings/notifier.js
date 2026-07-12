@@ -3,6 +3,8 @@ import Alpine from 'alpinejs'
 /**
  * Settings-screen bridge to the shared toast store (components/toasts.js): transient
  * confirmations and failures are raised the same way, from anywhere on the screen.
+ *
+ * @since 1.0.0
  */
 export default function createNotifier(cfg) {
   function notify(type, text, opts = {}) {

@@ -8,6 +8,8 @@
  * CONTRACT: render inside an Alpine x-data root; $state must be a boolean property
  * on it, and $titleId must be unique on the page.
  *
+ * @since 1.0.0
+ *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  * @var string $state    Boolean Alpine expression toggling the modal (e.g. 'targetModalOpen').
  * @var string $title    Heading text.

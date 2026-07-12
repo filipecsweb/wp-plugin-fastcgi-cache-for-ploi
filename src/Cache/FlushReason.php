@@ -9,6 +9,8 @@ namespace FastCgiCacheForPloi\Cache;
  * events exist. The six auto cases (everything except Manual, exposed by
  * autoCases()) define the canonical event keys + labels that FlushEvents derives
  * from; Manual is the "Flush now" button and has no FlushEvents toggle.
+ *
+ * @since 1.0.0
  */
 enum FlushReason: string
 {

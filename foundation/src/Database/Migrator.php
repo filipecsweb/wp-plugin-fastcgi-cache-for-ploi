@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace FastCgiCacheForPloi\Foundation\Database;
 
+/**
+ * @since 1.0.0
+ */
 final class Migrator
 {
     public function __construct(private readonly string $versionsOption)

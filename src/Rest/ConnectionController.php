@@ -13,6 +13,9 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
+/**
+ * @since 1.0.0
+ */
 final class ConnectionController extends PloiRestController
 {
     /**
@@ -198,6 +201,8 @@ final class ConnectionController extends PloiRestController
     }
 
     /**
+     * @since 1.0.1
+     *
      * @param list<array<string, string>> $servers
      * @param list<array<string, string>> $sites
      *
@@ -221,6 +226,8 @@ final class ConnectionController extends PloiRestController
     }
 
     /**
+     * @since 1.0.1
+     *
      * @return array{
      *     state: string,
      *     servers: list<array<string, string>>,

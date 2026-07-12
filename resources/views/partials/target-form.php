@@ -4,6 +4,8 @@
  * Body of the "change flush target" modal: server + site pickers and the actions.
  * Resolves against the ambient x-data="ploiCache" root (settings.php).
  *
+ * @since 1.0.0
+ *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
 

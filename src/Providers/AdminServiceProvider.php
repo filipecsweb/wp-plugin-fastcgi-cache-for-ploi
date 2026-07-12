@@ -15,6 +15,9 @@ use FastCgiCacheForPloi\Foundation\Plugin;
 use FastCgiCacheForPloi\Foundation\Provider\ServiceProvider;
 use FastCgiCacheForPloi\Foundation\Security\Nonce;
 
+/**
+ * @since 1.0.0
+ */
 final class AdminServiceProvider extends ServiceProvider
 {
     public function register(): void

@@ -15,6 +15,8 @@ use FastCgiCacheForPloi\Foundation\Http\Response;
  * The token is passed per call (never stored on the client) so a single shared
  * instance can serve different tokens (e.g. a just-entered token during "Test
  * connection" vs the saved one).
+ *
+ * @since 1.0.0
  */
 final class PloiClient
 {

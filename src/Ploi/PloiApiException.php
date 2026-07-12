@@ -7,6 +7,9 @@ namespace FastCgiCacheForPloi\Ploi;
 use RuntimeException;
 use FastCgiCacheForPloi\Foundation\Http\Response;
 
+/**
+ * @since 1.0.0
+ */
 final class PloiApiException extends RuntimeException
 {
     public function __construct(string $message, private readonly int $statusCode = 0)

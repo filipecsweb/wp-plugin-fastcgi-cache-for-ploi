@@ -22,6 +22,8 @@ use ReflectionObject;
  *    class + plugin version, so it invalidates automatically on deploy.
  *  - The persistent cache is bypassed under WP_DEBUG so developers always see
  *    fresh attribute discovery while iterating.
+ *
+ * @since 1.0.0
  */
 final class HookRegistrar
 {

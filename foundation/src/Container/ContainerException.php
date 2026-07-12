@@ -13,6 +13,8 @@ use RuntimeException;
  * Not final: NotFoundException extends this so every container error shares a
  * single RuntimeException-rooted hierarchy (catchable as ContainerException or
  * \RuntimeException) while still implementing the correct PSR-11 interface.
+ *
+ * @since 1.0.0
  */
 class ContainerException extends RuntimeException implements ContainerExceptionInterface
 {

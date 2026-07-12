@@ -15,6 +15,8 @@ namespace FastCgiCacheForPloi\Foundation\Assets;
  *  - Production: the build manifest is read and the hashed JS entry plus its CSS
  *    (including imported chunks' CSS) are enqueued. Scripts are tagged as ES
  *    modules via a script_loader_tag filter.
+ *
+ * @since 1.0.0
  */
 final class Vite
 {

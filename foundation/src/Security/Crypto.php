@@ -15,6 +15,8 @@ namespace FastCgiCacheForPloi\Foundation\Security;
  * decrypt() returns NULL on any failure (wrong format, tampering, rotated
  * salts) and NEVER throws or fatals. Callers detect the null and trigger a
  * graceful "reconnect" flow rather than white-screening.
+ *
+ * @since 1.0.0
  */
 final class Crypto
 {

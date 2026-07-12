@@ -3,6 +3,8 @@
  * and returns the parsed JSON body, or throws a normalised Error carrying the Ploi
  * error `code` and HTTP `status` so callers can route failures (see errors.js)
  * without re-reading the Response.
+ *
+ * @since 1.0.0
  */
 export default function createApiClient(cfg) {
   return {

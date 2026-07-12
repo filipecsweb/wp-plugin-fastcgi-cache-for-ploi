@@ -4,6 +4,8 @@
  * Every instance calls the shared ploiCache save(), persisting ALL settings in
  * one REST call regardless of which card it sits under.
  *
+ * @since 1.0.0
+ *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
  */
 
