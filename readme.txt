@@ -4,7 +4,7 @@ Tags: fastcgi-cache, cache, nginx, performance, purge
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 8.2
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,14 @@ No. Flushes happen via a background request to the Ploi API after content change
 Click **Disconnect** on the settings screen to remove the saved token, or deactivate/uninstall the plugin. With no token saved, the plugin makes no requests to Ploi.
 
 == Changelog ==
+
+= 1.0.1 =
+* Added a Settings action link to the plugin's row on the Plugins screen.
+* Added Brazilian Portuguese (pt_BR) translation.
+* The recent-flushes log now updates immediately after every manual flush, including failed attempts.
+* The connection check no longer loses your server list when the selected Ploi server has been deleted — it now prompts you to choose a new server.
+* Recent flushes log now stays a fixed height with an internal scroll and a pinned header, instead of growing the page.
+* Disconnect is now styled as a destructive (red) action, and the Change and Flush now buttons show icons for quicker scanning.
 
 = 1.0.0 =
 * Initial release.
