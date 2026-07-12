@@ -34,6 +34,11 @@ export class SettingsPage {
     this.logTable = this.root.locator('table.wp-list-table')
     this.logRows = this.logTable.locator('tbody tr')
     this.logRefreshButton = this.root.getByRole('button', { name: 'Refresh' })
+    // The per-row "?" hint trigger and its (position:fixed) tooltip panel. Scoped to
+    // :visible so `.first()` lands on a shown hint (success rows keep a hidden trigger)
+    // and, after hover, on the one actually open.
+    this.logHintButtons = this.logTable.locator('tbody .button-link:visible')
+    this.logTooltips = this.logTable.locator('tbody span[x-text="entry.hint"]:visible')
 
     // Change-target modal.
     this.modal = page.getByRole('dialog', { name: 'Change flush target' })
@@ -84,6 +89,113 @@ export class SettingsPage {
     return this.page.evaluate(() => {
       const d = window.Alpine.$data(document.querySelector('[x-data*=ploiCache]'))
       return { length: d.log.length, topId: d.log[0] ? d.log[0].id : null, busy: d.busy.flush }
+    })
+  }
+
+  /**
+   * Geometry + sticky-header facts for the Recent flushes scroll container (FIL-22).
+   * The container is the <div> that directly wraps the (single) wp-list-table.
+   */
+  logMetrics() {
+    return this.page.evaluate(() => {
+      const table = document.querySelector('.ploi-cache-admin table.wp-list-table')
+      const wrap = table.parentElement
+      const cs = getComputedStyle(wrap)
+      return {
+        renderedHeight: Math.round(wrap.getBoundingClientRect().height),
+        contentHeight: wrap.scrollHeight,
+        maxHeightPx: Math.round(parseFloat(cs.maxHeight)),
+        overflowY: cs.overflowY,
+        isScrollable: wrap.scrollHeight > wrap.clientHeight,
+        theadPosition: getComputedStyle(table.querySelector('thead')).position,
+        pageScrollsHorizontally: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        // At-rest top-rule facts (Defect 1 / follow-up 2): the single source is the
+        // thead's inset box-shadow; the table must carry NO competing border-top, else
+        // the rule doubles at rest and changes when scrolled.
+        theadBoxShadowAtRest: getComputedStyle(table.querySelector('thead')).boxShadow,
+        tableBorderTopWidth: getComputedStyle(table).borderTopWidth,
+      }
+    })
+  }
+
+  /**
+   * Scroll the log container to its midpoint and report whether the header stays
+   * pinned to the container's top edge and is painted with an opaque background (so
+   * scrolled rows can't bleed through it).
+   */
+  scrollLogAndCheckHeader() {
+    return this.page.evaluate(() => {
+      const table = document.querySelector('.ploi-cache-admin table.wp-list-table')
+      const wrap = table.parentElement
+      const thead = table.querySelector('thead')
+      wrap.scrollTop = Math.floor((wrap.scrollHeight - wrap.clientHeight) / 2)
+      const wRect = wrap.getBoundingClientRect()
+      const tRect = thead.getBoundingClientRect()
+      const style = getComputedStyle(thead)
+      const bg = style.backgroundColor
+      const alpha = bg.startsWith('rgba') ? parseFloat(bg.split(',')[3]) : 1
+      return {
+        scrolled: wrap.scrollTop > 0,
+        headerPinnedToContainerTop: Math.abs(tRect.top - wRect.top) < 2,
+        theadOpaque: alpha === 1,
+        // Defect 1: a top rule that lives on the sticky element (inset box-shadow) and
+        // therefore stays visible while the body scrolls under it.
+        theadBoxShadow: style.boxShadow,
+        theadHasStickyRule: style.boxShadow !== 'none' && /inset/.test(style.boxShadow),
+      }
+    })
+  }
+
+  /**
+   * Focus a hint whose row is below the container fold, so the browser's focus
+   * auto-scroll reveals it. Returns whether the container actually auto-scrolled (the
+   * precondition for exercising the scroll-dismiss grace window).
+   */
+  focusHintBelowFold() {
+    return this.page.evaluate(() => {
+      const table = document.querySelector('.ploi-cache-admin table.wp-list-table')
+      const wrap = table.parentElement
+      wrap.scrollTop = 0
+      const foldBottom = wrap.getBoundingClientRect().bottom
+      const btn = [...table.querySelectorAll('tbody .button-link')].find((b) => b.getBoundingClientRect().top > foldBottom)
+      if (!btn) return { found: false, autoScrolled: false }
+      const before = wrap.scrollTop
+      btn.focus()
+      return { found: true, autoScrolled: wrap.scrollTop !== before }
+    })
+  }
+
+  /**
+   * Anchor geometry of the currently-open hint tooltip vs its trigger (FIL-22). The
+   * fixed panel must sit centred on and just below the "?" — a regression that stranded
+   * it (e.g. at 0,0) would still pass the visible / fixed / no-h-scroll checks.
+   */
+  tooltipAnchor() {
+    return this.page.evaluate(() => {
+      const panel = [...document.querySelectorAll('.ploi-cache-admin table.wp-list-table tbody span[x-text="entry.hint"]')].find(
+        (el) => getComputedStyle(el).display !== 'none'
+      )
+      if (!panel) return null
+      const btn = panel.closest('[x-data]').querySelector('.button-link')
+      const p = panel.getBoundingClientRect()
+      const b = btn.getBoundingClientRect()
+      return {
+        centerDeltaX: Math.abs(p.left + p.width / 2 - (b.left + b.width / 2)),
+        verticalGap: p.top - b.bottom,
+      }
+    })
+  }
+
+  /**
+   * Container horizontal-overflow facts (Defect 2). A wide hint tooltip must not grow
+   * the scroll container's scrollWidth — `overflow-y:auto` implies `overflow-x:auto`,
+   * so an in-container tooltip that spilled past the right edge would add a horizontal
+   * scrollbar. The tooltip escapes via position:fixed, so scrollWidth stays == clientWidth.
+   */
+  logContainerOverflow() {
+    return this.page.evaluate(() => {
+      const wrap = document.querySelector('.ploi-cache-admin table.wp-list-table').parentElement
+      return { scrollWidth: wrap.scrollWidth, clientWidth: wrap.clientWidth, scrollsHorizontally: wrap.scrollWidth > wrap.clientWidth }
     })
   }
 

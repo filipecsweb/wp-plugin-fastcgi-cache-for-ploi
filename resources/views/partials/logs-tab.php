@@ -4,6 +4,8 @@
  * GOTCHA: shares the ploiCache root's `log` state, so a Settings-tab flush
  * updates this table even while hidden.
  *
+ * @since 1.0.1 Capped the Recent flushes table at 24rem with an internal scroll and a
+ *     single-rule sticky header (scroll wrapper + sticky <thead>).
  * @since 1.0.0
  *
  * @var \FastCgiCacheForPloi\Admin\SettingsPage $this
@@ -31,67 +33,72 @@ defined('ABSPATH') || exit;
                 <?php echo esc_html__('No flushes recorded yet.', 'fastcgi-cache-for-ploi'); ?>
             </div>
 
-            <table class="wp-list-table widefat striped" x-show="log.length > 0">
-                <thead>
-                    <tr>
-                        <th><?php echo esc_html__('When', 'fastcgi-cache-for-ploi'); ?></th>
-                        <th><?php echo esc_html__('Trigger', 'fastcgi-cache-for-ploi'); ?></th>
-                        <th><?php echo esc_html__('Target', 'fastcgi-cache-for-ploi'); ?></th>
-                        <th><?php echo esc_html__('Result', 'fastcgi-cache-for-ploi'); ?></th>
-                        <th><?php echo esc_html__('Duration', 'fastcgi-cache-for-ploi'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template x-for="entry in log" :key="entry.id">
+            <div class="tw:max-h-96 tw:overflow-y-auto" x-show="log.length > 0">
+                <?php // WHY border-t-0!: the header's top rule must be ONE source that looks identical at rest and scrolled. The table's own border-top can't stay pinned (it scrolls away under the sticky thead) and doubles with the sticky rule at rest, so drop it (important: wp-admin's unlayered .widefat border beats the tw: layer) and draw the single top rule as an inset shadow ON the sticky <thead>. The bottom rule is the th's own border, already on the sticky cell. ?>
+                <table class="wp-list-table widefat striped tw:border-t-0!">
+                    <thead class="tw:sticky tw:top-0 tw:z-10 tw:bg-white tw:shadow-[inset_0_1px_0_#c3c4c7]">
                         <tr>
-                            <td x-text="entry.created_at"></td>
-                            <td x-text="entry.reason_label"></td>
-                            <td x-text="`${entry.server_id} / ${entry.site_id}`"></td>
-                            <td>
-                                <span
-                                    class="tw:inline-flex tw:items-center tw:rounded tw:px-2 tw:py-0.5 tw:text-[13px] tw:font-medium"
-                                    :class="entry.success ? 'tw:bg-green-100 tw:text-green-800' : 'tw:bg-red-100 tw:text-red-800'"
-                                    x-text="entry.success
-                                        ? '<?php echo esc_js(__('Success', 'fastcgi-cache-for-ploi')); ?>'
-                                        : '<?php echo esc_js(__('Failed', 'fastcgi-cache-for-ploi')); ?>'"
-                                ></span>
-                                <span class="tw:ml-1 tw:inline-flex tw:items-center tw:gap-1 tw:align-middle tw:text-[13px] tw:text-gray-500" x-show="entry.http_code">
-                                    <span x-text="`HTTP ${entry.http_code}`"></span>
-                                    <span
-                                        x-show="entry.hint"
-                                        x-data="tooltip"
-                                        class="tw:relative tw:inline-flex"
-                                        @keydown.escape="hide()"
-                                        @click.outside="hide()"
-                                    >
-                                        <button
-                                            type="button"
-                                            class="button-link tw:inline-flex tw:items-center tw:align-middle"
-                                            @mouseenter="show()"
-                                            @mouseleave="hide()"
-                                            @focus="show()"
-                                            @blur="hide()"
-                                            @click="show()"
-                                            :aria-label="entry.hint"
-                                        >
-                                            <span class="dashicons dashicons-editor-help tw:text-[16px]! tw:h-[16px]! tw:w-[16px]! tw:leading-none!" aria-hidden="true"></span>
-                                        </button>
-                                        <span
-                                            x-show="open"
-                                            x-transition.opacity
-                                            aria-hidden="true"
-                                            x-text="entry.hint"
-                                            class="tw:absolute tw:top-full tw:left-1/2 tw:z-20 tw:mt-1 tw:-translate-x-1/2 tw:w-max tw:max-w-xs tw:rounded tw:bg-gray-900 tw:px-2 tw:py-1 tw:text-[12px] tw:text-white tw:shadow-lg"
-                                        ></span>
-                                    </span>
-                                </span>
-                                <div class="tw:mt-1 tw:text-[13px] tw:text-red-600" x-show="entry.message" x-text="entry.message"></div>
-                            </td>
-                            <td x-text="`${entry.duration_ms} ms`"></td>
+                            <th><?php echo esc_html__('When', 'fastcgi-cache-for-ploi'); ?></th>
+                            <th><?php echo esc_html__('Trigger', 'fastcgi-cache-for-ploi'); ?></th>
+                            <th><?php echo esc_html__('Target', 'fastcgi-cache-for-ploi'); ?></th>
+                            <th><?php echo esc_html__('Result', 'fastcgi-cache-for-ploi'); ?></th>
+                            <th><?php echo esc_html__('Duration', 'fastcgi-cache-for-ploi'); ?></th>
                         </tr>
-                    </template>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <template x-for="entry in log" :key="entry.id">
+                            <tr>
+                                <td x-text="entry.created_at"></td>
+                                <td x-text="entry.reason_label"></td>
+                                <td x-text="`${entry.server_id} / ${entry.site_id}`"></td>
+                                <td>
+                                    <span
+                                        class="tw:inline-flex tw:items-center tw:rounded tw:px-2 tw:py-0.5 tw:text-[13px] tw:font-medium"
+                                        :class="entry.success ? 'tw:bg-green-100 tw:text-green-800' : 'tw:bg-red-100 tw:text-red-800'"
+                                        x-text="entry.success
+                                            ? '<?php echo esc_js(__('Success', 'fastcgi-cache-for-ploi')); ?>'
+                                            : '<?php echo esc_js(__('Failed', 'fastcgi-cache-for-ploi')); ?>'"
+                                    ></span>
+                                    <span class="tw:ml-1 tw:inline-flex tw:items-center tw:gap-1 tw:align-middle tw:text-[13px] tw:text-gray-500" x-show="entry.http_code">
+                                        <span x-text="`HTTP ${entry.http_code}`"></span>
+                                        <span
+                                            x-show="entry.hint"
+                                            x-data="tooltip"
+                                            class="tw:inline-flex"
+                                            @keydown.escape="hide()"
+                                            @click.outside="hide()"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="button-link tw:inline-flex tw:items-center tw:align-middle"
+                                                @mouseenter="show($event)"
+                                                @mouseleave="hide()"
+                                                @focus="show($event)"
+                                                @blur="hide()"
+                                                @click="show($event)"
+                                                :aria-label="entry.hint"
+                                            >
+                                                <span class="dashicons dashicons-editor-help tw:text-[16px]! tw:h-[16px]! tw:w-[16px]! tw:leading-none!" aria-hidden="true"></span>
+                                            </button>
+                                            <span
+                                                x-show="open"
+                                                x-transition.opacity
+                                                x-ref="panel"
+                                                aria-hidden="true"
+                                                x-text="entry.hint"
+                                                :style="`left: ${x}px; top: ${y}px`"
+                                                class="tw:fixed tw:z-20 tw:-translate-x-1/2 tw:w-max tw:max-w-[min(20rem,calc(100vw-2rem))] tw:rounded tw:bg-gray-900 tw:px-2 tw:py-1 tw:text-[12px] tw:text-white tw:shadow-lg"
+                                            ></span>
+                                        </span>
+                                    </span>
+                                    <div class="tw:mt-1 tw:text-[13px] tw:text-red-600" x-show="entry.message" x-text="entry.message"></div>
+                                </td>
+                                <td x-text="`${entry.duration_ms} ms`"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 </div>
