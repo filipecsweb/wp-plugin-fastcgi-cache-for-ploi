@@ -31,3 +31,10 @@
 *.log
 .idea/
 .vscode/
+
+# contract:local
+/.claude/skills/release/
+/bin/release.sh
+/bin/collect-changelog.sh
+/bin/plugin-check.sh
+# /contract:local

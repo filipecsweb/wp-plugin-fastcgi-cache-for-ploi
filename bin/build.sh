@@ -31,7 +31,13 @@ cd "$repo_root"
 # Slug = the repo directory name (also the plugin folder name and the ZIP basename).
 # Single-sourced from the directory so build.sh and plugin-check.sh can never disagree.
 slug="$(basename "$repo_root")"
-main_file="$slug.php"
+# Main file found by CONTENT (the top-level .php with a Plugin Name header), not
+# by directory name — the checkout dir may differ from the slug (as in CI), and
+# the main file may not be <slug>.php (the contract's plugin_main_file exists
+# precisely because the two can diverge).
+main_file="$(grep -lE '^[[:space:]]*\*?[[:space:]]*Plugin Name:' ./*.php 2>/dev/null | head -1 || true)"
+main_file="${main_file#./}"
+[ -n "$main_file" ] || { echo "ERROR: no top-level PHP file with a 'Plugin Name:' header" >&2; exit 1; }
 restore=1
 
 for arg in "$@"; do

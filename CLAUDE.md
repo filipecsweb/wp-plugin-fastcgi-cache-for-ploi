@@ -107,3 +107,10 @@ judge appearance — pair it with a quick visual check when adding novel chrome.
 styles. Where a `tw:` layout/spacing utility is overridden by a wp-admin rule, fix that one
 property with the important variant (`tw:mt-1!`, `tw:w-full!`) — surgically, only where it
 actually loses. Never re-enable preflight, drop the layer, or blanket-important.
+
+<!-- contract:claude-contract-block -->
+## Project contract
+
+- **[`CONTRIBUTING.md`](CONTRIBUTING.md) is binding** — branch naming, commit style, pull requests, issues. Read it before touching any of those; follow it exactly.
+- Blocks between `<!-- contract:* -->` markers and bootstrap-installed files are owned by the cross-project contract that generated them. Never edit them here; change the contract, then re-bootstrap.
+<!-- /contract:claude-contract-block -->
