@@ -48,8 +48,8 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-          # The GitHub repo is wp-plugin-fastcgi-cache-for-ploi; without this the
-          # action would default SLUG to the repo name and hit the wrong SVN URL.
+          # The GitHub repo name may differ from the wp.org slug; without SLUG the
+          # action would default to the repo name and hit the wrong SVN URL.
           SLUG: fastcgi-cache-for-ploi
           # Assets live at .wordpress-org/assets/, one level below the action's
           # default ASSETS_DIR (.wordpress-org). Without this the action copies the
