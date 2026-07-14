@@ -111,6 +111,6 @@ actually loses. Never re-enable preflight, drop the layer, or blanket-important.
 <!-- contract:claude-contract-block -->
 ## Project contract
 
-- **[`CONTRIBUTING.md`](CONTRIBUTING.md) is binding** — branch naming, commit style, pull requests, issues. Read it before touching any of those; follow it exactly.
+- **[`CONTRIBUTING.md`](CONTRIBUTING.md) is binding** — read it before working in this repo; follow it exactly.
 - Blocks between `<!-- contract:* -->` markers and bootstrap-installed files are owned by the cross-project contract that generated them. Never edit them here; change the contract, then re-bootstrap.
 <!-- /contract:claude-contract-block -->

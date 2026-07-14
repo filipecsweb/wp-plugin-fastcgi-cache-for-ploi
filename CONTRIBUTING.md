@@ -71,7 +71,7 @@ Follow the PR template: [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUES
 <!-- contract:issue-process -->
 ## Issues
 
-File through the repo's issue forms: **Bug report** for defects, **Task** for everything else (feature, improvement, chore, docs, research). Blank issues are disabled — the forms are the door.
+File through the repo's issue forms: **Bug report** for defects, **Task** for everything else (feature, improvement, chore, docs, research) — the forms are the door.
 
 One concern per issue.
 <!-- /contract:issue-process -->
@@ -81,7 +81,7 @@ One concern per issue.
 
 Every PR must be **classified** before it can merge: it either carries a **version
 milestone** (it produces a user-facing changelog entry) or the **`skip-changelog`**
-label (it does not). A CI gate enforces this — a PR with neither fails.
+label (it does not).
 <!-- /contract:pr-classification-wp -->
 
 <!-- contract:docblock-provenance-wp -->
@@ -119,7 +119,7 @@ comments). Each change line carries a short description; the introduction line c
  */
 ```
 
-**Version value = the PR's GitHub milestone** (the changelog's source of truth — see
+**Version value = the PR's GitHub milestone** (see
 [**PR classification**](#pr-classification)): a new construct, or a notable own-code change to one, is stamped with that
 milestone; a `skip-changelog` PR with no milestone uses the release it first ships in.
 

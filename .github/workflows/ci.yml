@@ -21,10 +21,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Version consistency (min PHP / min WP declarations)
+      - name: Version consistency
         run: bin/check-version-consistency.sh
 
-      - name: Docblock @since presence (tagged PHP/JS tiers)
+      - name: Docblock @since presence
         run: bin/check-since-tags.sh
 
       - name: Set up PHP

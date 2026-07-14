@@ -3,7 +3,7 @@
 # Check that every source file in the docblock-tagged tiers declares at least one
 # @since tag. This guards the @since/@version provenance convention: a new PHP
 # type, view/bootstrap file header, or JS source module that ships without
-# provenance fails `composer qa` and CI instead of drifting untagged.
+# provenance fails loud instead of drifting untagged.
 #
 # Tagged tiers (each tracked file MUST contain @since):
 #   PHP: foundation/src, modules/admin-ui/src, src, the two root bootstrap files

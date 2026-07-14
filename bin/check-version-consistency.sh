@@ -9,7 +9,7 @@
 #   min WP:  readme.txt, phpcs minimum_wp_version, composer wordpress-stubs floor
 #
 # Prints every declared value and exits non-zero if any of them disagree, so a
-# bump that misses a copy fails `composer qa` and CI instead of drifting.
+# bump that misses a copy fails loud instead of drifting.
 #
 # Usage:
 #   bin/check-version-consistency.sh
