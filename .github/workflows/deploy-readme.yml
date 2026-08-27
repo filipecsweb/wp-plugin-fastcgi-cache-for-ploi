@@ -1,0 +1,41 @@
+name: Deploy readme to WordPress.org
+
+# Publishing readme metadata (Tested up to, description, FAQ) without cutting a
+# release: the plugin version, the SVN tags and the shipped ZIP all stay put, so
+# installed sites see no update. Deliberate manual run only — the SVN commit is
+# public and irreversible.
+on:
+  workflow_dispatch:
+
+# Shares deploy.yml's group: a readme push and a release push must never hold the
+# same SVN working copy at once.
+concurrency:
+  group: wporg-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-readme:
+    name: Deploy readme to WordPress.org
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # The directory page renders the readme of the tag named by "Stable tag",
+      # not trunk's — the action parses that field and commits to both, which is
+      # what lets this land without a new tag.
+      - name: Deploy readme.txt to trunk and the stable tag
+        uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          # The GitHub repo name differs from the wp.org slug; without SLUG the
+          # action would default to the repo name and hit the wrong SVN URL.
+          SLUG: fastcgi-cache-for-ploi
+          # Left false, the action copies the whole plugin and bails unless
+          # readme.txt and assets are the only diff. SVN trunk carries built
+          # artifacts (public/build/, vendor/ --no-dev) that a plain checkout
+          # never produces, so the default aborts every run.
+          IGNORE_OTHER_FILES: true
+          # Banner and icon ride along with a release; this workflow moves
+          # readme.txt alone.
+          SKIP_ASSETS: true
