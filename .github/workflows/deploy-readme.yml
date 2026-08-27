@@ -31,11 +31,13 @@ jobs:
           # The GitHub repo name differs from the wp.org slug; without SLUG the
           # action would default to the repo name and hit the wrong SVN URL.
           SLUG: fastcgi-cache-for-ploi
-          # Left false, the action copies the whole plugin and bails unless
-          # readme.txt and assets are the only diff. SVN trunk carries built
-          # artifacts (public/build/, vendor/ --no-dev) that a plain checkout
-          # never produces, so the default aborts every run.
+          # SVN trunk holds the built plugin with production dependencies, which
+          # a plain source checkout never reproduces. Left unset, asset-update
+          # (as of 2480306) compares the whole plugin and aborts unless
+          # readme.txt and assets are the only diff, so every run here would fail.
           IGNORE_OTHER_FILES: true
-          # Banner and icon ride along with a release; this workflow moves
-          # readme.txt alone.
+          # Assets belong to the release path; this push carries metadata only.
+          # It does not promise an asset-free commit: as of asset-update 2480306
+          # the svn:mime-type propsets ignore this flag, so property-only asset
+          # entries can ride along (r3669416).
           SKIP_ASSETS: true
