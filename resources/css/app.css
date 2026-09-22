@@ -1,6 +1,6 @@
 /**
- * React settings screen. Tailwind v4 with the `tw` prefix, everything else scoped
- * to the #fastcgi-cache-for-ploi-app mount so wp-admin outside it stays untouched.
+ * React settings screen. Tailwind v4 with the `tw` prefix, every rule scoped to the
+ * #fastcgi-cache-for-ploi-app mount so wp-admin outside it stays untouched.
  *
  * GOTCHA (cascade): for normal declarations unlayered beats layered, and the order
  * inverts for !important. So the scoped reset below is unlayered and never
@@ -11,8 +11,15 @@
 
 /* theme(inline): utilities carry literal values, so the build defines and reads no theme variable on :root, where any other Tailwind build on the page could overwrite it. */
 @import "tailwindcss/theme.css" layer(theme) prefix(tw) theme(inline);
-/* source(none): auto-detection would also scrape class names out of Markdown and dist/. */
-@import "tailwindcss/utilities.css" layer(utilities) prefix(tw) important source(none);
+/*
+ * WHY nested: other plugins load their own `tw`-prefixed Tailwind on every admin screen, into
+ * the same layer with the same class names, where the last stylesheet would win. The mount id
+ * outranks them. Tailwind's own `important: "#id"` option compiles to this same nesting.
+ * source(none): auto-detection would also scrape class names out of Markdown and dist/.
+ */
+#fastcgi-cache-for-ploi-app {
+    @import "tailwindcss/utilities.css" layer(utilities) prefix(tw) important source(none);
+}
 
 @source "../js/app";
 @source "../js/ui";
@@ -157,6 +164,17 @@
     --shadow-dialog: var(--shadow-dialog-value);
 
     --ease-core: var(--ease-core-value);
+}
+
+/* Keyframe names are global to the document: a generic `spin` from any other stylesheet would replace ours. */
+@theme inline {
+    --animate-spin: fastcgi-cache-for-ploi-spin 1s linear infinite;
+
+    @keyframes fastcgi-cache-for-ploi-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
 }
 
 /*

@@ -1,7 +1,9 @@
 import { test, expect } from './support/fixtures.js'
 
 // Everything the screen draws comes from its own tokens: no value set outside the mount, inherited
-// or as a variable, may change it. Only the page's direction is meant to flow in.
+// or as a variable, may change it. Only the page's direction is meant to flow in. That includes
+// another plugin's Tailwind build with the same `tw` prefix, loaded after ours on every admin screen:
+// its utilities share our layer and class names.
 //
 // Out of scope, because CSS offers no way to stop them: a text decoration drawn on an ancestor
 // (it paints across descendants' text), paint effects on an ancestor (opacity, filter, transform),
@@ -18,6 +20,9 @@ const HOSTILE = `
     text-shadow: 1px 1px #f00; white-space: pre; cursor: crosshair; font-variant: small-caps;
     -webkit-font-smoothing: none; text-rendering: geometricPrecision; hyphens: auto; tab-size: 20;
     word-break: break-all; overflow-wrap: anywhere; list-style: square inside; caret-color: #f00;
+  }
+  @layer utilities {
+    .tw\\:flex { display: none !important; }
   }`
 
 // Every element of the screen with its box size and every standard computed property. Left out:
