@@ -10,8 +10,10 @@ import { __, sprintf } from '@wordpress/i18n'
 import { PencilIcon, RefreshCwIcon } from 'lucide-react'
 import { Button } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
+import { Code } from '@/ui/code'
 import { Input } from '@/ui/input'
 import { Spinner } from '@/ui/spinner'
+import { TextLink } from '@/ui/text-link'
 import { canFlush, flushDisabledReason, needsReconnect, type Actions, type State } from './store'
 import TargetDialog from './TargetDialog'
 
@@ -36,17 +38,15 @@ export default function ConnectionCard({ state, actions }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          <h2>{__('Connection', 'fastcgi-cache-for-ploi')}</h2>
-        </CardTitle>
+        <CardTitle render={<h2 />}>{__('Connection', 'fastcgi-cache-for-ploi')}</CardTitle>
+      </CardHeader>
+      <CardContent className="tw:flex tw:flex-col tw:gap-3">
         <CardDescription>
           {__(
             'Connecting validates your token with Ploi and stores it encrypted; a saved token is never shown again. Disconnect to enter a different one.',
             'fastcgi-cache-for-ploi'
           )}
         </CardDescription>
-      </CardHeader>
-      <CardContent className="tw:flex tw:flex-col tw:gap-3">
         <form
           className="tw:flex tw:flex-col tw:gap-3 tw:sm:flex-row tw:sm:items-end"
           onSubmit={(event) => {
@@ -55,7 +55,7 @@ export default function ConnectionCard({ state, actions }: Props) {
           }}
         >
           <label className="tw:flex tw:flex-1 tw:flex-col tw:gap-1">
-            <span className="tw:font-medium">{__('Ploi API token', 'fastcgi-cache-for-ploi')}</span>
+            <span className="tw:text-label tw:font-semibold">{__('Ploi API token', 'fastcgi-cache-for-ploi')}</span>
             <Input
               type="password"
               autoComplete="off"
@@ -83,7 +83,7 @@ export default function ConnectionCard({ state, actions }: Props) {
           )}
         </form>
 
-        <p className="tw:text-muted-foreground">
+        <CardDescription>
           {createInterpolateElement(
             sprintf(
               /* translators: 1: <strong>-wrapped breadcrumb to the Ploi API keys screen; 2: opening <a> tag; 3: closing </a> tag; 4: <code>-wrapped example token name. */
@@ -98,21 +98,21 @@ export default function ConnectionCard({ state, actions }: Props) {
             ),
             {
               strong: <strong />,
-              a: <a href={API_KEYS_URL} target="_blank" rel="noopener noreferrer" className="tw:underline tw:underline-offset-3" />,
-              code: <code />,
+              a: <TextLink href={API_KEYS_URL} target="_blank" rel="noopener noreferrer" />,
+              code: <Code className="tw:mx-1" />,
             }
           )}
-        </p>
+        </CardDescription>
 
-        <div className="tw:flex tw:flex-col tw:gap-1 tw:border-t tw:pt-4">
-          <span className="tw:font-medium">{__('Flush target (Server and Site)', 'fastcgi-cache-for-ploi')}</span>
+        <div className="tw:flex tw:flex-col tw:gap-1 tw:border-t tw:border-solid tw:border-border-subtle tw:pt-4">
+          <span className="tw:text-label tw:font-semibold">{__('Flush target (Server and Site)', 'fastcgi-cache-for-ploi')}</span>
           {flushable ? (
-            <p className="tw:text-muted-foreground">
-              {__('Currently flushing:', 'fastcgi-cache-for-ploi')}{' '}
-              <strong className="tw:text-foreground">{`${serverName || serverId} → ${siteDomain || siteId}`}</strong>
+            <p className="tw:text-paragraph tw:text-subtle-foreground">
+              {`${__('Currently flushing:', 'fastcgi-cache-for-ploi')} `}
+              <strong>{`${serverName || serverId} → ${siteDomain || siteId}`}</strong>
             </p>
           ) : (
-            disabledReason && <p className="tw:text-muted-foreground">{disabledReason}</p>
+            disabledReason && <span className="tw:text-body tw:text-muted-foreground">{disabledReason}</span>
           )}
           <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-3">
             {hasToken && !needsReconnect(state) && (
@@ -121,7 +121,7 @@ export default function ConnectionCard({ state, actions }: Props) {
                 {flushable ? __('Change', 'fastcgi-cache-for-ploi') : __('Select target', 'fastcgi-cache-for-ploi')}
               </Button>
             )}
-            <Button variant="outline" className="tw:ml-auto" disabled={!flushable || busy.flush} onClick={() => actions.flushNow()}>
+            <Button variant="outline" disabled={!flushable || busy.flush} onClick={() => actions.flushNow()}>
               {busy.flush ? <Spinner /> : <RefreshCwIcon aria-hidden="true" />}
               {busy.flush ? __('Flushing…', 'fastcgi-cache-for-ploi') : __('Flush now', 'fastcgi-cache-for-ploi')}
             </Button>

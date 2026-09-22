@@ -128,4 +128,13 @@ describe('TargetDialog', () => {
     await closed()
     expect(screen.queryByRole('button', { name: /^(Change|Select target)$/ })).toBeNull()
   })
+
+  it('opens with focus on its close button', async () => {
+    const api = renderApp()
+    api.mockResolvedValueOnce({ state: 'ok', servers, sites })
+
+    await open()
+
+    await waitFor(() => expect(document.activeElement).toBe(within(dialog()).getByRole('button', { name: 'Close' })))
+  })
 })

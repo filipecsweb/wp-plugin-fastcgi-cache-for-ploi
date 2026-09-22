@@ -36,7 +36,7 @@ test.describe('settings shell', () => {
         (selectors) =>
           selectors.flatMap((selector) => {
             const style = getComputedStyle(document.querySelector(selector))
-            // Custom properties are skipped: the theme variables on :root are global by design and paint nothing.
+            // Custom properties are skipped: Tailwind's @property registrations are global by spec and paint nothing.
             return [...style].filter((prop) => !prop.startsWith('--')).map((prop) => `${selector} ${prop}: ${style.getPropertyValue(prop)}`)
           }),
         CHROME

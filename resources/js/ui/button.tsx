@@ -1,63 +1,77 @@
 /**
- * shadcn/ui Button (base-nova), as written by the shadcn CLI, except that it
- * forwards its ref: core ships React 18, where a plain function component given
- * to a Base UI `render=` prop loses the ref it needs.
+ * shadcn/ui Button (base-nova), restyled as wp-admin's `.button` family: `default`
+ * is `.button-primary`, `outline` is `.button`, `link` is `.button-link` and `ghost`
+ * is a notice's dismiss button. It forwards its ref: core ships React 18, where a
+ * plain function component given to a Base UI `render=` prop loses the ref it needs.
  *
  * @since 1.1.0
  */
 import * as React from "react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "cn"
+import { cn } from "@/ui/utils"
 
-const buttonVariants = cva(
-  "tw:group/button tw:inline-flex tw:shrink-0 tw:items-center tw:justify-center tw:rounded-lg tw:border tw:border-transparent tw:bg-clip-padding tw:text-sm tw:font-medium tw:whitespace-nowrap tw:transition-all tw:outline-none tw:select-none tw:focus-visible:border-ring tw:focus-visible:ring-3 tw:focus-visible:ring-ring/50 tw:active:not-aria-[haspopup]:translate-y-px tw:disabled:pointer-events-none tw:disabled:opacity-50 tw:aria-invalid:border-destructive tw:aria-invalid:ring-3 tw:aria-invalid:ring-destructive/20 tw:dark:aria-invalid:border-destructive/50 tw:dark:aria-invalid:ring-destructive/40 tw:[&_svg]:pointer-events-none tw:[&_svg]:shrink-0 tw:[&_svg:not([class*=size-])]:size-4",
-  {
-    variants: {
-      variant: {
-        default: "tw:bg-primary tw:text-primary-foreground tw:hover:bg-primary/80",
-        outline:
-          "tw:border-border tw:bg-background tw:hover:bg-muted tw:hover:text-foreground tw:aria-expanded:bg-muted tw:aria-expanded:text-foreground tw:dark:border-input tw:dark:bg-input/30 tw:dark:hover:bg-input/50",
-        secondary:
-          "tw:bg-secondary tw:text-secondary-foreground tw:hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] tw:aria-expanded:bg-secondary tw:aria-expanded:text-secondary-foreground",
-        ghost:
-          "tw:hover:bg-muted tw:hover:text-foreground tw:aria-expanded:bg-muted tw:aria-expanded:text-foreground tw:dark:hover:bg-muted/50",
-        destructive:
-          "tw:bg-destructive/10 tw:text-destructive tw:hover:bg-destructive/20 tw:focus-visible:border-destructive/40 tw:focus-visible:ring-destructive/20 tw:dark:bg-destructive/20 tw:dark:hover:bg-destructive/30 tw:dark:focus-visible:ring-destructive/40",
-        link: "tw:text-primary tw:underline-offset-4 tw:hover:underline",
-      },
-      size: {
-        default:
-          "tw:h-8 tw:gap-1.5 tw:px-2.5 tw:has-data-[icon=inline-end]:pr-2 tw:has-data-[icon=inline-start]:pl-2",
-        xs: "tw:h-6 tw:gap-1 tw:rounded-[min(var(--radius-md),10px)] tw:px-2 tw:text-xs tw:in-data-[slot=button-group]:rounded-lg tw:has-data-[icon=inline-end]:pr-1.5 tw:has-data-[icon=inline-start]:pl-1.5 tw:[&_svg:not([class*=size-])]:size-3",
-        sm: "tw:h-7 tw:gap-1 tw:rounded-[min(var(--radius-md),12px)] tw:px-2.5 tw:text-[0.8rem] tw:in-data-[slot=button-group]:rounded-lg tw:has-data-[icon=inline-end]:pr-1.5 tw:has-data-[icon=inline-start]:pl-1.5 tw:[&_svg:not([class*=size-])]:size-3.5",
-        lg: "tw:h-9 tw:gap-1.5 tw:px-2.5 tw:has-data-[icon=inline-end]:pr-2 tw:has-data-[icon=inline-start]:pl-2",
-        icon: "tw:size-8",
-        "icon-xs":
-          "tw:size-6 tw:rounded-[min(var(--radius-md),10px)] tw:in-data-[slot=button-group]:rounded-lg tw:[&_svg:not([class*=size-])]:size-3",
-        "icon-sm":
-          "tw:size-7 tw:rounded-[min(var(--radius-md),12px)] tw:in-data-[slot=button-group]:rounded-lg",
-        "icon-lg": "tw:size-9",
-      },
+// GOTCHA: focus rings use :focus, not :focus-visible, so a clicked button shows one too, as core's do.
+const boxed =
+  "tw:inline-block tw:rounded-control tw:border tw:border-solid tw:text-center tw:align-top tw:font-medium tw:whitespace-nowrap tw:no-underline tw:cursor-pointer tw:appearance-none tw:focus:shadow-focus tw:focus:outline-1 tw:focus:outline-solid tw:focus:outline-transparent tw:focus:outline-offset-0 tw:disabled:cursor-not-allowed tw:disabled:shadow-none tw:mobile:mb-1 tw:mobile:min-h-(--control-height) tw:mobile:px-(--button-padding-x-mobile) tw:mobile:align-middle tw:mobile:text-button-mobile"
+
+const buttonVariants = cva("tw:[&_svg]:pointer-events-none tw:[&_svg]:shrink-0 tw:[&_svg:not([class*=size-])]:size-4", {
+  variants: {
+    variant: {
+      default: cn(
+        boxed,
+        "tw:border-transparent tw:bg-primary tw:text-primary-foreground tw:hover:bg-primary-hover tw:focus:bg-primary tw:focus:shadow-focus-primary tw:active:bg-primary-active",
+        "tw:disabled:border-disabled tw:disabled:bg-disabled tw:disabled:text-disabled-foreground"
+      ),
+      outline: cn(
+        boxed,
+        "tw:border-primary tw:bg-transparent tw:text-primary tw:hover:border-primary-active tw:hover:bg-primary-tint-hover tw:hover:text-primary-active tw:focus:border-primary tw:focus:bg-transparent tw:focus:text-primary tw:active:border-primary-active tw:active:bg-primary-tint-active tw:active:text-primary-active tw:active:shadow-none",
+        "tw:disabled:border-disabled-border tw:disabled:bg-transparent tw:disabled:text-disabled-foreground"
+      ),
+      destructive: cn(
+        boxed,
+        "tw:border-destructive tw:bg-transparent tw:text-destructive tw:hover:bg-primary-tint-hover tw:focus:bg-transparent tw:active:bg-primary-tint-active tw:active:shadow-none",
+        "tw:disabled:border-destructive-disabled-border tw:disabled:bg-transparent tw:disabled:text-destructive-disabled"
+      ),
+      link: "tw:cursor-pointer tw:appearance-auto tw:leading-[normal] tw:rounded-none tw:border-0 tw:bg-transparent tw:p-0 tw:text-start tw:text-link tw:underline tw:transition-[border,background,color] tw:duration-50 tw:ease-core tw:hover:text-link-hover tw:active:text-link-hover tw:focus:rounded-control tw:focus:text-link tw:focus:shadow-focus tw:focus:outline-1 tw:focus:outline-solid tw:focus:outline-transparent",
+      ghost: "tw:flex tw:cursor-pointer tw:appearance-auto tw:leading-[normal] tw:items-center tw:justify-center tw:rounded-control tw:border-0 tw:bg-transparent tw:p-0 tw:text-notice-foreground tw:focus:shadow-focus tw:focus:outline-2 tw:focus:outline-solid tw:focus:outline-transparent",
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
+    size: {
+      default: "",
+      sm: "",
+      icon: "tw:size-(--dismiss-size)",
     },
-  }
-)
+  },
+  compoundVariants: [
+    { variant: ["default", "outline", "destructive"], size: "default", className: "tw:min-h-(--control-height) tw:px-(--button-padding-x) tw:text-button" },
+    { variant: ["default", "outline", "destructive"], size: "sm", className: "tw:min-h-(--control-height-sm) tw:px-(--button-padding-x-sm) tw:text-button-sm" },
+  ],
+  defaultVariants: {
+    variant: "default",
+    size: "default",
+  },
+})
+
+type Variant = NonNullable<VariantProps<typeof buttonVariants>["variant"]>
+
+// WHY the inner span: an adorned label (an icon or spinner beside the text) sits in an
+// inline-flex box aligned to the middle of the 38px line, which makes such a button 40.53px
+// tall; a plain-text one has no box and stays 40px, as core's do.
+const BOXED = new Set<Variant>(["default", "outline", "destructive"])
 
 const Button = React.forwardRef<
   HTMLElement,
   ButtonPrimitive.Props & VariantProps<typeof buttonVariants>
->(function Button({ className, variant = "default", size = "default", ...props }, ref) {
+>(function Button({ className, variant = "default", size = "default", children, ...props }, ref) {
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
       ref={ref}
-    />
+    >
+      {BOXED.has(variant ?? "default") && React.Children.count(children) > 1 ? <span className="tw:inline-flex tw:items-center tw:gap-2 tw:align-middle">{children}</span> : children}
+    </ButtonPrimitive>
   )
 })
 

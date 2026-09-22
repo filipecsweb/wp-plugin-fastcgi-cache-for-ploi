@@ -99,5 +99,7 @@ export default defineConfig({
   test: {
     include: ['tests/js/**/*.test.{ts,tsx}'],
     environment: 'jsdom',
+    // tests/js/ui/utils.test.ts reads the theme source; every other CSS import stays empty.
+    css: { include: [/resources\/css\/app\.css/] },
   },
 })

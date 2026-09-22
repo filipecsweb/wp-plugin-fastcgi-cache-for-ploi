@@ -66,4 +66,18 @@ test.describe('Flush target', () => {
     await expect(settings.root).toContainText('Currently flushing:')
     // The `connected` fixture restores the canonical target in teardown.
   })
+
+  test('the page behind the open dialog keeps its scrollbar and still scrolls', async ({ connected, admin, settings }) => {
+    await settings.openTargetModal()
+
+    const scroll = await admin.evaluate(() => {
+      const before = window.scrollY
+      window.scrollBy(0, 200)
+      return { moved: window.scrollY !== before, overflow: getComputedStyle(document.documentElement).overflowY }
+    })
+
+    expect(scroll).toEqual({ moved: true, overflow: 'visible' })
+    await expect(settings.modal).toBeVisible()
+  })
 })
+

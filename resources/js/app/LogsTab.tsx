@@ -4,12 +4,13 @@
  * @since 1.1.0
  */
 import { __ } from '@wordpress/i18n'
-import { cn } from 'cn'
+import { CircleHelp } from 'lucide-react'
+import { cn } from '@/ui/utils'
 import { Badge } from '@/ui/badge'
-import { Button, buttonVariants } from '@/ui/button'
+import { Button } from '@/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/ui/card'
 import { Spinner } from '@/ui/spinner'
-import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table'
+import { tableClass, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip'
 import type { LogEntry } from './store'
 
@@ -23,9 +24,7 @@ export default function LogsTab({ entries, busy, onRefresh }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          <h2>{__('Recent flushes', 'fastcgi-cache-for-ploi')}</h2>
-        </CardTitle>
+        <CardTitle render={<h2 />}>{__('Recent flushes', 'fastcgi-cache-for-ploi')}</CardTitle>
         <CardAction>
           <Button variant="outline" size="sm" disabled={busy} onClick={() => onRefresh()}>
             {busy && <Spinner />}
@@ -35,13 +34,13 @@ export default function LogsTab({ entries, busy, onRefresh }: Props) {
       </CardHeader>
       <CardContent>
         {entries.length === 0 ? (
-          <p className="tw:py-6 tw:text-center tw:text-muted-foreground">{__('No flushes recorded yet.', 'fastcgi-cache-for-ploi')}</p>
+          <p className="tw:py-6 tw:text-center tw:text-label tw:text-muted-foreground">{__('No flushes recorded yet.', 'fastcgi-cache-for-ploi')}</p>
         ) : (
-          // GOTCHA: a sticky header pins to the nearest overflow ancestor, so this box must wrap the
-          // <table> directly; shadcn's Table wrapper (overflow-x-auto) would capture it instead.
+          // GOTCHA: the sticky header pins to this box, the nearest scrolling ancestor. The table's own
+          // top border would scroll away under it, so the header draws that rule itself.
           <div className="tw:max-h-96 tw:overflow-y-auto">
-            <table className="tw:w-full tw:text-sm">
-              <TableHeader className="tw:sticky tw:top-0 tw:z-10 tw:bg-card">
+            <table className={cn(tableClass, 'tw:border-t-0')}>
+              <TableHeader className="tw:sticky tw:top-0 tw:z-10 tw:bg-card tw:shadow-rule-top">
                 <TableRow>
                   <TableHead>{__('When', 'fastcgi-cache-for-ploi')}</TableHead>
                   <TableHead>{__('Trigger', 'fastcgi-cache-for-ploi')}</TableHead>
@@ -55,22 +54,23 @@ export default function LogsTab({ entries, busy, onRefresh }: Props) {
                   <TableRow key={entry.id ?? index}>
                     <TableCell>{entry.created_at}</TableCell>
                     <TableCell>{entry.reason_label}</TableCell>
+                    <TableCell>{`${entry.server_id} / ${entry.site_id}`}</TableCell>
                     <TableCell>
-                      {entry.server_id} / {entry.site_id}
-                    </TableCell>
-                    <TableCell className="tw:whitespace-normal">
-                      <Badge variant={entry.success ? 'secondary' : 'destructive'} className={cn(entry.success && 'tw:bg-green-100 tw:text-green-800')}>
+                      <Badge variant={entry.success ? 'success' : 'destructive'}>
                         {entry.success ? __('Success', 'fastcgi-cache-for-ploi') : __('Failed', 'fastcgi-cache-for-ploi')}
                       </Badge>
                       {entry.http_code ? (
-                        <span className="tw:ml-1 tw:inline-flex tw:items-center tw:gap-1 tw:align-middle tw:text-muted-foreground">
-                          HTTP {entry.http_code}
-                          {entry.hint && <Hint text={entry.hint} />}
-                        </span>
+                        <>
+                          {' '}
+                          <span className="tw:ms-1 tw:inline-flex tw:items-center tw:gap-1 tw:align-middle tw:text-body tw:text-muted-foreground">
+                            <span>{`HTTP ${entry.http_code}`}</span>
+                            {entry.hint && <Hint text={entry.hint} />}
+                          </span>
+                        </>
                       ) : null}
-                      {entry.message && <div className="tw:mt-1 tw:text-destructive">{entry.message}</div>}
+                      {entry.message && <div className="tw:mt-1 tw:text-body tw:text-destructive">{entry.message}</div>}
                     </TableCell>
-                    <TableCell>{entry.duration_ms} ms</TableCell>
+                    <TableCell>{`${entry.duration_ms} ms`}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -85,13 +85,14 @@ export default function LogsTab({ entries, busy, onRefresh }: Props) {
 function Hint({ text }: { text: string }) {
   return (
     <Tooltip>
-      <TooltipTrigger aria-label={text} className={cn(buttonVariants({ variant: 'ghost', size: 'icon-xs' }), 'tw:rounded-full')}>
-        ?
+      <TooltipTrigger
+        aria-label={text}
+        render={<Button variant="link" className="tw:inline-flex tw:items-center tw:align-middle tw:no-underline" />}
+      >
+        <CircleHelp aria-hidden="true" />
       </TooltipTrigger>
       {/* CONTRACT: tests/e2e/support/settings-page.js finds the open panel by this test id. */}
-      <TooltipContent side="bottom" data-testid="log-hint">
-        {text}
-      </TooltipContent>
+      <TooltipContent data-testid="log-hint">{text}</TooltipContent>
     </Tooltip>
   )
 }

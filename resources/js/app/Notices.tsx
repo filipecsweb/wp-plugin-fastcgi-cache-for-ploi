@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n'
 import { ShieldAlertIcon } from 'lucide-react'
 import { RECONNECT_REASON, type ReconnectReason } from '@/shared/errors'
 import { Alert, AlertDescription, AlertTitle } from '@/ui/alert'
+import { Code } from '@/ui/code'
 
 interface Props {
   reconnectReason: ReconnectReason | ''
@@ -20,23 +21,27 @@ export default function Notices({ reconnectReason, keyWarning }: Props) {
     <>
       {reconnectReason && (
         <Alert variant="destructive" role="status" aria-live="polite">
-          <AlertTitle>{__('Reconnect required.', 'fastcgi-cache-for-ploi')}</AlertTitle>
-          <AlertDescription>{reconnectCopy(reconnectReason)}</AlertDescription>
+          <AlertDescription>
+            <AlertTitle>{__('Reconnect required.', 'fastcgi-cache-for-ploi')}</AlertTitle> {reconnectCopy(reconnectReason)}
+          </AlertDescription>
         </Alert>
       )}
       {keyWarning && (
         // WHY no role: the warning is static page content; Alert's default role="alert" would announce it on every load.
         <Alert variant="warning" role={undefined}>
-          <ShieldAlertIcon aria-hidden="true" />
-          <AlertTitle>{__("Harden your token's encryption key", 'fastcgi-cache-for-ploi')}</AlertTitle>
-          <AlertDescription>
-            {createInterpolateElement(
-              __(
-                "Your WordPress security keys (salts) aren't defined in <code>wp-config.php</code>. Define them — or add a dedicated key — so the key that encrypts your token lives in <code>wp-config.php</code>, separate from your database: <code>define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '…' );</code>",
-                'fastcgi-cache-for-ploi'
-              ),
-              { code: <code /> }
-            )}
+          <AlertDescription className="tw:flex tw:items-start tw:gap-2">
+            <ShieldAlertIcon aria-hidden="true" className="tw:mt-0.5 tw:size-5 tw:shrink-0" />
+            <span>
+              <AlertTitle>{__("Harden your token's encryption key", 'fastcgi-cache-for-ploi')}</AlertTitle>
+              <br />
+              {createInterpolateElement(
+                __(
+                  "Your WordPress security keys (salts) aren't defined in <code>wp-config.php</code>. Define them — or add a dedicated key — so the key that encrypts your token lives in <code>wp-config.php</code>, separate from your database: <code>define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '…' );</code>",
+                  'fastcgi-cache-for-ploi'
+                ),
+                { code: <Code /> }
+              )}
+            </span>
           </AlertDescription>
         </Alert>
       )}

@@ -1,65 +1,29 @@
 /**
- * shadcn/ui NativeSelect (base-nova), as written by the shadcn CLI.
+ * shadcn/ui NativeSelect (base-nova), restyled as wp-admin's `<select>`: the chevron
+ * is the field's own background image, so there is no wrapper or icon element.
  *
  * @since 1.1.0
  */
 import * as React from "react"
-import { cn } from "cn"
-import { ChevronDownIcon } from "lucide-react"
+import { cn } from "@/ui/utils"
 
-type NativeSelectProps = Omit<React.ComponentProps<"select">, "size"> & {
-  size?: "sm" | "default"
-}
-
-function NativeSelect({
-  className,
-  size = "default",
-  ...props
-}: NativeSelectProps) {
+function NativeSelect({ className, ...props }: React.ComponentProps<"select">) {
   return (
-    <div
+    <select
+      data-slot="native-select"
       className={cn(
-        "tw:group/native-select tw:relative tw:w-fit tw:has-[select:disabled]:opacity-50",
+        "tw:mx-px tw:block tw:min-h-(--control-height) tw:max-w-(--select-max-width) tw:cursor-pointer tw:appearance-none tw:rounded-control tw:border tw:border-solid tw:border-input tw:bg-background tw:bg-(image:--select-chevron) tw:bg-size-(--select-chevron-size) tw:bg-position-(--select-chevron-position) tw:rtl:bg-position-(--select-chevron-position-rtl) tw:bg-no-repeat tw:ps-3 tw:pe-6 tw:align-middle tw:text-select tw:text-input-foreground tw:shadow-none tw:mobile:text-select-mobile",
+        "tw:hover:border-input-hover tw:focus:border-primary tw:focus:shadow-focus tw:focus:outline-2 tw:focus:outline-solid tw:focus:outline-transparent",
+        "tw:disabled:cursor-default tw:disabled:opacity-(--select-disabled-opacity) tw:disabled:text-shadow-(--select-disabled-text-shadow) tw:disabled:border-select-disabled-border tw:disabled:bg-select-disabled tw:disabled:bg-(image:--select-chevron-disabled) tw:disabled:text-select-disabled-foreground",
         className
       )}
-      data-slot="native-select-wrapper"
-      data-size={size}
-    >
-      <select
-        data-slot="native-select"
-        data-size={size}
-        className="tw:h-8 tw:w-full tw:min-w-0 tw:appearance-none tw:rounded-lg tw:border tw:border-input tw:bg-transparent tw:py-1 tw:pr-8 tw:pl-2.5 tw:text-sm tw:transition-colors tw:outline-none tw:select-none tw:selection:bg-primary tw:selection:text-primary-foreground tw:placeholder:text-muted-foreground tw:focus-visible:border-ring tw:focus-visible:ring-3 tw:focus-visible:ring-ring/50 tw:disabled:pointer-events-none tw:disabled:cursor-not-allowed tw:aria-invalid:border-destructive tw:aria-invalid:ring-3 tw:aria-invalid:ring-destructive/20 tw:data-[size=sm]:h-7 tw:data-[size=sm]:rounded-[min(var(--radius-md),10px)] tw:data-[size=sm]:py-0.5 tw:dark:bg-input/30 tw:dark:hover:bg-input/50 tw:dark:aria-invalid:border-destructive/50 tw:dark:aria-invalid:ring-destructive/40"
-        {...props}
-      />
-      <ChevronDownIcon className="tw:pointer-events-none tw:absolute tw:top-1/2 tw:right-2.5 tw:size-4 tw:-translate-y-1/2 tw:text-muted-foreground tw:select-none" aria-hidden="true" data-slot="native-select-icon" />
-    </div>
-  )
-}
-
-function NativeSelectOption({
-  className,
-  ...props
-}: React.ComponentProps<"option">) {
-  return (
-    <option
-      data-slot="native-select-option"
-      className={cn("tw:bg-[Canvas] tw:text-[CanvasText]", className)}
       {...props}
     />
   )
 }
 
-function NativeSelectOptGroup({
-  className,
-  ...props
-}: React.ComponentProps<"optgroup">) {
-  return (
-    <optgroup
-      data-slot="native-select-optgroup"
-      className={cn("tw:bg-[Canvas] tw:text-[CanvasText]", className)}
-      {...props}
-    />
-  )
+function NativeSelectOption(props: React.ComponentProps<"option">) {
+  return <option data-slot="native-select-option" {...props} />
 }
 
-export { NativeSelect, NativeSelectOptGroup, NativeSelectOption }
+export { NativeSelect, NativeSelectOption }
