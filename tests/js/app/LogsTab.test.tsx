@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import LogsTab from '@/app/LogsTab'
 import { TooltipProvider } from '@/ui/tooltip'
 import { entry } from './fixtures'
@@ -65,5 +65,22 @@ describe('LogsTab', () => {
     cleanup()
     renderTab({ busy: true })
     expect((screen.getByRole('button', { name: 'Refresh' }) as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('keeps the hint open when its trigger is clicked, and closes it on a later scroll', async () => {
+    renderTab({ entries: [entry(1, { success: false, http_code: 404, hint: 'It may have been deleted.' })] })
+    const trigger = screen.getByRole('button', { name: 'It may have been deleted.' })
+
+    fireEvent.pointerEnter(trigger)
+    fireEvent.mouseEnter(trigger)
+    await screen.findByTestId('log-hint')
+    fireEvent.click(trigger)
+    // A scroll straight after opening is the one that revealed the trigger: the hint stays.
+    act(() => void window.dispatchEvent(new Event('scroll')))
+    expect(screen.queryByTestId('log-hint')).not.toBeNull()
+
+    await act(() => new Promise((done) => setTimeout(done, 200)))
+    act(() => void window.dispatchEvent(new Event('scroll')))
+    await waitFor(() => expect(screen.queryByTestId('log-hint')).toBeNull())
   })
 })

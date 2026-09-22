@@ -1,0 +1,64 @@
+import { test, expect } from './support/fixtures.js'
+
+// Everything the screen draws comes from its own tokens: no value set outside the mount, inherited
+// or as a variable, may change it. Only the page's direction is meant to flow in.
+//
+// Out of scope, because CSS offers no way to stop them: a text decoration drawn on an ancestor
+// (it paints across descendants' text), paint effects on an ancestor (opacity, filter, transform),
+// and @property registrations, which are global by spec.
+const HOSTILE = `
+  :root {
+    --wp-admin-theme-color: #f00; --wp-admin-theme-color--rgb: 255, 0, 0; --wp-admin-border-width-focus: 9px;
+    --tw-color-green-100: #f00; --tw-spacing: 1rem; --tw-leading: 5;
+    --primary: #f00; --background: #000; --foreground: #0f0; --border: #f00; --radius: 20px;
+  }
+  html, body, #wpwrap, #wpcontent, #wpbody, #wpbody-content, .wrap {
+    color: #f00; font-family: serif; font-size: 20px; font-style: italic; font-weight: 700; line-height: 3;
+    letter-spacing: 2px; word-spacing: 4px; text-transform: uppercase; text-align: right; text-indent: 30px;
+    text-shadow: 1px 1px #f00; white-space: pre; cursor: crosshair; font-variant: small-caps;
+    -webkit-font-smoothing: none; text-rendering: geometricPrecision; hyphens: auto; tab-size: 20;
+    word-break: break-all; overflow-wrap: anywhere; list-style: square inside; caret-color: #f00;
+  }`
+
+// Every element of the screen with its box size and every standard computed property. Left out:
+// custom properties (an ancestor's variable is visible inside, and harmless while nothing reads it)
+// and resolved insets, which only say where the screen sits on the page. The hostile CSS moves it
+// down, since it restyles the heading above; that is placement, not style.
+const PLACEMENT = /^(top|right|bottom|left|inset-.*)$/
+const snapshot = (page) =>
+  page.evaluate((placement) => {
+    const skip = new RegExp(placement)
+    return [document.getElementById('fastcgi-cache-for-ploi-app'), ...document.querySelectorAll('#fastcgi-cache-for-ploi-app *')].map((el, i) => {
+      const style = getComputedStyle(el)
+      const { width, height } = el.getBoundingClientRect()
+      const props = [...style].filter((prop) => !prop.startsWith('--') && !skip.test(prop)).map((prop) => `${prop}: ${style.getPropertyValue(prop)}`)
+      // Rounded: an SVG path's box moves in its last digits with the sub-pixel origin of the screen.
+      return `${i} <${el.tagName.toLowerCase()}> ${width.toFixed(2)}x${height.toFixed(2)} | ${props.join('; ')}`
+    })
+  }, PLACEMENT.source)
+
+// The tabs fade their colours for 50 ms after a switch; a snapshot mid-fade would read the wrong ones.
+const settled = (page) => page.evaluate(() => Promise.all(document.getAnimations().map((animation) => animation.finished)))
+
+test.describe('style isolation', () => {
+  for (const tab of ['settings', 'logs']) {
+    test(`nothing set outside the mount changes the ${tab} tab`, async ({ admin, settings }) => {
+      if (tab === 'logs') await settings.logsTab.click()
+
+      await settled(admin)
+      const before = await snapshot(admin)
+      await admin.addStyleTag({ content: HOSTILE })
+      await settled(admin)
+      const after = await snapshot(admin)
+
+      expect(before.length).toBeGreaterThan(20)
+      expect(after.filter((line, i) => line !== before[i])).toEqual([])
+    })
+  }
+
+  test('the page direction still reaches the screen', async ({ admin }) => {
+    await admin.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'))
+
+    expect(await admin.locator('.ploi-cache-admin').evaluate((el) => getComputedStyle(el).direction)).toBe('rtl')
+  })
+})

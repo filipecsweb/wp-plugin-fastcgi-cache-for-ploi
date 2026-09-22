@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { Toaster, notify } from '@/app/toaster'
 
@@ -44,5 +44,45 @@ describe('toaster', () => {
     fireEvent.click(toast.querySelector('button')!)
 
     await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Token removed.' })).toBeNull())
+  })
+
+  describe('countdown', () => {
+    afterEach(() => vi.useRealTimers())
+
+    const toast = (name: string) => screen.queryByRole('dialog', { name })
+    // Share of the ring still drawn, from the second circle's dash offset (100 = empty).
+    const ring = (name: string) => 100 - Number(toast(name)!.querySelectorAll('circle')[1].getAttribute('stroke-dashoffset'))
+    const advance = (ms: number) => act(() => vi.advanceTimersByTime(ms))
+
+    it('drains the ring and closes after 10 s, even while hovered', () => {
+      vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'setTimeout', 'clearTimeout', 'performance', 'Date'] })
+      render(<Toaster />)
+      act(() => notify('success', 'Cache flushed.'))
+      fireEvent.mouseEnter(toast('Cache flushed.')!)
+      fireEvent.pointerEnter(toast('Cache flushed.')!)
+
+      advance(5_000)
+      expect(ring('Cache flushed.')).toBeCloseTo(50, 0)
+
+      advance(5_100)
+      advance(1_000)
+      expect(toast('Cache flushed.')).toBeNull()
+    })
+
+    it('starts over when the same message is raised again', () => {
+      vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'setTimeout', 'clearTimeout', 'performance', 'Date'] })
+      render(<Toaster />)
+      act(() => notify('success', 'Saved again.'))
+
+      advance(6_000)
+      act(() => notify('success', 'Saved again.'))
+      advance(6_000)
+      expect(toast('Saved again.')).not.toBeNull()
+      expect(ring('Saved again.')).toBeCloseTo(40, 0)
+
+      advance(5_000)
+      advance(1_000)
+      expect(toast('Saved again.')).toBeNull()
+    })
   })
 })

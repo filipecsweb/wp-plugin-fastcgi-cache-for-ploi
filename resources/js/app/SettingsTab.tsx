@@ -25,17 +25,18 @@ export default function SettingsTab({ events, state, actions }: Props) {
       <ConnectionCard state={state} actions={actions} />
       <Card>
         <CardHeader>
-          <CardTitle>
-            <h2>{__('Flush automatically when…', 'fastcgi-cache-for-ploi')}</h2>
-          </CardTitle>
+          <CardTitle render={<h2 />}>{__('Flush automatically when…', 'fastcgi-cache-for-ploi')}</CardTitle>
         </CardHeader>
         <CardContent className="tw:flex tw:flex-col tw:gap-3">
           {events.map((event) => (
-            <label key={event.key} className="tw:flex tw:cursor-pointer tw:items-start tw:gap-3 tw:rounded-md tw:border tw:p-3 tw:hover:bg-muted">
+            <label
+              key={event.key}
+              className="tw:flex tw:cursor-pointer tw:items-start tw:gap-3 tw:rounded-row tw:border tw:border-solid tw:border-border-subtle tw:p-3 tw:hover:bg-row-hover"
+            >
               <Checkbox className="tw:mt-1" checked={enabled[event.key] ?? false} onCheckedChange={(checked) => actions.toggleEvent(event.key, checked)} />
               <span className="tw:flex tw:flex-col">
-                <span className="tw:font-medium">{event.label}</span>
-                <span className="tw:text-muted-foreground">{event.description}</span>
+                <span className="tw:text-label tw:font-semibold">{event.label}</span>
+                <span className="tw:text-body tw:text-muted-foreground">{event.description}</span>
               </span>
             </label>
           ))}

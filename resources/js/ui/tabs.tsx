@@ -1,69 +1,46 @@
 /**
- * shadcn/ui Tabs (base-nova), as written by the shadcn CLI.
+ * shadcn/ui Tabs (base-nova), restyled as wp-admin's `.nav-tab-wrapper`: raised tabs
+ * on a rule, the active one opening onto the page below it.
  *
  * @since 1.1.0
  */
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs"
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "cn"
+import { cn } from "@/ui/utils"
 
-function Tabs({
-  className,
-  orientation = "horizontal",
-  ...props
-}: TabsPrimitive.Root.Props) {
+function Tabs({ className, orientation = "horizontal", ...props }: TabsPrimitive.Root.Props) {
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
       data-orientation={orientation}
-      className={cn(
-        "tw:group/tabs tw:flex tw:gap-2 tw:data-horizontal:flex-col",
-        className
-      )}
+      className={cn("tw:flex tw:flex-col", className)}
       {...props}
     />
   )
 }
 
-const tabsListVariants = cva(
-  "tw:group/tabs-list tw:inline-flex tw:w-fit tw:items-center tw:justify-center tw:rounded-lg tw:p-[3px] tw:text-muted-foreground tw:group-data-horizontal/tabs:h-8 tw:group-data-vertical/tabs:h-fit tw:group-data-vertical/tabs:flex-col tw:data-[variant=line]:rounded-none",
-  {
-    variants: {
-      variant: {
-        default: "tw:bg-muted",
-        line: "tw:gap-1 tw:bg-transparent",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
-
-function TabsList({
-  className,
-  variant = "default",
-  ...props
-}: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
+function TabsList({ className, ...props }: TabsPrimitive.List.Props) {
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
-      data-variant={variant}
-      className={cn(tabsListVariants({ variant }), className)}
+      className={cn("tw:flex tw:items-start tw:border-b tw:border-solid tw:border-border tw:pt-2.25 tw:narrow:border-b-0", className)}
       {...props}
     />
   )
 }
 
+// GOTCHA: the active tab's -1px bottom margin and page-coloured bottom border are what
+// open it onto the page; the focused active tab takes core's one-step-lighter ground, and
+// a pressed tab drops its focus ring, as core's do.
 function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
   return (
     <TabsPrimitive.Tab
       data-slot="tabs-trigger"
       className={cn(
-        "tw:relative tw:inline-flex tw:h-[calc(100%-1px)] tw:flex-1 tw:items-center tw:justify-center tw:gap-1.5 tw:rounded-md tw:border tw:border-transparent tw:px-1.5 tw:py-0.5 tw:text-sm tw:font-medium tw:whitespace-nowrap tw:text-foreground/60 tw:transition-all tw:group-data-vertical/tabs:w-full tw:group-data-vertical/tabs:justify-start tw:hover:text-foreground tw:focus-visible:border-ring tw:focus-visible:ring-[3px] tw:focus-visible:ring-ring/50 tw:focus-visible:outline-1 tw:focus-visible:outline-ring tw:disabled:pointer-events-none tw:disabled:opacity-50 tw:has-data-[icon=inline-end]:pr-1 tw:has-data-[icon=inline-start]:pl-1 tw:aria-disabled:pointer-events-none tw:aria-disabled:opacity-50 tw:dark:text-muted-foreground tw:dark:hover:text-foreground tw:group-data-[variant=default]/tabs-list:data-active:shadow-sm tw:group-data-[variant=line]/tabs-list:data-active:shadow-none tw:[&_svg]:pointer-events-none tw:[&_svg]:shrink-0 tw:[&_svg:not([class*=size-])]:size-4",
-        "tw:group-data-[variant=line]/tabs-list:bg-transparent tw:group-data-[variant=line]/tabs-list:data-active:bg-transparent tw:dark:group-data-[variant=line]/tabs-list:data-active:border-transparent tw:dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
-        "tw:data-active:bg-background tw:data-active:text-foreground tw:dark:data-active:border-input tw:dark:data-active:bg-input/30 tw:dark:data-active:text-foreground",
-        "tw:after:absolute tw:after:bg-foreground tw:after:opacity-0 tw:after:transition-opacity tw:group-data-horizontal/tabs:after:inset-x-0 tw:group-data-horizontal/tabs:after:bottom-[-5px] tw:group-data-horizontal/tabs:after:h-0.5 tw:group-data-vertical/tabs:after:inset-y-0 tw:group-data-vertical/tabs:after:-right-1 tw:group-data-vertical/tabs:after:w-0.5 tw:group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+        "tw:ms-(--tab-gap) tw:cursor-pointer tw:appearance-none tw:text-start tw:border tw:border-b-0 tw:border-solid tw:border-border tw:bg-tab-bg tw:px-2.5 tw:py-1.25 tw:text-tab tw:font-semibold tw:whitespace-nowrap tw:text-tab-foreground tw:no-underline tw:transition-[border,background,color] tw:duration-50 tw:ease-core",
+        "tw:hover:bg-tab-hover-bg tw:hover:text-tab-hover-foreground tw:focus:rounded-control tw:focus:bg-tab-hover-bg tw:focus:text-tab-hover-foreground tw:focus:shadow-focus tw:focus:outline-2 tw:focus:outline-solid tw:focus:outline-transparent tw:focus:active:shadow-none",
+        "tw:data-active:-mb-px tw:data-active:border-b tw:data-active:border-b-tab-active-bg tw:data-active:bg-tab-active-bg tw:data-active:text-tab-active-foreground",
+        "tw:data-active:focus:border-b-tab-active-focus-bg tw:data-active:focus:bg-tab-active-focus-bg",
+        "tw:narrow:ms-0 tw:narrow:me-2.5 tw:narrow:mt-2.5 tw:narrow:border-b tw:narrow:border-b-border tw:narrow:data-active:mb-0 tw:narrow:data-active:border-b-border",
         className
       )}
       {...props}
@@ -72,13 +49,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
 }
 
 function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
-  return (
-    <TabsPrimitive.Panel
-      data-slot="tabs-content"
-      className={cn("tw:flex-1 tw:text-sm tw:outline-none", className)}
-      {...props}
-    />
-  )
+  return <TabsPrimitive.Panel data-slot="tabs-content" className={cn("tw:outline-none", className)} {...props} />
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants }
+export { Tabs, TabsList, TabsTrigger, TabsContent }

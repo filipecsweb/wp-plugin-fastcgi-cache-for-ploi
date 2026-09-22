@@ -1,11 +1,11 @@
 /**
- * shadcn/ui Input (base-nova), as written by the shadcn CLI.
+ * shadcn/ui Input (base-nova), restyled as wp-admin's text field.
  *
  * @since 1.1.0
  */
 import * as React from "react"
 import { Input as InputPrimitive } from "@base-ui/react/input"
-import { cn } from "cn"
+import { cn } from "@/ui/utils"
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
@@ -13,7 +13,9 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       type={type}
       data-slot="input"
       className={cn(
-        "tw:h-8 tw:w-full tw:min-w-0 tw:rounded-lg tw:border tw:border-input tw:bg-transparent tw:px-2.5 tw:py-1 tw:text-base tw:transition-colors tw:outline-none tw:file:inline-flex tw:file:h-6 tw:file:border-0 tw:file:bg-transparent tw:file:text-sm tw:file:font-medium tw:file:text-foreground tw:placeholder:text-muted-foreground tw:focus-visible:border-ring tw:focus-visible:ring-3 tw:focus-visible:ring-ring/50 tw:disabled:pointer-events-none tw:disabled:cursor-not-allowed tw:disabled:bg-input/50 tw:disabled:opacity-50 tw:aria-invalid:border-destructive tw:aria-invalid:ring-3 tw:aria-invalid:ring-destructive/20 tw:md:text-sm tw:dark:bg-input/30 tw:dark:disabled:bg-input/80 tw:dark:aria-invalid:border-destructive/50 tw:dark:aria-invalid:ring-destructive/40",
+        "tw:mx-px tw:block tw:h-(--control-height) tw:w-full tw:min-w-0 tw:rounded-control tw:border tw:border-solid tw:border-input tw:bg-background tw:px-3 tw:text-control tw:text-input-foreground tw:shadow-none tw:placeholder:text-placeholder tw:mobile:appearance-none tw:mobile:text-control-mobile",
+        "tw:focus:border-primary tw:focus:shadow-focus tw:focus:outline-2 tw:focus:outline-solid tw:focus:outline-transparent",
+        "tw:disabled:cursor-default tw:disabled:border-input-disabled-border tw:disabled:bg-input-disabled tw:disabled:text-input-disabled-foreground",
         className
       )}
       {...props}

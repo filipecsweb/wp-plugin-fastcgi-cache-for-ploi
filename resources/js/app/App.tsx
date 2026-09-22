@@ -44,7 +44,7 @@ export default function App({ cfg, api }: Props) {
       <TooltipProvider>
         {/* CONTRACT: tests/e2e/support/settings-page.js finds the screen by this class and reads these data-* attributes; every UI renders the same set with the same string values. */}
         <div
-          className="ploi-cache-admin tw:mt-4 tw:flex tw:max-w-3xl tw:flex-col tw:gap-5"
+          className="ploi-cache-admin tw:mt-4 tw:flex tw:max-w-(--screen-max-width) tw:flex-col tw:gap-5 tw:text-foreground"
           data-has-token={String(state.saved.hasToken)}
           data-can-flush={String(canFlush(state))}
           data-busy-flush={String(state.busy.flush)}
@@ -53,7 +53,7 @@ export default function App({ cfg, api }: Props) {
           data-log-top-id={String(state.log[0]?.id ?? '')}
         >
           <Notices reconnectReason={state.reconnectReason} keyWarning={cfg.keyWarning} />
-          <Tabs value={tab} onValueChange={selectTab}>
+          <Tabs value={tab} onValueChange={selectTab} className="tw:gap-5">
             <TabsList aria-label={__('Settings sections', 'fastcgi-cache-for-ploi')}>
               {TAB_KEYS.map((key) => (
                 <TabsTrigger key={key} value={key}>
@@ -69,19 +69,19 @@ export default function App({ cfg, api }: Props) {
             </TabsContent>
           </Tabs>
           <Toaster />
-          <div ref={setPortal} />
+          {/* Out of flow: Base UI wraps each portal in a div, which must not become a flex item and take a gap. */}
+          <div ref={setPortal} className="tw:absolute" />
         </div>
-        <footer className="tw:mt-8 tw:border-t tw:pt-4 tw:text-muted-foreground">
-          <p>
-            <strong className="tw:text-foreground">{cfg.plugin.name}</strong>
-            <span className="tw:mx-1">·</span>
+        <footer className="tw:mt-8 tw:border-t tw:border-solid tw:border-border-muted tw:pt-4 tw:text-body tw:text-muted-foreground">
+          <p className="tw:my-(--paragraph-margin) tw:text-paragraph">
+            <strong>{cfg.plugin.name}</strong> <span className="tw:text-faint-foreground">·</span>{' '}
             {sprintf(
               /* translators: %s: plugin version number. */
               __('Version %s', 'fastcgi-cache-for-ploi'),
               cfg.plugin.version
             )}
           </p>
-          <p className="tw:mt-1">{__('Ploi is a trademark of its respective owner. This plugin is not affiliated with or endorsed by Ploi.', 'fastcgi-cache-for-ploi')}</p>
+          <p className="tw:my-(--paragraph-margin) tw:text-paragraph">{__('Ploi is a trademark of its respective owner. This plugin is not affiliated with or endorsed by Ploi.', 'fastcgi-cache-for-ploi')}</p>
         </footer>
       </TooltipProvider>
     </PortalContainer.Provider>
