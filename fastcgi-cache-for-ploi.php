@@ -5,7 +5,7 @@
  * Plugin URI:        https://wordpress.org/plugins/fastcgi-cache-for-ploi/
  * Description:       Automatically flush a Ploi-managed site's FastCGI cache when content changes.
  * Version:           1.0.1
- * Requires at least: 6.5
+ * Requires at least: 6.6
  * Requires PHP:      8.2
  * Author:            Filipe Seabra
  * Author URI:        https://github.com/filipecsweb

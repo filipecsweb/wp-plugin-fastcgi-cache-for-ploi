@@ -27,18 +27,20 @@ export const TOKENS = {
 }
 
 /**
- * Route-mock globs for the deleted-target specs. The plugin's REST routes live under
- * a fixed namespace; the browser fetches them at `{site}/wp-json/<namespace>/<route>`.
- * These globs match the UI's own fetch() calls. They do NOT match page.request (the
- * harness's REST client), which bypasses page.route — so a spec can mock the UI while
- * the harness still reads/writes real state.
+ * Route-mock patterns for the mocked specs. The plugin's REST routes live under a
+ * fixed namespace; the browser fetches them at `{site}/wp-json/<namespace>/<route>`,
+ * with or without a query string (core's apiFetch appends `_locale=user`). These
+ * match the UI's own fetch() calls. They do NOT match page.request (the harness's
+ * REST client), which bypasses page.route — so a spec can mock the UI while the
+ * harness still reads/writes real state.
  */
 // NS mirrors the PHP source of truth (RestServiceProvider::NAMESPACE); any drift
 // is caught by these mocks no longer matching, which fails the mocked specs.
-const NS = 'fastcgi-cache-for-ploi/v1'
+export const NS = 'fastcgi-cache-for-ploi/v1'
+const route = (path) => new RegExp(`/${NS}/${path}(\\?.*)?$`)
 export const MOCK = {
-  connection: `**/${NS}/connection`,
-  sites: `**/${NS}/servers/*/sites`,
-  flush: `**/${NS}/flush`,
-  log: `**/${NS}/log`,
+  connection: route('connection'),
+  sites: route('servers/[^/]+/sites'),
+  flush: route('flush'),
+  log: route('log'),
 }

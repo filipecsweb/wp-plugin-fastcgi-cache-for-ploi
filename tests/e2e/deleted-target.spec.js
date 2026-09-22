@@ -39,7 +39,7 @@ test.describe('Deleted flush target (F1–F4)', () => {
     // The modal tells the user the saved site is gone, the held siteId is cleared, and
     // Save target is disabled so the phantom can't be re-persisted.
     await expect(settings.modal).toContainText(/no longer|deleted|couldn.?t find|not found|removed/i)
-    expect((await settings.state()).siteId).toBe('')
+    expect((await settings.modalState()).siteId).toBe('')
     await expect(settings.saveTargetButton).toBeDisabled()
   })
 
@@ -58,7 +58,7 @@ test.describe('Deleted flush target (F1–F4)', () => {
     // The modal explains the saved server is gone, both held IDs are cleared, and Save
     // target is disabled.
     await expect(settings.modal).toContainText(/no longer|deleted|couldn.?t find|not found|removed/i)
-    const state = await settings.state()
+    const state = await settings.modalState()
     expect(state.serverId).toBe('')
     expect(state.siteId).toBe('')
     await expect(settings.saveTargetButton).toBeDisabled()
@@ -106,9 +106,9 @@ test.describe('Deleted flush target (F1–F4)', () => {
     await api.setTarget({ server_id: '999999999', site_id: '999999999', server_name: 'Ghost', site_domain: 'ghost.example' })
     await admin.reload()
 
-    // openTargetModal waits for serversLoaded — it only flips true when the live probe
-    // returns state:ok WITH servers, which is exactly what the fix restores. A probe that
-    // collapsed to state:unknown/servers:[] would leave this hanging (the old bug).
+    // openTargetModal waits for the server picker to enable — it only enables when the
+    // live probe returns state:ok WITH servers, which is exactly what the fix restores. A
+    // probe that collapsed to state:unknown/servers:[] would leave it disabled (the old bug).
     await settings.openTargetModal()
 
     // The modal reconciles the gone server (not a generic "cannot reach Ploi" toast):
@@ -116,7 +116,7 @@ test.describe('Deleted flush target (F1–F4)', () => {
     // available to pick a replacement.
     await expect(settings.modal).toContainText(/no longer|deleted|couldn.?t find|not found|removed/i)
     await expect(settings.errorToast).toBeHidden()
-    const state = await settings.state()
+    const state = await settings.modalState()
     expect(state.serverId).toBe('')
     expect(state.servers.length).toBeGreaterThan(0)
     await expect(settings.saveTargetButton).toBeDisabled()

@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: 'Regenerate the screenshot baselines and upload them as artifacts to commit'
+        type: boolean
+        default: false
 
 # Supersede in-flight runs for the same ref when a newer push/PR-update arrives.
 concurrency:
@@ -59,14 +65,22 @@ jobs:
           cache: npm
 
       - run: npm ci
+      - run: npm run qa:js
       - run: npm run build
 
       - name: Verify the build manifest exists
         run: test -f public/build/.vite/manifest.json
 
   e2e:
-    name: E2E (Playwright + real WordPress)
+    name: E2E (Playwright + real WordPress ${{ matrix.wp }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # One at a time: both versions drive the same real Ploi account.
+      max-parallel: 1
+      matrix:
+        # The minimum supported WordPress (the first with react-jsx-runtime) and the newest.
+        wp: ['6.6', 'latest']
     # A real WordPress served by WP-CLI + the PHP built-in server, with the plugin
     # symlinked in — the exact shape the e2e suite expects (WP_PLUGIN_PATH points at
     # this checkout, WP_CLI_CWD drives the auto-flush/permission specs via `wp`).
@@ -113,13 +127,18 @@ jobs:
       - name: Install WordPress
         run: |
           mkdir -p "$WP_DIR"
-          wp core download --path="$WP_DIR" --version=latest
+          wp core download --path="$WP_DIR" --version=${{ matrix.wp }}
           wp config create --path="$WP_DIR" \
             --dbname=wordpress --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306
+          # A fresh install auto-updates itself across major versions, off the matrix version.
+          wp config set AUTOMATIC_UPDATER_DISABLED true --raw --path="$WP_DIR"
           wp core install --path="$WP_DIR" \
             --url="$WP_BASE_URL" --title="E2E" \
             --admin_user=admin --admin_password=password \
             --admin_email=admin@example.test --skip-email
+          # The bundled-translations spec switches the user to pt_BR, which core only allows for an installed language.
+          wp language core install pt_BR --path="$WP_DIR"
+          wp core version --path="$WP_DIR"
 
       - name: Symlink the plugin and activate
         run: |
@@ -143,9 +162,28 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run E2E
-        run: npm run e2e
+        run: npm run e2e -- ${{ inputs.update_snapshots && '--update-snapshots' || '' }}
         env:
           WP_PLUGIN_PATH: ${{ env.WP_DIR }}/wp-content/plugins/fastcgi-cache-for-ploi
           WP_CLI_CWD: ${{ env.WP_DIR }}
           WP_ADMIN_USER: admin
           WP_ADMIN_PASS: password
+          # The Ploi-backed specs (and four of the five screenshots) skip without these.
+          PLOI_API_TOKEN_GOOD_READ_SERVERS_AND_READ_SITES_SCOPE: ${{ secrets.PLOI_API_TOKEN_GOOD_READ_SERVERS_AND_READ_SITES_SCOPE }}
+          PLOI_API_TOKEN_BAD_ONLY_READ_SERVERS_SCOPE: ${{ secrets.PLOI_API_TOKEN_BAD_ONLY_READ_SERVERS_SCOPE }}
+          PLOI_API_TOKEN_BAD_ONLY_READ_SITES_SCOPE: ${{ secrets.PLOI_API_TOKEN_BAD_ONLY_READ_SITES_SCOPE }}
+          PLOI_API_TOKEN_BAD_NO_SCOPE_AT_ALL: ${{ secrets.PLOI_API_TOKEN_BAD_NO_SCOPE_AT_ALL }}
+
+      - name: Upload the regenerated screenshot baselines
+        if: ${{ inputs.update_snapshots }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: screenshots-${{ matrix.wp }}
+          path: tests/e2e/screenshots.spec.js-snapshots/
+
+      - name: Upload traces and screenshot diffs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-results-${{ matrix.wp }}
+          path: test-results/

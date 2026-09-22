@@ -1,6 +1,6 @@
 import { test, expect } from './support/fixtures.js'
 import { TOKENS, MOCK } from './support/config.js'
-import { jsonRoute } from './support/mock.js'
+import { wpErrorRoute } from './support/mock.js'
 
 /**
  * A SAVED, known-good token that Ploi LATER rejects must raise the single persistent
@@ -27,7 +27,7 @@ test.describe('Reconnect required (saved token rejected by Ploi)', () => {
     test(`${r.name} raises the reconnect banner`, async ({ connected, admin, settings }) => {
       await expect(settings.flushNowButton).toBeEnabled() // the baseline target is flushable
 
-      await jsonRoute(admin, MOCK.flush, { code: r.code, message: 'Ploi rejected the request.' }, r.status)
+      await wpErrorRoute(admin, MOCK.flush, r.code, 'Ploi rejected the request.', r.status)
       await settings.flushNowButton.click()
 
       await expect(settings.reconnectBanner).toBeVisible()
@@ -39,15 +39,17 @@ test.describe('Reconnect required (saved token rejected by Ploi)', () => {
     })
   }
 
-  test('a WordPress nonce/capability 401 stays transient and keeps the saved token', async ({ connected, admin, settings }) => {
+  test('a WordPress capability 401 stays transient and keeps the saved token', async ({ connected, admin, settings }) => {
     await expect(settings.flushNowButton).toBeEnabled()
 
     // Same 401 status, but WP's own guard code rather than a Ploi error — must surface
     // as a toast and leave the healthy token in place (the false-positive guard).
-    await jsonRoute(admin, MOCK.flush, { code: 'rest_cookie_invalid_nonce', message: 'Session expired. Reload and retry.' }, 401)
+    // WHY not rest_cookie_invalid_nonce: core's apiFetch refreshes the nonce and retries
+    // on that code, so a mock that always answers with it never settles.
+    await wpErrorRoute(admin, MOCK.flush, 'rest_forbidden', 'Sorry, you are not allowed to do that.', 401)
     await settings.flushNowButton.click()
 
-    await expect(settings.errorToast).toContainText('Session expired. Reload and retry.')
+    await expect(settings.errorToast).toContainText('Sorry, you are not allowed to do that.')
     await expect(settings.reconnectBanner).toBeHidden()
     const state = await settings.state()
     expect(state.needsReconnect).toBe(false)
