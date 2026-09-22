@@ -12,20 +12,35 @@ namespace FastCgiCacheForPloi\Foundation\Assets;
  * Two modes:
  *  - Dev: when a "hot" file exists in the build dir, assets are loaded from the
  *    running Vite dev server (with @vite/client for HMR).
- *  - Production: the build manifest is read and the hashed JS entry plus its CSS
- *    (including imported chunks' CSS) are enqueued. Scripts are tagged as ES
- *    modules via a script_loader_tag filter.
+ *  - Production: the build manifest is read and the JS entry plus its CSS
+ *    (including imported chunks' CSS) are enqueued. The entry also depends on the
+ *    core script handles an optional wp-deps.json sidecar (written by the build,
+ *    next to the manifest) lists for it. Scripts are tagged as ES modules via a
+ *    script_loader_tag filter.
  *
+ * @since 1.1.0 Reads core-script dependencies from the wp-deps.json sidecar.
  * @since 1.0.0
  */
 final class Vite
 {
+    /**
+     * @since 1.1.0
+     */
+    private const DEPS_SIDECAR = 'wp-deps.json';
+
     /**
      * @since 1.0.0
      *
      * @var array<string, mixed>|null
      */
     private ?array $manifestCache = null;
+
+    /**
+     * @since 1.1.0
+     *
+     * @var array<string, mixed>|null
+     */
+    private ?array $depsCache = null;
 
     /**
      * @since 1.0.0
@@ -117,6 +132,7 @@ final class Vite
     }
 
     /**
+     * @since 1.1.0 Merges the entry's sidecar dependencies into $deps.
      * @since 1.0.0
      *
      * @param list<string> $deps
@@ -139,7 +155,7 @@ final class Vite
         $styles = array_values(array_unique($this->collectStyles($entry, $manifest, [])));
 
         foreach ($styles as $style) {
-            // Derive the style handle from the content-hashed filename so a CSS
+            // Derive the style handle from the output filename so a CSS
             // chunk shared by multiple entries collapses to a single <link>
             // (WordPress dedupes styles by handle, not by URL).
             $styleHandle = $this->handlePrefix . '-' . sanitize_title(pathinfo($style, PATHINFO_FILENAME));
@@ -147,7 +163,28 @@ final class Vite
         }
 
         $this->registerModuleHandle($handle);
+        $deps = array_values(array_unique([...$deps, ...$this->coreDeps($entry)]));
         wp_enqueue_script($handle, $this->buildUrl . '/' . $chunk['file'], $deps, $this->version, $inFooter);
+    }
+
+    /**
+     * Core script handles (react, wp-i18n, …) the build left external for an entry.
+     * No sidecar, or no key for the entry, means none.
+     *
+     * @since 1.1.0
+     *
+     * @return list<string>
+     */
+    private function coreDeps(string $entry): array
+    {
+        $this->depsCache ??= $this->readBuildJson(self::DEPS_SIDECAR) ?? [];
+        $deps              = $this->depsCache[$entry] ?? [];
+
+        if (! is_array($deps) || ! array_is_list($deps) || array_filter($deps, 'is_string') !== $deps) {
+            throw new ViteException(sprintf('Vite deps sidecar has no list of script handles for "%s".', $entry));
+        }
+
+        return $deps;
     }
 
     /**
@@ -204,6 +241,7 @@ final class Vite
     }
 
     /**
+     * @since 1.1.0 Tags only the entry's own <script id="{handle}-js">.
      * @since 1.0.0
      */
     public function filterModuleTag(string $tag, string $handle, string $src): string
@@ -214,35 +252,50 @@ final class Vite
             return $tag;
         }
 
-        if (str_contains($tag, ' type="module"') || str_contains($tag, " type='module'")) {
-            return $tag;
-        }
+        // Only the entry's own tag becomes a module. The bundle also holds the handle's
+        // translations and before/after inline scripts: they must stay classic so they
+        // run ahead of the deferred module, which reads its locale data from them.
+        $entryTag = '/<script\b[^>]*\sid=(["\'])' . preg_quote($handle . '-js', '/') . '\1[^>]*>/';
 
-        // Transform the existing tag instead of rebuilding it, so inline scripts
-        // (wp_add_inline_script), translations, CSP nonces and defer/async
-        // attributes that WordPress or other plugins attached are preserved.
-        $tag = (string) preg_replace('/\s+type=("|\')(?:.*?)\1/', '', $tag);
+        return (string) preg_replace_callback(
+            $entryTag,
+            static function (array $match): string {
+                if (preg_match('/\stype=(["\'])module\1/', $match[0]) === 1) {
+                    return $match[0];
+                }
 
-        return (string) preg_replace('/<script\b/', '<script type="module"', $tag, 1);
+                $open = (string) preg_replace('/\s+type=("|\')(?:.*?)\1/', '', $match[0]);
+
+                return (string) preg_replace('/^<script\b/', '<script type="module"', $open);
+            },
+            $tag,
+            1
+        );
     }
 
     /**
+     * @since 1.1.0 An unparsable manifest throws instead of being skipped.
      * @since 1.0.0
      *
      * @return array<string, mixed>
      */
     private function manifest(): array
     {
-        if ($this->manifestCache !== null) {
-            return $this->manifestCache;
-        }
+        return $this->manifestCache ??= $this->readBuildJson('manifest.json')
+            ?? throw new ViteException('Vite build manifest not found. Run "npm run build".');
+    }
 
-        $candidates = [
-            $this->buildPath . '/.vite/manifest.json',
-            $this->buildPath . '/manifest.json',
-        ];
-
-        foreach ($candidates as $candidate) {
+    /**
+     * Decodes a JSON file the build wrote to .vite/ (Vite 5+) or the build root.
+     * Null when neither exists.
+     *
+     * @since 1.1.0
+     *
+     * @return array<string, mixed>|null
+     */
+    private function readBuildJson(string $name): ?array
+    {
+        foreach ([$this->buildPath . '/.vite/' . $name, $this->buildPath . '/' . $name] as $candidate) {
             if (! is_file($candidate)) {
                 continue;
             }
@@ -250,18 +303,20 @@ final class Vite
             $json    = file_get_contents($candidate);
             $decoded = is_string($json) ? json_decode($json, true) : null;
 
-            if (is_array($decoded)) {
-                $manifest = [];
-
-                foreach ($decoded as $key => $value) {
-                    $manifest[(string) $key] = $value;
-                }
-
-                return $this->manifestCache = $manifest;
+            if (! is_array($decoded)) {
+                throw new ViteException(sprintf('Vite build file "%s" is not a JSON object.', $name));
             }
+
+            $data = [];
+
+            foreach ($decoded as $key => $value) {
+                $data[(string) $key] = $value;
+            }
+
+            return $data;
         }
 
-        throw new ViteException('Vite build manifest not found. Run "npm run build".');
+        return null;
     }
 
     /**

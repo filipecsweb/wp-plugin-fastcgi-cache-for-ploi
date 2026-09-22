@@ -13,7 +13,9 @@ test.describe('Connection', () => {
     await expect(settings.connectButton).toBeVisible()
     await expect(settings.tokenInput).toBeEnabled()
 
-    await settings.connect(TOKENS.good)
+    // Enter submits like the Connect button, which the rejection cases below click.
+    await settings.tokenInput.fill(TOKENS.good)
+    await settings.tokenInput.press('Enter')
 
     // Durable outcome (the success toast auto-dismisses, so don't rely on it).
     await expect(settings.disconnectButton).toBeVisible()

@@ -48,6 +48,8 @@ done < <(
     'src/*.php' \
     'resources/views/*.php' \
     'resources/js/*.js' \
+    'resources/js/*.ts' \
+    'resources/js/*.tsx' \
     'fastcgi-cache-for-ploi.php' \
     'uninstall.php'
 )

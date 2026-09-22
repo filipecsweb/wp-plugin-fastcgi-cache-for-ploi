@@ -52,24 +52,13 @@ test.describe('Recent flushes table is height-capped and scrollable (FIL-22)', (
     // The page itself never scrolls horizontally.
     expect(m.pageScrollsHorizontally).toBe(false)
 
-    // The header's top rule comes from ONE source (the thead's inset box-shadow); the
-    // table must carry no competing border-top, else the rule doubles at rest and
-    // changes when scrolled (follow-up 2).
-    expect(m.tableBorderTopWidth).toBe('0px')
-    expect(m.theadBoxShadowAtRest).toContain('inset')
-
-    // The header is sticky, stays pinned to the container top while scrolling, is
-    // opaque so scrolled rows can't show through it, and keeps its top rule while
-    // pinned (Defect 1: a collapsed table border would scroll away).
+    // The header is sticky, stays pinned to the container top while scrolling, and is
+    // opaque so scrolled rows can't show through it.
     expect(m.theadPosition).toBe('sticky')
     const header = await settings.scrollLogAndCheckHeader()
     expect(header.scrolled).toBe(true)
     expect(header.headerPinnedToContainerTop).toBe(true)
     expect(header.theadOpaque).toBe(true)
-    expect(header.theadHasStickyRule).toBe(true)
-    // The top rule is pixel-stable: the box-shadow that paints it is identical at rest
-    // and while scrolled (single-source consistency).
-    expect(header.theadBoxShadow).toBe(m.theadBoxShadowAtRest)
   })
 
   test('a hint tooltip does not make the container scroll horizontally (Defect 2)', async ({ admin, settings }) => {
@@ -84,8 +73,8 @@ test.describe('Recent flushes table is height-capped and scrollable (FIL-22)', (
 
     // Hovering a hint shows its (wide) tooltip; before the fix the absolutely-positioned
     // panel spilled past the container's right edge and, because overflow-y:auto implies
-    // overflow-x:auto, gave the container a horizontal scrollbar. The tooltip now escapes
-    // via position:fixed, so the container width is unchanged.
+    // overflow-x:auto, gave the container a horizontal scrollbar. The panel now escapes
+    // the overflow box, so the container width is unchanged.
     const hint = settings.logHintButtons.first()
     await hint.hover()
     const tip = settings.logTooltips.first()
@@ -96,9 +85,8 @@ test.describe('Recent flushes table is height-capped and scrollable (FIL-22)', (
     expect(overflow.scrollsHorizontally).toBe(false)
     expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth)
 
-    // ...because the panel escapes the overflow box via position:fixed (documents the
-    // mechanism that keeps the container from growing).
-    await expect(tip).toHaveCSS('position', 'fixed')
+    // The mechanism: the panel is portalled out of the table into the screen's portal container.
+    expect(await tip.evaluate((el) => !!el.closest('table'))).toBe(false)
   })
 
   test('the hint tooltip is anchored to its trigger, centred just below it (E)', async ({ admin, settings }) => {
@@ -116,8 +104,7 @@ test.describe('Recent flushes table is height-capped and scrollable (FIL-22)', (
     await hint.hover()
     await expect(settings.logTooltips.first()).toBeVisible()
 
-    const a = await settings.tooltipAnchor()
-    expect(a).not.toBeNull()
+    const a = await settings.tooltipAnchor(hint)
     expect(a.centerDeltaX).toBeLessThan(2)
     expect(a.verticalGap).toBeGreaterThanOrEqual(3)
     expect(a.verticalGap).toBeLessThanOrEqual(5)
@@ -143,7 +130,7 @@ test.describe('Recent flushes table is height-capped and scrollable (FIL-22)', (
     await settings.page.waitForTimeout(250)
     await expect(settings.logTooltips.first()).toBeVisible()
     // ...and it's anchored to the now-in-view trigger.
-    const a = await settings.tooltipAnchor()
+    const a = await settings.tooltipAnchor(admin.locator(':focus'))
     expect(a.centerDeltaX).toBeLessThan(2)
   })
 

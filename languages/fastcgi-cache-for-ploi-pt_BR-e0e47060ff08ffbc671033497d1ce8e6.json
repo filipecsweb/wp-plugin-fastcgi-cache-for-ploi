@@ -1,0 +1,204 @@
+{
+    "translation-revision-date": "2026-07-08T04:10:00+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "public\/build\/main.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "pt_BR",
+                "plural-forms": "nplurals=2; plural=(n > 1);"
+            },
+            "Version %s": [
+                "Vers\u00e3o %s"
+            ],
+            "Ploi is a trademark of its respective owner. This plugin is not affiliated with or endorsed by Ploi.": [
+                "Ploi \u00e9 uma marca registrada de seu respectivo propriet\u00e1rio. Este plugin n\u00e3o \u00e9 afiliado \u00e0 Ploi nem endossado por ela."
+            ],
+            "Recent flushes": [
+                "Limpezas recentes"
+            ],
+            "Refresh": [
+                "Atualizar"
+            ],
+            "No flushes recorded yet.": [
+                "Nenhuma limpeza registrada at\u00e9 agora."
+            ],
+            "When": [
+                "Quando"
+            ],
+            "Trigger": [
+                "Gatilho"
+            ],
+            "Target": [
+                "Destino"
+            ],
+            "Result": [
+                "Resultado"
+            ],
+            "Duration": [
+                "Dura\u00e7\u00e3o"
+            ],
+            "Success": [
+                "Sucesso"
+            ],
+            "Failed": [
+                "Falhou"
+            ],
+            "Close": [
+                "Fechar"
+            ],
+            "Reconnect required.": [
+                "Reconex\u00e3o necess\u00e1ria."
+            ],
+            "Harden your token's encryption key": [
+                "Reforce a chave de criptografia do seu token"
+            ],
+            "Your WordPress security keys (salts) aren't defined in <code>wp-config.php<\/code>. Define them \u2014 or add a dedicated key \u2014 so the key that encrypts your token lives in <code>wp-config.php<\/code>, separate from your database: <code>define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '\u2026' );<\/code>": [
+                "As chaves de seguran\u00e7a (salts) do WordPress n\u00e3o est\u00e3o definidas no <code>wp-config.php<\/code>. Defina-as \u2014 ou adicione uma chave dedicada \u2014 para que a chave que criptografa seu token fique no <code>wp-config.php<\/code>, separada do banco de dados: <code>define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '\u2026' );<\/code>"
+            ],
+            "Saving\u2026": [
+                "Salvando\u2026"
+            ],
+            "Save settings": [
+                "Salvar configura\u00e7\u00f5es"
+            ],
+            "Connection": [
+                "Conex\u00e3o"
+            ],
+            "Connecting validates your token with Ploi and stores it encrypted; a saved token is never shown again. Disconnect to enter a different one.": [
+                "Ao conectar, seu token \u00e9 validado na Ploi e armazenado criptografado; um token salvo nunca \u00e9 exibido novamente. Desconecte para informar outro."
+            ],
+            "Ploi API token": [
+                "Token da API da Ploi"
+            ],
+            "Connected \u2014 disconnect to enter a new token": [
+                "Conectado \u2014 desconecte para informar um novo token"
+            ],
+            "Enter your Ploi API token": [
+                "Informe seu token da API da Ploi"
+            ],
+            "Connecting\u2026": [
+                "Conectando\u2026"
+            ],
+            "Connect": [
+                "Conectar"
+            ],
+            "Disconnecting\u2026": [
+                "Desconectando\u2026"
+            ],
+            "Disconnect": [
+                "Desconectar"
+            ],
+            "Paste a Ploi API token to connect. Create one in %1$s (%2$sopen \u2197%3$s) and name it something like %4$s so it's easy to find and revoke later.": [
+                "Cole um token da API da Ploi para conectar. Crie um em %1$s (%2$sabrir \u2197%3$s) e d\u00ea a ele um nome como %4$s para facilitar encontr\u00e1-lo e revog\u00e1-lo depois."
+            ],
+            "Ploi \u2192 API keys": [
+                "Ploi \u2192 API keys"
+            ],
+            "FastCGI Cache \u2014 yoursite.com": [
+                "FastCGI Cache \u2014 seusite.com.br"
+            ],
+            "Flush target (Server and Site)": [
+                "Destino da limpeza (servidor e site)"
+            ],
+            "Currently flushing:": [
+                "Destino atual:"
+            ],
+            "Change": [
+                "Alterar"
+            ],
+            "Select target": [
+                "Selecionar destino"
+            ],
+            "Flushing\u2026": [
+                "Limpando\u2026"
+            ],
+            "Flush now": [
+                "Limpar agora"
+            ],
+            "Flush automatically when\u2026": [
+                "Limpar automaticamente quando\u2026"
+            ],
+            "Change flush target": [
+                "Alterar destino da limpeza"
+            ],
+            "Settings sections": [
+                "Se\u00e7\u00f5es de configura\u00e7\u00f5es"
+            ],
+            "Server": [
+                "Servidor"
+            ],
+            "\u2014 Select a server \u2014": [
+                "\u2014 Selecione um servidor \u2014"
+            ],
+            "No servers found for this token.": [
+                "Nenhum servidor encontrado para este token."
+            ],
+            "Site": [
+                "Site"
+            ],
+            "\u2014 Select a site \u2014": [
+                "\u2014 Selecione um site \u2014"
+            ],
+            "Choose a server first.": [
+                "Escolha um servidor primeiro."
+            ],
+            "Cancel": [
+                "Cancelar"
+            ],
+            "Save target": [
+                "Salvar destino"
+            ],
+            "Dismiss this notice.": [
+                "Dispensar este aviso."
+            ],
+            "Settings": [
+                "Configura\u00e7\u00f5es"
+            ],
+            "Logs": [
+                "Registros"
+            ],
+            "Settings saved.": [
+                "Configura\u00e7\u00f5es salvas."
+            ],
+            "Connected to Ploi. Now choose a flush target.": [
+                "Conectado \u00e0 Ploi. Agora escolha um destino de limpeza."
+            ],
+            "Flush target updated.": [
+                "Destino da limpeza atualizado."
+            ],
+            "Token removed. Add a new token to reconnect.": [
+                "Token removido. Adicione um novo token para reconectar."
+            ],
+            "Something went wrong. Please try again.": [
+                "Algo deu errado. Tente novamente."
+            ],
+            "Add a Ploi API token first.": [
+                "Adicione um token da API da Ploi primeiro."
+            ],
+            "Your saved token could not be read \u2014 your site's security keys may have changed. Re-enter your Ploi API token and click Connect.": [
+                "Seu token salvo n\u00e3o p\u00f4de ser lido \u2014 as chaves de seguran\u00e7a do seu site podem ter mudado. Informe novamente seu token da API da Ploi e clique em Conectar."
+            ],
+            "Ploi rejected your saved token. Re-enter a valid Ploi API token and click Connect.": [
+                "A Ploi rejeitou seu token salvo. Informe um token v\u00e1lido da API da Ploi e clique em Conectar."
+            ],
+            "Your saved token is missing a required permission. Re-enter a token with the Servers and Sites scopes and click Connect.": [
+                "Seu token salvo n\u00e3o tem uma permiss\u00e3o necess\u00e1ria. Informe um token com os escopos Servers e Sites e clique em Conectar."
+            ],
+            "Couldn't reach Ploi right now. Try again in a moment.": [
+                "N\u00e3o foi poss\u00edvel conectar \u00e0 Ploi agora. Tente novamente em instantes."
+            ],
+            "The saved server no longer exists in Ploi. Choose a new server and site.": [
+                "O servidor salvo n\u00e3o existe mais na Ploi. Escolha um novo servidor e site."
+            ],
+            "The saved site no longer exists in Ploi. Choose another site.": [
+                "O site salvo n\u00e3o existe mais na Ploi. Escolha outro site."
+            ],
+            "Notifications": [
+                "Notifica\u00e7\u00f5es"
+            ]
+        }
+    }
+}

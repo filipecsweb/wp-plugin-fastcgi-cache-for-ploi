@@ -8,6 +8,7 @@ use FastCgiCacheForPloi\Providers\RestServiceProvider;
 use FastCgiCacheForPloi\Module\AdminUi\AdminPage;
 
 /**
+ * @since 1.1.0 Prints only the React screen's mount; the PHP views and their helpers are gone.
  * @since 1.0.0
  */
 final class SettingsPage extends AdminPage
@@ -18,28 +19,12 @@ final class SettingsPage extends AdminPage
     public const SLUG = 'fastcgi-cache-for-ploi';
 
     /**
-     * Tab keys. Single source of truth for the screen's two tabs — the view
-     * renders the nav + panels from these, the Alpine store keys its panels off
-     * them, and the URL hash uses them (#settings / #logs).
+     * Mount element of the React screen. CONTRACT: resources/js/app/main.tsx mounts
+     * on this id and resources/css/app.css scopes its reset to it.
      *
-     * @since 1.0.0
+     * @since 1.1.0
      */
-    public const TAB_SETTINGS = 'settings';
-    /**
-     * @since 1.0.0
-     */
-    public const TAB_LOGS     = 'logs';
-
-    /**
-     * @since 1.0.0
-     */
-    public function __construct(
-        private readonly string $viewPath,
-        private readonly string $footerPath,
-        private readonly string $pluginName,
-        private readonly string $version,
-    ) {
-    }
+    public const APP_ROOT_ID = 'fastcgi-cache-for-ploi-app';
 
     /**
      * @since 1.0.0
@@ -93,32 +78,6 @@ final class SettingsPage extends AdminPage
     }
 
     /**
-     * i18n: safe to call __() here — only invoked at render/enqueue, well after
-     * init.
-     *
-     * @since 1.0.0
-     *
-     * @return list<array{key: string, label: string}>
-     */
-    public function tabs(): array
-    {
-        return [
-            ['key' => self::TAB_SETTINGS, 'label' => __('Settings', 'fastcgi-cache-for-ploi')],
-            ['key' => self::TAB_LOGS, 'label' => __('Logs', 'fastcgi-cache-for-ploi')],
-        ];
-    }
-
-    /**
-     * @since 1.0.0
-     *
-     * @return list<string>
-     */
-    public function tabKeys(): array
-    {
-        return array_column($this->tabs(), 'key');
-    }
-
-    /**
      * Prepends a Settings link to the plugin's row on the Plugins screen,
      * matching core's convention of listing it before Deactivate.
      *
@@ -140,48 +99,19 @@ final class SettingsPage extends AdminPage
     }
 
     /**
+     * The heading and description stay outside the mount as ordinary wp-admin
+     * chrome; React renders everything inside it.
+     *
+     * @since 1.1.0 Prints the React mount instead of requiring a view.
      * @since 1.0.0
      */
     protected function renderBody(): void
     {
-        require $this->viewPath;
-    }
-
-    /**
-     * CONTRACT: $name must be a trusted internal literal — it is require'd,
-     * never sanitized.
-     *
-     * @since 1.0.0
-     *
-     * @param array<string, mixed> $data
-     */
-    protected function partial(string $name, array $data = []): void
-    {
-        extract($data, EXTR_OVERWRITE);
-        require dirname($this->viewPath) . '/partials/' . $name . '.php';
-    }
-
-    /**
-     * @since 1.0.0
-     */
-    public function renderFooter(): void
-    {
-        require $this->footerPath;
-    }
-
-    /**
-     * @since 1.0.0
-     */
-    protected function footerName(): string
-    {
-        return $this->pluginName;
-    }
-
-    /**
-     * @since 1.0.0
-     */
-    protected function footerVersion(): string
-    {
-        return $this->version;
+        printf(
+            '<div class="wrap"><h1>%s</h1><p class="description">%s</p><div id="%s"></div></div>',
+            esc_html($this->pageTitle()),
+            esc_html__('Automatically flush your Ploi-managed site\'s FastCGI cache when content changes.', 'fastcgi-cache-for-ploi'),
+            esc_attr(self::APP_ROOT_ID)
+        );
     }
 }

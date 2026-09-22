@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace FastCgiCacheForPloi\Module\AdminUi;
 
 use FastCgiCacheForPloi\Foundation\Assets\Vite;
+use FastCgiCacheForPloi\Foundation\I18n\TextDomain;
 
 /**
- * Enqueues a Vite-built admin bundle, scoped to a single admin screen.
- *
- * Scoping to one hook suffix is what keeps the Tailwind bundle off every other
- * wp-admin page. Combined with the admin-ui module's Tailwind v4 setup
- * (preflight excluded, tw: prefix, utilities in a low-priority cascade layer),
- * wp-admin styling stays untouched.
+ * Enqueues a Vite-built admin bundle, scoped to a single admin screen, so it
+ * never loads on any other wp-admin page.
  *
  * @since 1.0.0
  */
@@ -26,6 +23,7 @@ final class AdminAssets
     }
 
     /**
+     * @since 1.1.0 Registers the script's translations when a text domain is passed.
      * @since 1.0.0
      *
      * @param array<string, mixed> $localize Data exposed to JS as a global object.
@@ -36,13 +34,15 @@ final class AdminAssets
         string $entry,
         string $handle,
         string $localizeObject = '',
-        array $localize = []
+        array $localize = [],
+        ?TextDomain $textDomain = null
     ): void {
         if ($pageHookSuffix === '' || $currentHookSuffix !== $pageHookSuffix) {
             return;
         }
 
         $this->vite->enqueueScript($entry, $handle);
+        $textDomain?->loadForScript($handle);
 
         if ($localizeObject !== '' && $localize !== []) {
             // Printed as a classic inline script before the module, so the module

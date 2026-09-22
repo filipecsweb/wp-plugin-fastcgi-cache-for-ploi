@@ -19,7 +19,7 @@
     <arg name="parallel" value="8"/>
 
     <config name="testVersion" value="8.2-"/>
-    <config name="minimum_wp_version" value="6.5"/>
+    <config name="minimum_wp_version" value="6.6"/>
 
     <!-- Modern OOP formatting baseline. -->
     <rule ref="PSR12">

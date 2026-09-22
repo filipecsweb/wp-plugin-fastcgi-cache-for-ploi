@@ -50,7 +50,7 @@ test.describe('Flush target', () => {
     const altServer = await settings.selectServerWithSites(baseline.serverId)
     // Switching server cleared the held site and reloaded the list for the new server.
     expect(altServer).not.toBe(String(baseline.serverId))
-    expect((await settings.state()).siteId).toBe('')
+    expect((await settings.modalState()).siteId).toBe('')
     await expect(settings.serverSelect).toHaveValue(altServer)
 
     await settings.siteSelect.selectOption({ index: 1 })

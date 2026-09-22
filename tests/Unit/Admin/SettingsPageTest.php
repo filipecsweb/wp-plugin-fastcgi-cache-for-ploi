@@ -8,7 +8,6 @@ use Brain\Monkey\Functions;
 use FastCgiCacheForPloi\Admin\SettingsPage;
 
 beforeEach(function (): void {
-    Functions\when('__')->returnArg(1);
     Functions\when('esc_html__')->returnArg(1);
     Functions\when('esc_url')->returnArg(1);
     Functions\when('add_query_arg')->alias(
@@ -16,7 +15,7 @@ beforeEach(function (): void {
     );
     Functions\when('admin_url')->alias(fn (string $path): string => 'https://example.test/wp-admin/' . $path);
 
-    $this->page = new SettingsPage('view.php', 'footer.php', 'FastCGI Cache for Ploi', '1.0.0');
+    $this->page = new SettingsPage();
 });
 
 it('prepends a Settings link pointing at the settings page', function (): void {

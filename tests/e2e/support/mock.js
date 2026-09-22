@@ -7,3 +7,10 @@ export const jsonRoute = (page, glob, payload, status = 200) =>
   page.route(glob, (route) =>
     route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(payload) })
   )
+
+/**
+ * Fulfil with a WP_Error as WordPress's REST server sends it: the status travels in
+ * the body's `data` too, which is where core's apiFetch reads it from.
+ */
+export const wpErrorRoute = (page, glob, code, message, status) =>
+  jsonRoute(page, glob, { code, message, data: { status } }, status)

@@ -1,0 +1,104 @@
+/**
+ * React settings screen. Tailwind v4 with the `tw` prefix, everything else scoped
+ * to the #fastcgi-cache-for-ploi-app mount so wp-admin outside it stays untouched.
+ *
+ * GOTCHA (cascade): for normal declarations unlayered beats layered, and the order
+ * inverts for !important. So the scoped reset below is unlayered and never
+ * !important (it beats wp-admin's rules by its id), while the utilities are layered
+ * and `important` (they beat both the reset and wp-admin).
+ */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme) prefix(tw);
+/* source(none): auto-detection would also scrape class names out of Markdown and dist/. */
+@import "tailwindcss/utilities.css" layer(utilities) prefix(tw) important source(none);
+@import "tw-animate-css";
+
+@source "../js/app";
+@source "../js/ui";
+
+/* Never matches in wp-admin: neutralizes the tw:dark: classes shadcn components ship. */
+@custom-variant dark (&:is(.dark *));
+
+/* shadcn's orientation variants (its tailwind.css is not imported): Base UI renders data-orientation, not data-horizontal. */
+@custom-variant data-horizontal (&:where([data-orientation="horizontal"]));
+@custom-variant data-vertical (&:where([data-orientation="vertical"]));
+
+@theme inline {
+    --font-sans: ui-sans-serif, system-ui, sans-serif;
+    --font-heading: var(--font-sans);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * Drops every wp-admin rule inside the mount. GOTCHA: :where() keeps this at
+ * (1,0,0) so the preflight below still wins; without it :not(svg, svg *) raises it
+ * to (1,0,1). SVGs are excluded, or `all: revert` wipes their presentation attributes.
+ */
+#fastcgi-cache-for-ploi-app :where(:not(svg, svg *)),
+#fastcgi-cache-for-ploi-app :where(:not(svg, svg *))::before,
+#fastcgi-cache-for-ploi-app :where(:not(svg, svg *))::after {
+    all: revert;
+}
+
+#fastcgi-cache-for-ploi-app {
+    @import "tailwindcss/preflight.css";
+}
+
+#fastcgi-cache-for-ploi-app {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --radius: 0.625rem;
+
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--foreground);
+}
+
+#fastcgi-cache-for-ploi-app *,
+#fastcgi-cache-for-ploi-app ::before,
+#fastcgi-cache-for-ploi-app ::after {
+    border-color: var(--border);
+    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+}
