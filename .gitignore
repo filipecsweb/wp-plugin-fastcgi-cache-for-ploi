@@ -26,7 +26,6 @@
 /test-results/
 /playwright-report/
 /playwright/.cache/
-/.playwright-cli/
 
 # Local / OS
 .DS_Store
