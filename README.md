@@ -148,14 +148,15 @@ WP_PLUGIN_PATH=/abs/path/to/site/wp-content/plugins/fastcgi-cache-for-ploi
 npm run e2e
 ```
 
-The site needs the pt_BR core language pack (`wp language core install pt_BR`): one
-spec switches the user's locale to prove the bundled translations load.
+Prepare the site once with `tests/e2e/setup-site.sh <WordPress path>`: it installs
+the pt_BR core language pack, which one spec needs to prove the bundled translations load.
 
 CI provisions its own WordPress from scratch with WP-CLI (`wp core download/install`
 + a symlinked plugin + the PHP built-in server) — see `.github/workflows/ci.yml` —
-once per WordPress version it supports: the minimum and the latest. The Ploi-backed
-specs read the `PLOI_API_TOKEN_*` tokens from the repository's Actions secrets and
-skip when they are missing.
+once per WordPress version it supports: the plugin header's `Requires at least` and the latest. The Ploi-backed
+specs read the `PLOI_API_TOKEN_*` tokens from the repository's Actions secrets, each
+stored with an `E2E_` prefix (`E2E_PLOI_API_TOKEN_…`, which CI strips), and skip when
+they are missing. CI runs `tests/e2e/setup-site.sh` on each fresh install.
 The full quality gate (`composer qa` across PHP 8.2/8.3/8.4, asset build, and this
 E2E job) runs there on every push.
 

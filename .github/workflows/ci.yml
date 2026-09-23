@@ -59,24 +59,41 @@ jobs:
           cache: npm
 
       - run: npm ci
+      # CONTRACT: qa:js is the plugin's JS gate (typecheck, lint, tests, whatever it
+      # has), and it ends with a production build.
       - run: npm run qa:js
 
       - name: Verify the build manifest exists
         run: test -f public/build/.vite/manifest.json
 
+  wp-versions:
+    name: WordPress versions
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.read.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+
+      # The plugin header's minimum plus the newest release, so raising
+      # "Requires at least" moves the E2E matrix with it.
+      - id: read
+        run: |
+          min="$(bin/check-version-consistency.sh --wp-min)"
+          echo "matrix=[\"$min\", \"latest\"]" >> "$GITHUB_OUTPUT"
+
   e2e:
     name: E2E (Playwright + real WordPress ${{ matrix.wp }})
+    needs: wp-versions
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # One at a time: both versions drive the same real Ploi account.
+      # One version at a time: the specs may share an external test account.
       max-parallel: 1
       matrix:
-        # The minimum supported WordPress (the first with react-jsx-runtime) and the newest.
-        wp: ['6.6', 'latest']
+        wp: ${{ fromJSON(needs.wp-versions.outputs.matrix) }}
     # A real WordPress served by WP-CLI + the PHP built-in server, with the plugin
     # symlinked in — the exact shape the e2e suite expects (WP_PLUGIN_PATH points at
-    # this checkout, WP_CLI_CWD drives the auto-flush/permission specs via `wp`).
+    # this checkout).
     services:
       mysql:
         image: mysql:8.0
@@ -129,14 +146,19 @@ jobs:
             --url="$WP_BASE_URL" --title="E2E" \
             --admin_user=admin --admin_password=password \
             --admin_email=admin@example.test --skip-email
-          # The bundled-translations spec switches the user to pt_BR, which core only allows for an installed language.
-          wp language core install pt_BR --path="$WP_DIR"
           wp core version --path="$WP_DIR"
 
       - name: Symlink the plugin and activate
         run: |
           ln -s "$GITHUB_WORKSPACE" "$WP_DIR/wp-content/plugins/fastcgi-cache-for-ploi"
           wp plugin activate fastcgi-cache-for-ploi --path="$WP_DIR"
+
+      # CONTRACT: whatever else the plugin's specs need from the site (language packs,
+      # options, fixtures) lives in the plugin's own tests/e2e/setup-site.sh, which
+      # gets the WordPress path as its only argument.
+      - name: Plugin site setup
+        if: hashFiles('tests/e2e/setup-site.sh') != ''
+        run: bash tests/e2e/setup-site.sh "$WP_DIR"
 
       - name: Start the PHP server
         run: |
@@ -154,18 +176,22 @@ jobs:
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
 
+      # CONTRACT: every E2E_<NAME> repository secret reaches the specs as <NAME>, and no
+      # other secret does. Each stays a secret of its own, so the runner still masks it.
+      - name: Export the E2E secrets
+        env:
+          SECRETS: ${{ toJSON(secrets) }}
+        run: |
+          jq -r 'to_entries[] | select(.key | startswith("E2E_"))
+            | "\(.key | ltrimstr("E2E_"))<<E2E_SECRET_EOF\n\(.value)\nE2E_SECRET_EOF"' \
+            <<< "$SECRETS" >> "$GITHUB_ENV"
+
       - name: Run E2E
         run: npm run e2e
         env:
           WP_PLUGIN_PATH: ${{ env.WP_DIR }}/wp-content/plugins/fastcgi-cache-for-ploi
-          WP_CLI_CWD: ${{ env.WP_DIR }}
           WP_ADMIN_USER: admin
           WP_ADMIN_PASS: password
-          # The Ploi-backed specs skip without these.
-          PLOI_API_TOKEN_GOOD_READ_SERVERS_AND_READ_SITES_SCOPE: ${{ secrets.PLOI_API_TOKEN_GOOD_READ_SERVERS_AND_READ_SITES_SCOPE }}
-          PLOI_API_TOKEN_BAD_ONLY_READ_SERVERS_SCOPE: ${{ secrets.PLOI_API_TOKEN_BAD_ONLY_READ_SERVERS_SCOPE }}
-          PLOI_API_TOKEN_BAD_ONLY_READ_SITES_SCOPE: ${{ secrets.PLOI_API_TOKEN_BAD_ONLY_READ_SITES_SCOPE }}
-          PLOI_API_TOKEN_BAD_NO_SCOPE_AT_ALL: ${{ secrets.PLOI_API_TOKEN_BAD_NO_SCOPE_AT_ALL }}
 
       - name: Upload the failure traces
         if: failure()

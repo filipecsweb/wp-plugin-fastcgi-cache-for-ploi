@@ -13,6 +13,7 @@
 #
 # Usage:
 #   bin/check-version-consistency.sh
+#   bin/check-version-consistency.sh --wp-min   # print the header's minimum WordPress and stop
 
 set -euo pipefail
 
@@ -54,6 +55,11 @@ php_min="$(header_value 'Requires PHP')"
 wp_min="$(header_value 'Requires at least')"
 [ -n "$php_min" ] || { echo "ERROR: no 'Requires PHP:' in $main_file" >&2; exit 1; }
 [ -n "$wp_min" ] || { echo "ERROR: no 'Requires at least:' in $main_file" >&2; exit 1; }
+
+if [ "${1:-}" = '--wp-min' ]; then
+  echo "$wp_min"
+  exit 0
+fi
 
 echo "Minimum PHP — $main_file header: $php_min"
 
