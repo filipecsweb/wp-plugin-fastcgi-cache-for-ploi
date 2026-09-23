@@ -66,7 +66,6 @@ jobs:
 
       - run: npm ci
       - run: npm run qa:js
-      - run: npm run build
 
       - name: Verify the build manifest exists
         run: test -f public/build/.vite/manifest.json
