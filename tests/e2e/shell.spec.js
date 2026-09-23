@@ -38,6 +38,26 @@ test.describe('settings shell', () => {
     await expect(settings.settingsTab).toHaveAttribute('aria-selected', 'false')
   })
 
+  test('keeps the desktop tabs and an inset card action at phone width', async ({ admin, settings }) => {
+    await admin.setViewportSize({ width: 480, height: 900 })
+
+    // WHY the landing tab: a clicked tab grows its bottom border through a transition, so measuring it races.
+    const tabList = admin.getByRole('tablist')
+    await expect(tabList).toHaveCSS('border-bottom-width', '1px')
+    const list = await tabList.boundingBox()
+    const active = await settings.settingsTab.boundingBox()
+    expect(active.y + active.height).toBeCloseTo(list.y + list.height, 1)
+
+    await settings.logsTab.click()
+    const insets = await settings.logRefreshButton.evaluate((button) => {
+      const header = button.closest('[data-slot="card-header"]')
+      const outer = header.getBoundingClientRect()
+      const inner = button.getBoundingClientRect()
+      return [inner.top - outer.top, outer.bottom - parseFloat(getComputedStyle(header).borderBottomWidth) - inner.bottom, outer.right - inner.right]
+    })
+    insets.forEach((inset) => expect(inset).toBeCloseTo(8, 1))
+  })
+
   test('leaves the wp-admin chrome untouched', async ({ admin }) => {
     const chromeStyles = () =>
       admin.evaluate(
