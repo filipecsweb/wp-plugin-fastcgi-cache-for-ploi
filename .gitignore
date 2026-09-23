@@ -4,6 +4,7 @@
 
 # Build output (run `composer install && npm install && npm run build`)
 /public/build/
+/resources/js/ui/cn-tables.js
 
 # Distributable archive (built into a staging dir; see .distignore)
 /dist/

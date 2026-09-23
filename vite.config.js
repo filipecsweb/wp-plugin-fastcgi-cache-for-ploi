@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
+import { cn } from 'cn/vite'
 import path from 'node:path'
 
 const WP_EXTERNAL = '\0wp-external:'
@@ -75,7 +76,11 @@ function wpExternals() {
 
 export default defineConfig({
   base: './',
-  plugins: [tailwindcss(), wpExternals()],
+  plugins: [
+    tailwindcss(),
+    cn({ content: ['resources/js/**/*.{ts,tsx}'], config: 'resources/js/ui/cn.config.mjs', out: 'resources/js/ui/cn-tables.js' }),
+    wpExternals(),
+  ],
   // The "@/…" imports: tsconfig.json's `paths` is their one definition.
   resolve: { tsconfigPaths: true },
   build: {
@@ -99,7 +104,5 @@ export default defineConfig({
   test: {
     include: ['tests/js/**/*.test.{ts,tsx}'],
     environment: 'jsdom',
-    // tests/js/ui/utils.test.ts reads the theme source; every other CSS import stays empty.
-    css: { include: [/resources\/css\/app\.css/] },
   },
 })
