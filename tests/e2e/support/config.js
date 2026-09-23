@@ -27,9 +27,11 @@ export const TOKENS = {
 }
 
 /**
- * Route-mock patterns for the mocked specs. The plugin's REST routes live under a
- * fixed namespace; the browser fetches them at `{site}/wp-json/<namespace>/<route>`,
- * with or without a query string (core's apiFetch appends `_locale=user`). These
+ * Route matchers for the mocked specs, each a `(url) => boolean` that page.route and a
+ * response filter both accept. The plugin's REST routes live under a fixed namespace;
+ * the browser fetches them at `{site}/wp-json/<namespace>/<route>`, or under plain
+ * permalinks (a fresh install, as in CI) at `?rest_route=%2F<namespace>%2F<route>`,
+ * so a matcher reads the decoded route from whichever carries it. These
  * match the UI's own fetch() calls. They do NOT match page.request (the harness's
  * REST client), which bypasses page.route — so a spec can mock the UI while the
  * harness still reads/writes real state.
@@ -37,7 +39,13 @@ export const TOKENS = {
 // NS mirrors the PHP source of truth (RestServiceProvider::NAMESPACE); any drift
 // is caught by these mocks no longer matching, which fails the mocked specs.
 export const NS = 'fastcgi-cache-for-ploi/v1'
-const route = (path) => new RegExp(`/${NS}/${path}(\\?.*)?$`)
+const route = (path) => {
+  const pattern = new RegExp(`/${NS}/${path}$`)
+  return (url) => {
+    const { pathname, searchParams } = new URL(url)
+    return pattern.test(searchParams.get('rest_route') ?? pathname)
+  }
+}
 export const MOCK = {
   connection: route('connection'),
   sites: route('servers/[^/]+/sites'),
