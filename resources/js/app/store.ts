@@ -121,7 +121,7 @@ export type Action =
   | { type: 'modal/close' }
   | { type: 'options/start' }
   | { type: 'options/loaded'; servers: Server[]; sites: Site[] }
-  | { type: 'sites/loaded'; sites: Site[] }
+  | { type: 'sites/loaded'; serverId: string; sites: Site[] }
   | { type: 'target/gone'; level: GoneLevel }
   | { type: 'target/server'; serverId: string }
   | { type: 'target/site'; siteId: string }
@@ -171,7 +171,8 @@ export function reducer(state: State, action: Action): State {
     case 'options/loaded':
       return { ...state, servers: action.servers, sites: action.sites, serversLoaded: true }
     case 'sites/loaded':
-      return { ...state, sites: action.sites }
+      // A reply for a server the user has since switched away from is dropped.
+      return action.serverId === state.target.serverId ? { ...state, sites: action.sites } : state
     case 'target/gone':
       // A gone server takes its site and the site list with it; a gone site keeps
       // the still-valid server and its live list.
@@ -223,7 +224,7 @@ export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Noti
 
   const loadSites = async (serverId: string): Promise<Site[]> => {
     if (!serverId) {
-      dispatch({ type: 'sites/loaded', sites: [] })
+      dispatch({ type: 'sites/loaded', serverId, sites: [] })
       return []
     }
     busy('sites', true)
@@ -233,7 +234,7 @@ export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Noti
     } catch (e) {
       route(e as ApiFailure)
     } finally {
-      dispatch({ type: 'sites/loaded', sites })
+      dispatch({ type: 'sites/loaded', serverId, sites })
       busy('sites', false)
     }
     return sites
