@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
 
+# Every job only reads the checkout; third-party install scripts run in these jobs.
+permissions:
+  contents: read
+
 # Supersede in-flight runs for the same ref when a newer push/PR-update arrives.
 concurrency:
   group: ci-${{ github.ref }}
@@ -148,17 +152,18 @@ jobs:
             --admin_email=admin@example.test --skip-email
           wp core version --path="$WP_DIR"
 
+      # CONTRACT: whatever else the plugin's specs need from the site (language packs,
+      # options, fixtures) lives in the plugin's own tests/e2e/setup-site.sh, which
+      # gets the WordPress path as its only argument. It runs before activation, so it
+      # can install the plugins a `Requires Plugins` header makes activation wait for.
+      - name: Plugin site setup
+        if: hashFiles('tests/e2e/setup-site.sh') != ''
+        run: bash tests/e2e/setup-site.sh "$WP_DIR"
+
       - name: Symlink the plugin and activate
         run: |
           ln -s "$GITHUB_WORKSPACE" "$WP_DIR/wp-content/plugins/fastcgi-cache-for-ploi"
           wp plugin activate fastcgi-cache-for-ploi --path="$WP_DIR"
-
-      # CONTRACT: whatever else the plugin's specs need from the site (language packs,
-      # options, fixtures) lives in the plugin's own tests/e2e/setup-site.sh, which
-      # gets the WordPress path as its only argument.
-      - name: Plugin site setup
-        if: hashFiles('tests/e2e/setup-site.sh') != ''
-        run: bash tests/e2e/setup-site.sh "$WP_DIR"
 
       - name: Start the PHP server
         run: |
@@ -178,6 +183,8 @@ jobs:
 
       # CONTRACT: every E2E_<NAME> repository secret reaches the specs as <NAME>, and no
       # other secret does. Each stays a secret of its own, so the runner still masks it.
+      # GOTCHA: toJSON(secrets) holds every secret this job can read, so credentials that
+      # must never reach it (the wp.org SVN pair) live in the deploy jobs' environment.
       - name: Export the E2E secrets
         env:
           SECRETS: ${{ toJSON(secrets) }}
@@ -193,8 +200,10 @@ jobs:
           WP_ADMIN_USER: admin
           WP_ADMIN_PASS: password
 
+      # WHY private only: a public repo's artifacts are world-readable, and a failure's
+      # output can hold what a spec typed or sent, the E2E secrets included.
       - name: Upload the failure traces
-        if: failure()
+        if: failure() && github.event.repository.private
         uses: actions/upload-artifact@v7
         with:
           name: e2e-results-${{ matrix.wp }}
