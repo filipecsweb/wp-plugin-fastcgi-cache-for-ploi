@@ -114,9 +114,7 @@ Consequences (each one has bitten):
 
 Definition of done for any UI change: a Vitest through `<App cfg api>` (`tests/js/app`,
 `mockApi()` from its fixtures), the E2E suite green on WordPress 6.6 and latest
-(`npm run e2e` against each site), and the screenshot baselines refreshed in CI
-(`tests/e2e/screenshots.spec.js`: CI-only Linux renders — run the workflow with
-*update screenshots* on and commit its artifact). The screenshots are the styling gate.
+(`npm run e2e` against each site).
 Dev loop: `npm run watch` (no dev server: the externals are build-only).
 
 <!-- contract:claude-contract-block -->
