@@ -43,7 +43,9 @@ const snapshot = (page) =>
   }, PLACEMENT.source)
 
 // The tabs fade their colours for 50 ms after a switch; a snapshot mid-fade would read the wrong ones.
-const settled = (page) => page.evaluate(() => Promise.all(document.getAnimations().map((animation) => animation.finished)))
+// Only the mount's own: another plugin's infinite animation elsewhere on the page never finishes.
+const settled = (page) =>
+  page.evaluate(() => Promise.all(document.getElementById('fastcgi-cache-for-ploi-app').getAnimations({ subtree: true }).map((animation) => animation.finished)))
 
 test.describe('style isolation', () => {
   for (const tab of ['settings', 'logs']) {
