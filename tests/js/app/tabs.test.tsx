@@ -49,4 +49,13 @@ describe('App tabs', () => {
     expect(window.location.hash).toBe('#logs')
     expect(window.history.length).toBe(entries)
   })
+
+  it('fades in a tab the user picks, not the one the page opens on', () => {
+    render(<App cfg={cfg} api={mockApi() as Api} />)
+    expect(screen.getByRole('tabpanel', { name: 'Settings' }).hasAttribute('data-starting-style')).toBe(false)
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Logs' }))
+
+    expect(screen.getByRole('tabpanel', { name: 'Logs' }).hasAttribute('data-starting-style')).toBe(true)
+  })
 })

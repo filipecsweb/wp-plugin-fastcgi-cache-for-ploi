@@ -20,7 +20,15 @@ test.describe('settings shell', () => {
   test('switches tabs and reopens the hash tab on reload', async ({ admin, settings }) => {
     await expect(settings.settingsTab).toHaveAttribute('aria-selected', 'true')
 
+    const fadedIn = admin.evaluate(
+      () =>
+        new Promise((resolve) => {
+          document.addEventListener('transitionrun', (e) => e.target.getAttribute('role') === 'tabpanel' && e.propertyName === 'opacity' && resolve(true))
+          setTimeout(() => resolve(false), 2000)
+        })
+    )
     await settings.logsTab.click()
+    expect(await fadedIn).toBe(true)
     await expect(settings.logsTab).toHaveAttribute('aria-selected', 'true')
     await expect(settings.settingsTab).toHaveAttribute('aria-selected', 'false')
     await expect(admin).toHaveURL(/#logs$/)
