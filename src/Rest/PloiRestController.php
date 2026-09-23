@@ -29,7 +29,7 @@ abstract class PloiRestController extends RestController
 
     /**
      * The canonical decrypt-failure -> reconnect error. The code + status are a
-     * contract the admin JS keys off (resources/js/settings/store.js), so they
+     * contract the admin JS keys off (resources/js/shared/errors.ts), so they
      * must stay in lockstep across every controller that can hit this path —
      * which is exactly why this lives here once.
      *
