@@ -9,16 +9,12 @@ namespace FastCgiCacheForPloi\Foundation\Assets;
 /**
  * Vendored Vite asset enqueuer (no external dependency).
  *
- * Two modes:
- *  - Dev: when a "hot" file exists in the build dir, assets are loaded from the
- *    running Vite dev server (with @vite/client for HMR).
- *  - Production: the build manifest is read and the JS entry plus its CSS
- *    (including imported chunks' CSS) are enqueued. The entry also depends on the
- *    core script handles an optional wp-deps.json sidecar (written by the build,
- *    next to the manifest) lists for it. Scripts are tagged as ES modules via a
- *    script_loader_tag filter.
+ * The build manifest is read and the JS entry plus its CSS (including imported
+ * chunks' CSS) are enqueued. The entry also depends on the core script handles an
+ * optional wp-deps.json sidecar (written by the build, next to the manifest) lists
+ * for it. Scripts are tagged as ES modules via a script_loader_tag filter.
  *
- * @since 1.1.0 Reads core-script dependencies from the wp-deps.json sidecar.
+ * @since 1.1.0 Reads core-script dependencies from the wp-deps.json sidecar; drops the dev-server mode.
  * @since 1.0.0
  */
 final class Vite
@@ -55,6 +51,7 @@ final class Vite
     private bool $moduleFilterAdded = false;
 
     /**
+     * @since 1.1.0 Drops the $devServer parameter.
      * @since 1.0.0
      */
     public function __construct(
@@ -62,82 +59,18 @@ final class Vite
         private readonly string $buildUrl,
         private readonly string $version = '',
         private readonly string $handlePrefix = 'vite',
-        private readonly string $devServer = 'http://localhost:5173',
     ) {
-    }
-
-    /**
-     * @since 1.0.0
-     */
-    public function isDev(): bool
-    {
-        return is_file($this->hotFile());
     }
 
     /**
      * Enqueue a JS entry (e.g. "resources/js/admin.js").
      *
+     * @since 1.1.0 Always enqueues the built entry, with its sidecar dependencies merged into $deps.
      * @since 1.0.0
      *
      * @param list<string> $deps
      */
     public function enqueueScript(string $entry, string $handle, array $deps = [], bool $inFooter = true): void
-    {
-        if ($this->isDev()) {
-            $this->enqueueDev($entry, $handle, $deps, $inFooter);
-
-            return;
-        }
-
-        $this->enqueueBuilt($entry, $handle, $deps, $inFooter);
-    }
-
-    /**
-     * Enqueue a standalone CSS entry. In dev the JS client injects styles, so
-     * this is a no-op there.
-     *
-     * @since 1.0.0
-     */
-    public function enqueueStyle(string $entry, string $handle): void
-    {
-        if ($this->isDev()) {
-            return;
-        }
-
-        $manifest = $this->manifest();
-        $chunk    = $manifest[$entry] ?? null;
-
-        if (is_array($chunk) && isset($chunk['file']) && is_string($chunk['file'])) {
-            wp_enqueue_style($handle, $this->buildUrl . '/' . $chunk['file'], [], $this->version);
-        }
-    }
-
-    /**
-     * @since 1.0.0
-     *
-     * @param list<string> $deps
-     */
-    private function enqueueDev(string $entry, string $handle, array $deps, bool $inFooter): void
-    {
-        $origin = $this->devOrigin();
-
-        $clientHandle = $handle . '-vite-client';
-        $this->registerModuleHandle($clientHandle);
-        // phpcs:ignore WordPress.WP.EnqueuedResourceParameters -- Dev-server asset (Vite HMR); this branch runs only when the build/hot file exists and is never present in a distributed build.
-        wp_enqueue_script($clientHandle, $origin . '/@vite/client', [], null, $inFooter);
-
-        $this->registerModuleHandle($handle);
-        // phpcs:ignore WordPress.WP.EnqueuedResourceParameters -- Dev-server asset (Vite HMR); this branch runs only when the build/hot file exists and is never present in a distributed build.
-        wp_enqueue_script($handle, $origin . '/' . ltrim($entry, '/'), $deps, null, $inFooter);
-    }
-
-    /**
-     * @since 1.1.0 Merges the entry's sidecar dependencies into $deps.
-     * @since 1.0.0
-     *
-     * @param list<string> $deps
-     */
-    private function enqueueBuilt(string $entry, string $handle, array $deps, bool $inFooter): void
     {
         $manifest = $this->manifest();
 
@@ -165,6 +98,22 @@ final class Vite
         $this->registerModuleHandle($handle);
         $deps = array_values(array_unique([...$deps, ...$this->coreDeps($entry)]));
         wp_enqueue_script($handle, $this->buildUrl . '/' . $chunk['file'], $deps, $this->version, $inFooter);
+    }
+
+    /**
+     * Enqueue a standalone CSS entry.
+     *
+     * @since 1.1.0 No longer a no-op when a dev server runs.
+     * @since 1.0.0
+     */
+    public function enqueueStyle(string $entry, string $handle): void
+    {
+        $manifest = $this->manifest();
+        $chunk    = $manifest[$entry] ?? null;
+
+        if (is_array($chunk) && isset($chunk['file']) && is_string($chunk['file'])) {
+            wp_enqueue_style($handle, $this->buildUrl . '/' . $chunk['file'], [], $this->version);
+        }
     }
 
     /**
@@ -317,24 +266,5 @@ final class Vite
         }
 
         return null;
-    }
-
-    /**
-     * @since 1.0.0
-     */
-    private function devOrigin(): string
-    {
-        $contents = (string) file_get_contents($this->hotFile());
-        $contents = trim($contents);
-
-        return $contents !== '' ? rtrim($contents, '/') : rtrim($this->devServer, '/');
-    }
-
-    /**
-     * @since 1.0.0
-     */
-    private function hotFile(): string
-    {
-        return $this->buildPath . '/hot';
     }
 }
