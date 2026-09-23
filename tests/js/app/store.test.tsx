@@ -94,7 +94,7 @@ describe('reducer', () => {
       { servers: [], sites: [], serversLoaded: false, targetGone: '', targetStale: true },
     ],
     ['options/loaded', open, { type: 'options/loaded', servers, sites }, { servers, sites, serversLoaded: true }],
-    ['sites/loaded', open, { type: 'sites/loaded', sites }, { sites }],
+    ['sites/loaded', open, { type: 'sites/loaded', serverId: 's1', sites }, { sites }],
     [
       'a gone server takes its site and the site list with it',
       loaded,
@@ -322,6 +322,19 @@ describe('actions', () => {
       expect(applied(reducer(initialState(cfg), { type: 'options/loaded', servers, sites })).sites).toEqual([])
       expect(notify).toHaveBeenCalledWith('error', 'flush_failed message')
       expect(busyTrail('sites')).toEqual([true, false])
+    })
+
+    it('keeps the last picked server’s list when an earlier reply lands after it', async () => {
+      let replyForS1: (reply: { sites: typeof sites }) => void = () => {}
+      api.mockReturnValueOnce(new Promise((resolve) => (replyForS1 = resolve)))
+      api.mockResolvedValueOnce({ sites })
+
+      const first = actions.selectServer('s1')
+      await actions.selectServer('s2')
+      replyForS1({ sites: [{ id: 'w9', domain: 'other.com' }] })
+      await first
+
+      expect(applied()).toMatchObject({ target: { serverId: 's2', siteId: '' }, sites })
     })
 
     it('escapes the server id in the path', async () => {
