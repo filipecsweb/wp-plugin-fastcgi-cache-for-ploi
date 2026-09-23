@@ -49,7 +49,13 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
 }
 
 function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
-  return <TabsPrimitive.Panel data-slot="tabs-content" className={cn("tw:outline-none", className)} {...props} />
+  return (
+    <TabsPrimitive.Panel
+      data-slot="tabs-content"
+      className={cn("tw:outline-none tw:transition-opacity tw:data-starting-style:opacity-0", className)}
+      {...props}
+    />
+  )
 }
 
 export { Tabs, TabsList, TabsTrigger, TabsContent }
