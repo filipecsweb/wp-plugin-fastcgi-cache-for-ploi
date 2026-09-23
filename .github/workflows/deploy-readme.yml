@@ -17,6 +17,8 @@ jobs:
   deploy-readme:
     name: Deploy readme to WordPress.org
     runs-on: ubuntu-latest
+    # The SVN credentials are the wporg environment's secrets, as in deploy.yml.
+    environment: wporg
     steps:
       - uses: actions/checkout@v5
 
