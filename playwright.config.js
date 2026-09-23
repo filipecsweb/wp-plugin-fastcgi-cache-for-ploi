@@ -34,7 +34,9 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: process.env.WP_BASE_URL || 'http://localhost:8888',
-    trace: 'on-first-retry',
+    // WHY not in CI: a trace records every filled value and request body, the Ploi
+    // tokens included, and CI keeps failure output as a downloadable artifact.
+    trace: process.env.CI ? 'off' : 'on-first-retry',
     // Local test sites (Herd/Valet) serve HTTPS with a locally-trusted CA the
     // bundled browser doesn't know about.
     ignoreHTTPSErrors: true,
