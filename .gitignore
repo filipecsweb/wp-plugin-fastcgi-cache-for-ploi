@@ -28,6 +28,8 @@
 /playwright/.cache/
 
 # Local / OS
+/.scratch/
+/.claude/skills/agent-browser
 .DS_Store
 *.log
 .idea/
