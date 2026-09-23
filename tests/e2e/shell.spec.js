@@ -1,5 +1,6 @@
 import { test, expect } from './support/fixtures.js'
-import { PLUGINS_PATH, SETTINGS_PATH } from './support/config.js'
+import { MOCK, PLUGINS_PATH, SETTINGS_PATH } from './support/config.js'
+import { wpErrorRoute } from './support/mock.js'
 
 // wp-admin chrome around the screen: toolbar, menu, page heading + description, footer.
 const CHROME = ['#wpadminbar', '#adminmenu a', '.wrap > h1', '.wrap > p.description', '#wpfooter']
@@ -70,6 +71,17 @@ test.describe('settings shell', () => {
     await admin.goto(SETTINGS_PATH)
     await expect(admin.locator('.ploi-cache-admin')).toBeVisible()
     await expect(notice).toHaveCount(0)
+  })
+
+  test('shows toasts at the top right, below the admin bar', async ({ admin, settings }) => {
+    await wpErrorRoute(admin, MOCK.log, 'rest_error', 'Log unavailable.', 500)
+    await settings.logsTab.click()
+    await settings.logRefreshButton.click()
+    await expect(settings.errorToast).toBeVisible()
+
+    const bar = await admin.locator('#wpadminbar').boundingBox()
+    const toast = await settings.errorToast.boundingBox()
+    expect(toast.y).toBeCloseTo(bar.y + bar.height + 16, 1)
   })
 
   test('leaves the wp-admin chrome untouched', async ({ admin }) => {
