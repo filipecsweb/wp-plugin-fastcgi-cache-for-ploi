@@ -159,11 +159,6 @@ skip when they are missing.
 The full quality gate (`composer qa` across PHP 8.2/8.3/8.4, asset build, and this
 E2E job) runs there on every push.
 
-**Screenshots:** `tests/e2e/screenshots.spec.js` compares the React screen against
-the Linux baselines in `tests/e2e/screenshots.spec.js-snapshots/`, so it runs in CI
-only. To refresh them after an intended visual change, run the CI workflow by hand
-with *update screenshots* on, download the `screenshots-*` artifacts and commit them.
-
 **Translations:** `languages/` ships the `.pot`, the pt_BR `.po`/`.mo`, and the JSON
 the React screen loads (`<domain>-<locale>-<md5 of public/build/main.js>.json`,
 which is why the built entry keeps a stable, unhashed name). After a string changes:

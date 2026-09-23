@@ -4,12 +4,6 @@ on:
   push:
     branches: [main]
   pull_request:
-  workflow_dispatch:
-    inputs:
-      update_snapshots:
-        description: 'Regenerate the screenshot baselines and upload them as artifacts to commit'
-        type: boolean
-        default: false
 
 # Supersede in-flight runs for the same ref when a newer push/PR-update arrives.
 concurrency:
@@ -161,26 +155,19 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run E2E
-        run: npm run e2e -- ${{ inputs.update_snapshots && '--update-snapshots' || '' }}
+        run: npm run e2e
         env:
           WP_PLUGIN_PATH: ${{ env.WP_DIR }}/wp-content/plugins/fastcgi-cache-for-ploi
           WP_CLI_CWD: ${{ env.WP_DIR }}
           WP_ADMIN_USER: admin
           WP_ADMIN_PASS: password
-          # The Ploi-backed specs (and four of the five screenshots) skip without these.
+          # The Ploi-backed specs skip without these.
           PLOI_API_TOKEN_GOOD_READ_SERVERS_AND_READ_SITES_SCOPE: ${{ secrets.PLOI_API_TOKEN_GOOD_READ_SERVERS_AND_READ_SITES_SCOPE }}
           PLOI_API_TOKEN_BAD_ONLY_READ_SERVERS_SCOPE: ${{ secrets.PLOI_API_TOKEN_BAD_ONLY_READ_SERVERS_SCOPE }}
           PLOI_API_TOKEN_BAD_ONLY_READ_SITES_SCOPE: ${{ secrets.PLOI_API_TOKEN_BAD_ONLY_READ_SITES_SCOPE }}
           PLOI_API_TOKEN_BAD_NO_SCOPE_AT_ALL: ${{ secrets.PLOI_API_TOKEN_BAD_NO_SCOPE_AT_ALL }}
 
-      - name: Upload the regenerated screenshot baselines
-        if: ${{ inputs.update_snapshots }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: screenshots-${{ matrix.wp }}
-          path: tests/e2e/screenshots.spec.js-snapshots/
-
-      - name: Upload traces and screenshot diffs
+      - name: Upload the failure traces
         if: failure()
         uses: actions/upload-artifact@v7
         with:
