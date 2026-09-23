@@ -40,22 +40,11 @@ exactly like first-party providers.
 |------------|----------------------|----------------------------|--------|
 | `admin-ui` | `modules/admin-ui/`  | `FastCgiCacheForPloi\Module\AdminUi\`  | ✅ Built |
 
-> **admin-ui targets Tailwind CSS v4.** Admin styling is scoped to the plugin's
-> own screen using the v4 **CSS-first** pattern: import only `theme.css` +
-> `utilities.css` with `@import "tailwindcss" prefix(tw)`, and **do not** import
-> `preflight.css`. Isolation from `wp-admin` relies on CSS **cascade-layer
-> ordering** plus the `tw:` variant-prefix on every utility (e.g. `tw:flex`).
-> The module uses the `@tailwindcss/vite` plugin — no `postcss.config.js`,
-> `tailwind.config.js`, `autoprefixer`, or `postcss` are required under v4.
->
-> **Cascade-layer caveat.** Because Tailwind's utilities live in `@layer
-> utilities`, they intentionally LOSE to wp-admin's *unlayered* styles — that is
-> exactly what keeps wp-admin untouched. The flip side: a `tw:` utility that
-> targets a property wp-admin already sets on the same element (e.g. `width` on
-> `.regular-text`, `margin` on a checkbox) becomes a no-op. Use the v4 important
-> variant (`tw:w-full!`) on those specific controls to win the cascade locally.
-> Utilities on your own elements (divs, sections, spans — which wp-admin never
-> styles) always apply and need no `!`.
+> **admin-ui ships no CSS of its own.** `AdminAssets` scopes a Vite-built bundle
+> (plus its core-script dependencies and JSON translations) to one screen; how that
+> bundle keeps wp-admin untouched is the plugin's call. This plugin's screen
+> (`resources/css/app.css`) scopes a full reset plus Tailwind v4 (`tw` prefix,
+> utilities `important`) to its React mount, so nothing outside the mount is restyled.
 
 ## Planned extension points (NOT implemented)
 

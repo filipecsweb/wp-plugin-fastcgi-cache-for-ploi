@@ -28,7 +28,7 @@ every one of its primitives.
 ## Requirements
 
 - PHP **8.2+** with the **sodium** extension (bundled in PHP 8.2+)
-- WordPress **6.5+**
+- WordPress **6.6+**
 - A Ploi account and API token
 - For development: Composer, Node (the version pinned in `.nvmrc`), and [Herd](https://herd.laravel.com) + [DBngin](https://dbngin.com)
 
@@ -40,7 +40,7 @@ dependencies are not committed — build them once:
 ```bash
 composer install --no-dev   # production autoloader (omit --no-dev for tooling)
 npm ci
-npm run build               # emits public/build/.vite/manifest.json + hashed assets
+npm run build               # emits public/build/ (entries + .vite/manifest.json)
 ```
 
 Then copy/symlink the plugin folder into your site's `wp-content/plugins/` and
@@ -73,9 +73,10 @@ activate it.
    define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '<a long random string>' );
    ```
 
-**Hot-reloading the admin UI:** run `npm run dev` — Vite writes a `hot` file into
-`public/build/` and the Foundation's enqueuer loads assets from the dev server
-(with HMR). Stop it and `npm run build` for production assets.
+**Rebuilding the admin UI on save:** `npm run watch`. The settings screen is React
+(shadcn/ui components) and reads React and `@wordpress/*` from the globals WordPress
+already loads, which Vite's dev server can't serve — so there is no HMR, only the
+rebuild.
 
 ## Configuration & usage
 
@@ -124,7 +125,9 @@ composer test    # Pest unit suite (Brain Monkey)
 composer qa      # all three
 
 npm run build    # production assets
-npm run dev      # Vite dev server (HMR)
+npm run watch    # rebuild on save (no dev server: the screen uses core's React globals)
+npm run qa:js    # typecheck + ESLint + Vitest, then build and check the React bundle
+                 # (no bundled React copy, no CSS outside the app's mount)
 npm run e2e      # Playwright E2E against a real WordPress (see below)
 ```
 
@@ -145,10 +148,32 @@ WP_PLUGIN_PATH=/abs/path/to/site/wp-content/plugins/fastcgi-cache-for-ploi
 npm run e2e
 ```
 
+Prepare the site once with `tests/e2e/setup-site.sh <WordPress path>`: it installs
+the pt_BR core language pack, which one spec needs to prove the bundled translations load,
+and a must-use fixture that prints an admin notice for the spec that proves the screen hides
+other code's notices (only for that spec's cookie, so the site is otherwise unaffected).
+
 CI provisions its own WordPress from scratch with WP-CLI (`wp core download/install`
-+ a symlinked plugin + the PHP built-in server) — see `.github/workflows/ci.yml`.
++ a symlinked plugin + the PHP built-in server) — see `.github/workflows/ci.yml` —
+once per WordPress version it supports: the plugin header's `Requires at least` and the latest. The Ploi-backed
+specs read the `PLOI_API_TOKEN_*` tokens from the repository's Actions secrets, each
+stored with an `E2E_` prefix (`E2E_PLOI_API_TOKEN_…`, which CI strips), and skip when
+they are missing. CI runs `tests/e2e/setup-site.sh` on each fresh install.
 The full quality gate (`composer qa` across PHP 8.2/8.3/8.4, asset build, and this
 E2E job) runs there on every push.
+
+**Translations:** `languages/` ships the `.pot`, the pt_BR `.po`/`.mo`, and the JSON
+the React screen loads (`<domain>-<locale>-<md5 of public/build/main.js>.json`,
+which is why the built entry keeps a stable, unhashed name). After a string changes:
+
+```bash
+npm run build                        # make-pot reads the React strings from the BUILT entry (it doesn't parse TSX)
+wp i18n make-pot . languages/fastcgi-cache-for-ploi.pot --exclude=dist
+wp i18n update-po languages/fastcgi-cache-for-ploi.pot languages/
+#  ...translate the new msgids in the .po, then:
+wp i18n make-mo languages/
+wp i18n make-json languages/ --no-purge --pretty-print   # --no-purge keeps the .po as the single source
+```
 
 ## License
 

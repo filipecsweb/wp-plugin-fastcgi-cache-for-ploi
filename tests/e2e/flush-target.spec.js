@@ -50,7 +50,7 @@ test.describe('Flush target', () => {
     const altServer = await settings.selectServerWithSites(baseline.serverId)
     // Switching server cleared the held site and reloaded the list for the new server.
     expect(altServer).not.toBe(String(baseline.serverId))
-    expect((await settings.state()).siteId).toBe('')
+    expect((await settings.modalState()).siteId).toBe('')
     await expect(settings.serverSelect).toHaveValue(altServer)
 
     await settings.siteSelect.selectOption({ index: 1 })
@@ -66,4 +66,18 @@ test.describe('Flush target', () => {
     await expect(settings.root).toContainText('Currently flushing:')
     // The `connected` fixture restores the canonical target in teardown.
   })
+
+  test('the page behind the open dialog keeps its scrollbar and still scrolls', async ({ connected, admin, settings }) => {
+    await settings.openTargetModal()
+
+    const scroll = await admin.evaluate(() => {
+      const before = window.scrollY
+      window.scrollBy(0, 200)
+      return { moved: window.scrollY !== before, overflow: getComputedStyle(document.documentElement).overflowY }
+    })
+
+    expect(scroll).toEqual({ moved: true, overflow: 'visible' })
+    await expect(settings.modal).toBeVisible()
+  })
 })
+

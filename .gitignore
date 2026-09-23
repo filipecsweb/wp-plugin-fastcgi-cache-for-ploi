@@ -4,12 +4,15 @@
 
 # Build output (run `composer install && npm install && npm run build`)
 /public/build/
+/resources/js/ui/cn-tables.js
 
 # Distributable archive (built into a staging dir; see .distignore)
 /dist/
 
-# Generated translation template (regenerate with:
-#   wp i18n make-pot . languages/fastcgi-cache-for-ploi.pot --exclude=dist)
+# Generated translation template. Regenerate AFTER `npm run build`: the React strings
+# are read from the built public/build/main.js (make-pot doesn't parse TSX). See
+# README → Translations for the full sequence (.po → .mo → .json).
+#   wp i18n make-pot . languages/fastcgi-cache-for-ploi.pot --exclude=dist
 /languages/*.pot
 
 # Tooling caches
@@ -24,9 +27,10 @@
 /test-results/
 /playwright-report/
 /playwright/.cache/
-/.playwright-cli/
 
 # Local / OS
+/.scratch/
+/.claude/skills/agent-browser
 .DS_Store
 *.log
 .idea/

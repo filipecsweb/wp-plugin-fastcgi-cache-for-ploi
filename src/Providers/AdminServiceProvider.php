@@ -10,10 +10,10 @@ use FastCgiCacheForPloi\Log\FlushLogEntry;
 use FastCgiCacheForPloi\Log\FlushLogRepository;
 use FastCgiCacheForPloi\Settings\PloiSettings;
 use FastCgiCacheForPloi\Foundation\Assets\Vite;
+use FastCgiCacheForPloi\Foundation\I18n\TextDomain;
 use FastCgiCacheForPloi\Module\AdminUi\AdminAssets;
 use FastCgiCacheForPloi\Foundation\Plugin;
 use FastCgiCacheForPloi\Foundation\Provider\ServiceProvider;
-use FastCgiCacheForPloi\Foundation\Security\Nonce;
 
 /**
  * @since 1.0.0
@@ -21,23 +21,16 @@ use FastCgiCacheForPloi\Foundation\Security\Nonce;
 final class AdminServiceProvider extends ServiceProvider
 {
     /**
+     * @since 1.1.0 The page takes no view paths any more.
      * @since 1.0.0
      */
     public function register(): void
     {
-        $this->container->singleton(SettingsPage::class, function (): SettingsPage {
-            $plugin = $this->container->make(Plugin::class);
-
-            return new SettingsPage(
-                $plugin->dir() . 'resources/views/settings.php',
-                $plugin->dir() . 'resources/views/partials/admin-footer.php',
-                $plugin->name(),
-                $plugin->version(),
-            );
-        });
+        $this->container->singleton(SettingsPage::class);
     }
 
     /**
+     * @since 1.1.0 Enqueues the React entry with its core-script dependencies and translations.
      * @since 1.0.1 Also registers the plugin_action_links filter that adds the
      *     Settings-row link (hook name embeds the runtime basename, so it can't
      *     be a compile-time #[Filter]).
@@ -60,66 +53,42 @@ final class AdminServiceProvider extends ServiceProvider
             $assets->enqueueOnScreen(
                 $page->hookSuffix(),
                 $hookSuffix,
-                'resources/js/admin.js',
-                'fastcgi-cache-for-ploi-admin',
+                'resources/js/app/main.tsx',
+                'fastcgi-cache-for-ploi-app',
                 'PloiCacheConfig',
-                $this->config($page)
+                $this->config(),
+                $this->container->make(TextDomain::class)
             );
         });
     }
 
     /**
+     * CONTRACT: the keys are the Config type in resources/js/app/store.ts; keep the
+     * two in step.
+     *
+     * @since 1.1.0 Carries only what the React screen reads: restNamespace and plugin
+     *     (name + version) added; restUrl, nonce, tabs and i18n dropped, since core's
+     *     apiFetch and the script translations cover them.
      * @since 1.0.0
      *
      * @return array<string, mixed>
      */
-    private function config(SettingsPage $page): array
+    private function config(): array
     {
-        $nonce    = $this->container->make(Nonce::class);
         $settings = $this->container->make(PloiSettings::class);
         $log      = $this->container->make(FlushLogRepository::class);
+        $plugin   = $this->container->make(Plugin::class);
 
         return [
-            'restUrl'     => esc_url_raw(rest_url(RestServiceProvider::NAMESPACE)),
-            'nonce'       => $nonce->create('wp_rest'),
-            'tabs'        => $page->tabKeys(),
-            'events'      => FlushEvents::all(),
-            'settings'    => $settings->toArray(),
-            'log'         => array_map(
+            'restNamespace' => RestServiceProvider::NAMESPACE,
+            'plugin'        => ['name' => $plugin->name(), 'version' => $plugin->version()],
+            'events'        => FlushEvents::all(),
+            'settings'      => $settings->toArray(),
+            'log'           => array_map(
                 static fn (FlushLogEntry $entry): array => $entry->toArray(),
                 $log->recent(FlushLogRepository::RECENT_LIMIT)
             ),
-            'keyWarning'      => $this->keyIsDatabaseDerived(),
-            'i18n'        => [
-                'saved'          => __('Settings saved.', 'fastcgi-cache-for-ploi'),
-                'connected'      => __('Connected to Ploi. Now choose a flush target.', 'fastcgi-cache-for-ploi'),
-                'targetSaved'    => __('Flush target updated.', 'fastcgi-cache-for-ploi'),
-                'disconnected'   => __('Token removed. Add a new token to reconnect.', 'fastcgi-cache-for-ploi'),
-                'genericError'   => __('Something went wrong. Please try again.', 'fastcgi-cache-for-ploi'),
-                'needToken'      => __('Add a Ploi API token first.', 'fastcgi-cache-for-ploi'),
-                // Reconnect-banner body, keyed by why the saved token is unusable.
-                // Keys track ConnectionController's failure states + the decrypt
-                // failure (409), funnelled through store requireReconnect().
-                'reconnect'      => [
-                    'unreadable'         => __(
-                        'Your saved token could not be read — your site\'s security keys may have changed. Re-enter your Ploi API token and click Connect.',
-                        'fastcgi-cache-for-ploi'
-                    ),
-                    'invalid'            => __('Ploi rejected your saved token. Re-enter a valid Ploi API token and click Connect.', 'fastcgi-cache-for-ploi'),
-                    'missing_permission' => __(
-                        'Your saved token is missing a required permission. Re-enter a token with the Servers and Sites scopes and click Connect.',
-                        'fastcgi-cache-for-ploi'
-                    ),
-                ],
-                // Transient reachability failure (network / unexpected Ploi error).
-                'cannotReach'    => __('Couldn\'t reach Ploi right now. Try again in a moment.', 'fastcgi-cache-for-ploi'),
-                // Shown in the change-target modal when the saved server/site is no
-                // longer in Ploi's live list, so the user knows why the picker reset.
-                'targetGone'     => [
-                    'server' => __('The saved server no longer exists in Ploi. Choose a new server and site.', 'fastcgi-cache-for-ploi'),
-                    'site'   => __('The saved site no longer exists in Ploi. Choose another site.', 'fastcgi-cache-for-ploi'),
-                ],
-            ],
+            'keyWarning'    => $this->keyIsDatabaseDerived(),
         ];
     }
 

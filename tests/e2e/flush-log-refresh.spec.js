@@ -58,7 +58,7 @@ test.describe('Flush now refreshes the Recent flushes table (FIL-26)', () => {
     await jsonRoute(admin, MOCK.flush, { success: true, message: 'FastCGI cache flushed.' })
     await expect(settings.flushNowButton).toBeEnabled()
 
-    const logRefreshed = admin.waitForResponse((r) => /\/v1\/log$/.test(r.url()) && r.request().method() === 'GET')
+    const logRefreshed = admin.waitForResponse((r) => MOCK.log(r.url()) && r.request().method() === 'GET')
     await settings.flushNowButton.click()
 
     await expect(settings.successToast).toBeVisible()

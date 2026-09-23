@@ -74,39 +74,48 @@ context, not code — don't write it.
 - **External service:** if this plugin calls a third-party API, that fact + what data is sent
   must be disclosed in `readme.txt` (required for wordpress.org review).
 
-## Admin UI: preflight is OFF — new controls are unstyled by default
+## Admin UI: React inside a scoped reset — wp-admin classes don't work in the mount
 
-The settings screen (`resources/views/settings.php`) blends into wp-admin by
-reusing WordPress's own classes (`.button`, `.button-primary`, `.button-link`,
-`.button-link-delete`, `.notice`, `.wp-list-table`, …). Tailwind's preflight/reset
-is **disabled**, and `tw:`-prefixed utilities (v4 CSS-first — `tw:`, not `tw-`) only
-handle layout/spacing on our own elements. Consequence: **any new button/input/control
-renders raw (default browser chrome) until you give it an explicit native wp-admin
-class.** This bites controls added after the initial styling pass.
+The settings screen is React (`resources/js/app`, entry `app/main.tsx`) on shadcn/ui
+components (`resources/js/ui`, Base UI primitives), built against the React and
+`@wordpress/*` globals core already loads (`wpExternals()` in `vite.config.js`; hence
+the WordPress 6.6 minimum, the first with `react-jsx-runtime`). PHP prints only the
+mount `#fastcgi-cache-for-ploi-app` (`SettingsPage::APP_ROOT_ID`). `resources/css/app.css`
+scopes an unlayered `all: revert` reset plus preflight to that id, and the `tw:` utilities
+(v4 CSS-first — `tw:`, not `tw-`) are layered and `important`, so they beat both the
+reset and wp-admin.
 
-Definition of done for any new admin control:
+Consequences (each one has bitten):
 
-1. Give it its native wp-admin class:
-   - Primary action → `button button-primary`
-   - Secondary action → `button` (add `button-small` for compact)
-   - Link-style action → `button-link`
-   - Destructive link → `button-link button-link-delete` (BOTH classes — the bare
-     `button-link-delete` only sets the red color and renders as a raw button
-     without the `button-link` reset).
-2. Make sure it's covered by the styling smoke test
-   (`tests/e2e/styling.spec.js` → "native wp-admin styling (preflight is OFF)").
-   That test fails if any `<button>` / `<a role=button>` / `.button` lacks a
-   recognized native class. If a control legitimately uses a non-`.button` core
-   class, add it to that test's `ALLOWLIST` rather than skipping the check.
-3. A control is not "done" until both of the above are in place.
+- **No wp-admin classes or dashicons inside the mount.** `.button`, `.notice`,
+  `.wp-list-table`, `.dashicons-*` are all reverted there: use the shadcn components and
+  lucide icons. Never use `.notice` anyway — `common.js` moves `.notice:not(.inline)`
+  nodes out of the screen.
+- **Inline styles lose to `tw:` utilities** (they are `important`). Style with utilities.
+- **Everything portalled (Dialog, Tooltip, Toast) renders into the shared container**
+  from `usePortalContainer()` (`ui/portal.tsx`), so it stays inside the reset scope;
+  modal layers carry `MODAL_Z` (`tw:z-[100000]`) to clear wp-admin's menu and toolbar.
+- **Core ships React 18:** a shadcn component passed to `render=` or given a ref needs
+  `React.forwardRef` (`ui/button.tsx` says why). `check:build` (part of `qa:js`) fails
+  on a bundled React copy or on a CSS selector outside the mount — never weaken it.
+- **shadcn CLI:** `npx shadcn@latest add <name> --yes < /dev/null` (`--dry-run` first;
+  if it would overwrite an existing file, move that file aside and restore it after).
+  Add the file-level `@since` by hand. Every `tw:data-<word>:` variant the output uses
+  must exist: built-ins cover bare attributes (`data-open`, `data-checked`); the rest
+  (`data-horizontal`, `data-vertical`) are `@custom-variant`s in `app.css`, checked
+  against shadcn's own `tailwind.css`.
+- **Strings:** `__()` from `@wordpress/i18n` with the plugin text domain, only in `app/`
+  (never in `shared/`: JSON translations are per entry file). After a string change, run
+  README → Translations; the pt_BR JSON is committed and keyed to the unhashed `main.js`.
+- **Root contract:** React renders `.ploi-cache-admin` with the `data-*` attributes as
+  plain props (never through an effect); the E2E page object
+  (`tests/e2e/support/settings-page.js`) reads only roles, `data-testid` and those
+  attributes.
 
-The smoke test detects *raw/unstyled* controls (no recognized class). It cannot
-judge appearance — pair it with a quick visual check when adding novel chrome.
-
-**Cascade caveat:** `tw:` utilities sit in a cascade layer and LOSE to unlayered wp-admin
-styles. Where a `tw:` layout/spacing utility is overridden by a wp-admin rule, fix that one
-property with the important variant (`tw:mt-1!`, `tw:w-full!`) — surgically, only where it
-actually loses. Never re-enable preflight, drop the layer, or blanket-important.
+Definition of done for any UI change: a Vitest through `<App cfg api>` (`tests/js/app`,
+`mockApi()` from its fixtures), the E2E suite green on WordPress 6.6 and latest
+(`npm run e2e` against each site).
+Dev loop: `npm run watch` (no dev server: the externals are build-only).
 
 <!-- contract:claude-contract-block -->
 ## Project contract
