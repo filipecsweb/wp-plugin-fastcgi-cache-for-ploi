@@ -33,14 +33,13 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-// WHY cursor-move and select-none: core's postbox title is a drag handle, and this is its look.
 function CardTitle({ className, render, ...props }: useRender.ComponentProps<"div">) {
   return useRender({
     defaultTagName: "div",
     props: mergeProps<"div">(
       {
         className: cn(
-          "tw:flex tw:grow tw:cursor-move tw:items-center tw:justify-between tw:px-4 tw:py-3 tw:text-label tw:font-semibold tw:text-heading tw:select-none",
+          "tw:flex tw:grow tw:items-center tw:justify-between tw:px-4 tw:py-3 tw:text-label tw:font-semibold tw:text-heading",
           className
         ),
       },
