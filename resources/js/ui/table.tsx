@@ -20,7 +20,7 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
 }
 
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
-  return <tr data-slot="table-row" className={cn("tw:even:bg-table-stripe tw:mobile:flex tw:mobile:flex-wrap", className)} {...props} />
+  return <tr data-slot="table-row" className={cn("tw:even:bg-table-stripe", className)} {...props} />
 }
 
 function TableHead({ className, ...props }: React.ComponentProps<"th">) {
@@ -28,7 +28,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "tw:border-b tw:border-solid tw:border-border tw:px-2.5 tw:py-2 tw:text-start tw:align-middle tw:text-table-head tw:font-normal tw:text-table-head-foreground tw:mobile:content-center",
+        "tw:border-b tw:border-solid tw:border-border tw:px-2.5 tw:py-2 tw:text-start tw:align-middle tw:text-table-head tw:font-normal tw:text-table-head-foreground",
         className
       )}
       {...props}
@@ -40,7 +40,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
       data-slot="table-cell"
-      className={cn("tw:px-2.5 tw:py-2 tw:align-top tw:text-cell tw:text-table-cell-foreground tw:mobile:relative tw:mobile:nth-[n+3]:flex-[0_1_100%]", className)}
+      className={cn("tw:px-2.5 tw:py-2 tw:align-top tw:text-cell tw:text-table-cell-foreground", className)}
       {...props}
     />
   )
