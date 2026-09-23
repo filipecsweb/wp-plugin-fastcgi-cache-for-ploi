@@ -149,7 +149,9 @@ npm run e2e
 ```
 
 Prepare the site once with `tests/e2e/setup-site.sh <WordPress path>`: it installs
-the pt_BR core language pack, which one spec needs to prove the bundled translations load.
+the pt_BR core language pack, which one spec needs to prove the bundled translations load,
+and a must-use fixture that prints an admin notice for the spec that proves the screen hides
+other code's notices (only for that spec's cookie, so the site is otherwise unaffected).
 
 CI provisions its own WordPress from scratch with WP-CLI (`wp core download/install`
 + a symlinked plugin + the PHP built-in server) — see `.github/workflows/ci.yml` —
