@@ -31,14 +31,9 @@
 @custom-variant data-horizontal (&:where([data-orientation="horizontal"]));
 @custom-variant data-vertical (&:where([data-orientation="vertical"]));
 
-/* Core's two admin breakpoints, as its own media queries write them (no custom property works in @media). */
+/* Core's admin breakpoint, as its own media query writes it (no custom property works in @media). */
 @custom-variant mobile {
     @media screen and (max-width: 782px) {
-        @slot;
-    }
-}
-@custom-variant narrow {
-    @media screen and (max-width: 600px) {
         @slot;
     }
 }
