@@ -41,7 +41,7 @@ export function Toaster() {
         {/* WHY the admin bar's height: the toasts sit above its z-index, so they'd cover it; core sets the property. */}
         <Toast.Viewport
           aria-label={__('Notifications', 'fastcgi-cache-for-ploi')}
-          className="tw:fixed tw:end-4 tw:top-[calc(var(--wp-admin--admin-bar--height,0px)+--spacing(4))] tw:z-[100001] tw:flex tw:w-80 tw:max-w-(--toast-max-width) tw:flex-col tw:gap-2"
+          className="tw:fixed tw:end-4 tw:top-[calc(var(--wp-admin--admin-bar--height,0px)+--spacing(4))] tw:z-toast tw:flex tw:w-80 tw:max-w-(--toast-max-width) tw:flex-col tw:gap-2"
         >
           <ToastList />
         </Toast.Viewport>
