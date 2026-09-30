@@ -18,7 +18,7 @@ use ReflectionObject;
  *    callback directly.
  *  - Discovery (reflection) runs at most ONCE PER REQUEST per class thanks to the
  *    request-level memo, and is skipped ENTIRELY on a persistent object cache hit
- *    (Redis/Memcached, as on a typical Ploi server). The compiled map is keyed by
+ *    (Redis/Memcached, as on most managed hosts). The compiled map is keyed by
  *    class + plugin version, so it invalidates automatically on deploy.
  *  - The persistent cache is bypassed under WP_DEBUG so developers always see
  *    fresh attribute discovery while iterating.
