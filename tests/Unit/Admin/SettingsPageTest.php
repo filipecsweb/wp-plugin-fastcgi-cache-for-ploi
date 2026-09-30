@@ -25,3 +25,12 @@ it('prepends a Settings link pointing at the settings page', function (): void {
         ->and($actions['settings'])->toContain('https://example.test/wp-admin/options-general.php?page=' . SettingsPage::SLUG)
         ->and($actions['settings'])->toContain('>Settings</a>');
 });
+
+it('silences foreign notices on its own screen', function (): void {
+    Functions\when('__')->returnArg(1);
+    Functions\when('add_submenu_page')->justReturn('settings_page_' . SettingsPage::SLUG);
+
+    $this->page->register();
+
+    expect(has_action('load-settings_page_' . SettingsPage::SLUG, [$this->page, 'silenceNotices']) !== false)->toBeTrue();
+});

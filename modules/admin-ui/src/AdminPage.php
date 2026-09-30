@@ -78,7 +78,17 @@ abstract class AdminPage
     }
 
     /**
-     * @since 1.1.0 Also silences every admin notice on the page's own screen.
+     * Whether the page's own screen drops every admin notice, core's included.
+     *
+     * @since 1.1.0
+     */
+    protected function silencesNotices(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @since 1.1.0 Also silences every admin notice on the page's own screen when silencesNotices() opts in.
      * @since 1.0.0
      */
     public function register(): void
@@ -111,7 +121,7 @@ abstract class AdminPage
 
         // WHY manual: the hook name embeds the runtime hook suffix, which a compile-time
         // #[Action] attribute can't express.
-        if ($this->hookSuffix !== '') {
+        if ($this->hookSuffix !== '' && $this->silencesNotices()) {
             add_action('load-' . $this->hookSuffix, [$this, 'silenceNotices']);
         }
     }

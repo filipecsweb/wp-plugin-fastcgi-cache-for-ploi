@@ -54,6 +54,17 @@ final class SettingsPage extends AdminPage
     }
 
     /**
+     * WHY: other plugins' notices crowd the React screen, and hiding them with CSS would
+     * reach outside its mount.
+     *
+     * @since 1.1.0
+     */
+    protected function silencesNotices(): bool
+    {
+        return true;
+    }
+
+    /**
      * @since 1.0.0
      */
     protected function accessDeniedMessage(): string
