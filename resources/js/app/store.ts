@@ -222,19 +222,21 @@ export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Noti
     )
   const route = createErrorRouter({ requireReconnect: (reason) => dispatch({ type: 'reconnect', reason }), notifyFailure })
 
-  const loadSites = async (serverId: string): Promise<Site[]> => {
+  // Resolves null when the load failed (already routed), which says nothing about
+  // which sites exist.
+  const loadSites = async (serverId: string): Promise<Site[] | null> => {
     if (!serverId) {
       dispatch({ type: 'sites/loaded', serverId, sites: [] })
       return []
     }
     busy('sites', true)
-    let sites: Site[] = []
+    let sites: Site[] | null = null
     try {
       sites = (await api<{ sites?: Site[] }>('GET', `/servers/${encodeURIComponent(serverId)}/sites`)).sites ?? []
     } catch (e) {
       route(e as ApiFailure)
     } finally {
-      dispatch({ type: 'sites/loaded', serverId, sites })
+      dispatch({ type: 'sites/loaded', serverId, sites: sites ?? [] })
       busy('sites', false)
     }
     return sites
@@ -263,7 +265,7 @@ export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Noti
         return
       }
       const sites = probed.length || !target.serverId ? probed : await loadSites(target.serverId)
-      if (target.siteId && !sites.some((x) => x.id === target.siteId)) dispatch({ type: 'target/gone', level: 'site' })
+      if (sites && target.siteId && !sites.some((x) => x.id === target.siteId)) dispatch({ type: 'target/gone', level: 'site' })
     } catch (e) {
       route(e as ApiFailure)
     } finally {
@@ -325,7 +327,7 @@ export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Noti
       dispatch({ type: 'modal/close' })
     },
 
-    selectServer(serverId: string): Promise<Site[]> {
+    selectServer(serverId: string): Promise<Site[] | null> {
       dispatch({ type: 'target/server', serverId })
       return loadSites(serverId)
     },

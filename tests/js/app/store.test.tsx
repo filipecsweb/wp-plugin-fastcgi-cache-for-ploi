@@ -241,6 +241,15 @@ describe('actions', () => {
       expect(busyTrail('sites')).toEqual([true, false])
     })
 
+    it('leaves the saved site alone when its sites fail to load', async () => {
+      api.mockResolvedValueOnce({ state: 'ok', servers, sites: [] }).mockRejectedValueOnce(UPSTREAM_502)
+
+      await actions.openTargetModal(saved)
+
+      expect(applied()).toMatchObject({ target: saved, targetGone: '', targetStale: false })
+      expect(notify).toHaveBeenCalledWith('error', 'flush_failed message')
+    })
+
     it('skips the sites load when nothing is saved', async () => {
       api.mockResolvedValueOnce({ state: 'ok', servers, sites: [] })
 
@@ -317,7 +326,7 @@ describe('actions', () => {
     it('leaves no stale options on a failure and routes it', async () => {
       api.mockRejectedValueOnce(UPSTREAM_502)
 
-      await expect(actions.selectServer('s2')).resolves.toEqual([])
+      await expect(actions.selectServer('s2')).resolves.toBeNull()
 
       expect(applied(reducer(initialState(cfg), { type: 'options/loaded', servers, sites })).sites).toEqual([])
       expect(notify).toHaveBeenCalledWith('error', 'flush_failed message')
