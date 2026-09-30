@@ -13,7 +13,8 @@ test.describe('settings shell', () => {
     await expect(settings.heading).toBeVisible()
     await expect(settings.tokenInput).toBeVisible()
 
-    const cfg = await admin.evaluate(() => ({ events: window.PloiCacheConfig.events.length, keyWarning: !!window.PloiCacheConfig.keyWarning }))
+    const cfg = await admin.evaluate(() => ({ events: window.PloiCacheConfig.events.length, keyWarning: window.PloiCacheConfig.keyWarning }))
+    expect(typeof cfg.keyWarning).toBe('boolean')
     await expect(settings.eventCheckboxes).toHaveCount(cfg.events)
     if (cfg.keyWarning) await expect(settings.keyWarningBanner).toBeVisible()
     else await expect(settings.keyWarningBanner).toBeHidden()
