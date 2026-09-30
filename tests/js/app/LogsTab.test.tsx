@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import LogsTab from '@/app/LogsTab'
 import { TooltipProvider } from '@/ui/tooltip'
-import { entry } from './fixtures'
+import { PortalHost, entry } from './fixtures'
 
 afterEach(cleanup)
 
@@ -11,7 +11,8 @@ const renderTab = (props: Partial<Parameters<typeof LogsTab>[0]> = {}) => {
   render(
     <TooltipProvider>
       <LogsTab entries={[]} busy={false} onRefresh={onRefresh} {...props} />
-    </TooltipProvider>
+    </TooltipProvider>,
+    { wrapper: PortalHost }
   )
   return { onRefresh }
 }

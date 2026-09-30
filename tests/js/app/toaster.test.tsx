@@ -2,13 +2,14 @@ import { Profiler } from 'react'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { Toaster, notify } from '@/app/toaster'
+import { PortalHost } from './fixtures'
 
 afterEach(cleanup)
 
 // The manager outlives each render, so every test raises its own message.
 describe('toaster', () => {
   it('shows a success toast as a polite dialog', () => {
-    render(<Toaster />)
+    render(<Toaster />, { wrapper: PortalHost })
 
     act(() => notify('success', 'Settings saved.'))
 
@@ -17,7 +18,7 @@ describe('toaster', () => {
   })
 
   it('announces an error toast assertively', () => {
-    render(<Toaster />)
+    render(<Toaster />, { wrapper: PortalHost })
 
     act(() => notify('error', 'Ploi said no.'))
 
@@ -29,7 +30,7 @@ describe('toaster', () => {
   })
 
   it('re-raising a message refreshes it instead of stacking a duplicate', () => {
-    render(<Toaster />)
+    render(<Toaster />, { wrapper: PortalHost })
 
     act(() => notify('success', 'Flush target updated.'))
     act(() => notify('success', 'Flush target updated.'))
@@ -38,7 +39,7 @@ describe('toaster', () => {
   })
 
   it('keeps every toast dismissible, however many are up', () => {
-    render(<Toaster />)
+    render(<Toaster />, { wrapper: PortalHost })
     const messages = ['First up.', 'Second up.', 'Third up.', 'Fourth up.']
 
     act(() => messages.forEach((text) => notify('success', text)))
@@ -47,7 +48,7 @@ describe('toaster', () => {
   })
 
   it('dismisses from its close button', async () => {
-    render(<Toaster />)
+    render(<Toaster />, { wrapper: PortalHost })
     act(() => notify('success', 'Token removed.'))
     const toast = screen.getByRole('dialog', { name: 'Token removed.' })
 
@@ -66,7 +67,7 @@ describe('toaster', () => {
 
     it('drains the ring and closes after 10 s, even while hovered', () => {
       vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'setTimeout', 'clearTimeout', 'performance', 'Date'] })
-      render(<Toaster />)
+      render(<Toaster />, { wrapper: PortalHost })
       act(() => notify('success', 'Cache flushed.'))
       fireEvent.mouseEnter(toast('Cache flushed.')!)
       fireEvent.pointerEnter(toast('Cache flushed.')!)
@@ -85,7 +86,8 @@ describe('toaster', () => {
       render(
         <Profiler id="toaster" onRender={commits}>
           <Toaster />
-        </Profiler>
+        </Profiler>,
+        { wrapper: PortalHost }
       )
       act(() => notify('success', 'Drawn, not rendered.'))
       advance(100)
@@ -109,7 +111,7 @@ describe('toaster', () => {
         act(() => void document.dispatchEvent(new Event('visibilitychange')))
       }
       onTestFinished(() => void Reflect.deleteProperty(document, 'hidden'))
-      render(<Toaster />)
+      render(<Toaster />, { wrapper: PortalHost })
       act(() => notify('success', 'Raised before the tab switch.'))
 
       frameAt(1_000)
@@ -127,7 +129,7 @@ describe('toaster', () => {
 
     it('starts over when the same message is raised again', () => {
       vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'setTimeout', 'clearTimeout', 'performance', 'Date'] })
-      render(<Toaster />)
+      render(<Toaster />, { wrapper: PortalHost })
       act(() => notify('success', 'Saved again.'))
 
       advance(6_000)
@@ -147,7 +149,7 @@ describe('toaster', () => {
       // re-raise would mount a new one instead of reviving the closing one, as a browser does.
       Object.defineProperty(Element.prototype, 'getAnimations', { configurable: true, value: () => [{ finished: new Promise(() => {}) }] })
       onTestFinished(() => void delete (Element.prototype as Partial<Element>).getAnimations)
-      render(<Toaster />)
+      render(<Toaster />, { wrapper: PortalHost })
       act(() => notify('success', 'Raised while closing.'))
       advance(10_100)
       expect(toast('Raised while closing.')!.hasAttribute('data-ending-style')).toBe(true)
