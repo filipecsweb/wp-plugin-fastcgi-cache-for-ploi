@@ -94,7 +94,8 @@ Consequences (each one has bitten):
 - **Inline styles lose to `tw:` utilities** (they are `important`). Style with utilities.
 - **Everything portalled (Dialog, Tooltip, Toast) renders into the shared container**
   from `usePortalContainer()` (`ui/portal.tsx`), so it stays inside the reset scope;
-  modal layers carry `MODAL_Z` (`tw:z-[100000]`) to clear wp-admin's menu and toolbar.
+  modal layers carry `tw:z-modal` and toasts `tw:z-toast` (one above it), both from
+  `app.css`'s z-index tokens, to clear wp-admin's menu and toolbar.
 - **Core ships React 18:** a shadcn component passed to `render=` or given a ref needs
   `React.forwardRef` (`ui/button.tsx` says why). `check:build` (part of `qa:js`) fails
   on a bundled React copy or on a CSS selector outside the mount — never weaken it.

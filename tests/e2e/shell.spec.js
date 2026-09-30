@@ -1,6 +1,6 @@
 import { test, expect } from './support/fixtures.js'
-import { MOCK, PLUGINS_PATH, SETTINGS_PATH } from './support/config.js'
-import { wpErrorRoute } from './support/mock.js'
+import { MOCK, PLUGINS_PATH, SETTINGS_PATH, TOKENS } from './support/config.js'
+import { jsonRoute, wpErrorRoute } from './support/mock.js'
 
 // wp-admin chrome around the screen: toolbar, menu, page heading + description, footer.
 const CHROME = ['#wpadminbar', '#adminmenu a', '.wrap > h1', '.wrap > p.description', '#wpfooter']
@@ -85,6 +85,23 @@ test.describe('settings shell', () => {
     const bar = await admin.locator('#wpadminbar').boundingBox()
     const toast = await settings.errorToast.boundingBox()
     expect(toast.y).toBeCloseTo(bar.y + bar.height + 16, 1)
+  })
+
+  test('shows a toast raised while the dialog is open above it', async ({ connected, admin, settings }) => {
+    test.skip(!TOKENS.good, 'the dialog opens only with a saved token')
+    await jsonRoute(admin, MOCK.connection, { state: 'ok', servers: [{ id: 'mock-a', name: 'Server A' }, { id: 'mock-b', name: 'Server B' }], sites: [] })
+    await wpErrorRoute(admin, MOCK.sites, 'rest_error', 'Sites unavailable.', 500)
+    await settings.openTargetModal()
+
+    await settings.serverSelect.selectOption('mock-b')
+    await expect(settings.errorToast).toBeVisible()
+
+    // The dialog's overlay covers the whole page, so only a toast above it is hit at its own centre.
+    const onTop = await settings.errorToast.evaluate((toast) => {
+      const { x, y, width, height } = toast.getBoundingClientRect()
+      return toast.contains(document.elementFromPoint(x + width / 2, y + height / 2))
+    })
+    expect(onTop).toBe(true)
   })
 
   test('leaves the wp-admin chrome untouched', async ({ admin }) => {
