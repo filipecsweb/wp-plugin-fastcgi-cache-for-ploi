@@ -30,7 +30,8 @@ final class AdminServiceProvider extends ServiceProvider
     }
 
     /**
-     * @since 1.1.0 Enqueues the React entry with its core-script dependencies and translations.
+     * @since 1.1.0 Enqueues the React entry with its core-script dependencies and translations,
+     *     and builds its config only on the settings screen.
      * @since 1.0.1 Also registers the plugin_action_links filter that adds the
      *     Settings-row link (hook name embeds the runtime basename, so it can't
      *     be a compile-time #[Filter]).
@@ -56,7 +57,7 @@ final class AdminServiceProvider extends ServiceProvider
                 'resources/js/app/main.tsx',
                 'fastcgi-cache-for-ploi-app',
                 'PloiCacheConfig',
-                $this->config(),
+                $this->config(...),
                 $this->container->make(TextDomain::class)
             );
         });

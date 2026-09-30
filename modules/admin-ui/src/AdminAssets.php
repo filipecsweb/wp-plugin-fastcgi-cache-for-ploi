@@ -23,11 +23,12 @@ final class AdminAssets
     }
 
     /**
-     * @since 1.1.0 Registers the script's translations when a text domain is passed.
+     * @since 1.1.0 Registers the script's translations when a text domain is passed, and
+     *     takes the localized data as a builder, called only on the screen.
      * @since 1.0.0
      *
-     * @param non-empty-string     $handle
-     * @param array<string, mixed> $localize Data exposed to JS as a global object.
+     * @param non-empty-string                        $handle
+     * @param (callable(): array<string, mixed>)|null $localize Builds the data exposed to JS as a global object.
      */
     public function enqueueOnScreen(
         string $pageHookSuffix,
@@ -35,7 +36,7 @@ final class AdminAssets
         string $entry,
         string $handle,
         string $localizeObject = '',
-        array $localize = [],
+        ?callable $localize = null,
         ?TextDomain $textDomain = null
     ): void {
         if ($pageHookSuffix === '' || $currentHookSuffix !== $pageHookSuffix) {
@@ -45,10 +46,10 @@ final class AdminAssets
         $this->vite->enqueueScript($entry, $handle);
         $textDomain?->loadForScript($handle);
 
-        if ($localizeObject !== '' && $localize !== []) {
+        if ($localizeObject !== '' && $localize !== null) {
             // Printed as a classic inline script before the module, so the module
             // can read window.{localizeObject} on execution.
-            wp_localize_script($handle, $localizeObject, $localize);
+            wp_localize_script($handle, $localizeObject, $localize());
         }
     }
 }
