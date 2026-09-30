@@ -32,6 +32,7 @@ WordPress.org maps these by **filename**, not by any manifest — names must mat
 
 ## Notes
 - PNG or JPG only for raster images. Keep file sizes reasonable.
-- Asset changes go live on the .org page independently of a code release — you can
-  update the banner/icon/screenshots without shipping a new plugin version.
+- Asset changes reach wp.org with the next release deploy, which mirrors `assets/`
+  into SVN `assets/`: commit them here, since a file committed straight to SVN
+  `assets/` and missing here is deleted by that mirror.
 - Put the image files in `assets/` under exactly these names.
