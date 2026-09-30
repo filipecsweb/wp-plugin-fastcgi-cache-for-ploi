@@ -167,12 +167,17 @@ abstract class AdminPage
 
     /**
      * Built from the slug (not the menu registration), so it's valid before
-     * register() runs on admin_menu.
+     * register() runs on admin_menu. A parent that isn't a file (e.g. "woocommerce")
+     * is a top-level menu slug, whose submenu pages live on admin.php.
      *
+     * @since 1.1.0 Links a top-level menu's submenu page through admin.php.
      * @since 1.0.1
      */
     public function url(): string
     {
-        return admin_url(add_query_arg('page', $this->slug(), $this->parentSlug() ?? 'admin.php'));
+        $parent = $this->parentSlug();
+        $base   = $parent !== null && str_ends_with(explode('?', $parent, 2)[0], '.php') ? $parent : 'admin.php';
+
+        return admin_url(add_query_arg('page', $this->slug(), $base));
     }
 }
