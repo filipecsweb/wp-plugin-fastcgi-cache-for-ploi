@@ -11,8 +11,8 @@
 # Packaging is done with rsync + zip (not `wp dist-archive`) so the build is
 # self-contained and runs the same locally and in CI. npm run build also compiles
 # the translations (bin/i18n.sh build), which needs WP-CLI.
-# .distignore stays the single source of truth for what is excluded; this script
-# feeds every entry to rsync as an --exclude.
+# .distignore stays the single source of truth for what is excluded; rsync reads
+# it with --exclude-from.
 #
 # Requirements on PATH: npm, wp (WP-CLI), composer, rsync, zip.
 #
@@ -86,18 +86,8 @@ dest="$repo_root/dist/$slug"
 rm -rf "$dest"
 mkdir -p "$dest"
 
-# Turn each .distignore line (comments + blanks skipped) into an rsync --exclude.
-exclude_args=()
-while IFS= read -r line || [ -n "$line" ]; do
-  line="${line#"${line%%[![:space:]]*}"}"   # ltrim
-  line="${line%"${line##*[![:space:]]}"}"    # rtrim
-  [ -n "$line" ] || continue
-  case "$line" in \#*) continue ;; esac
-  exclude_args+=( --exclude="$line" )
-done < .distignore
-
 # GOTCHA: dist/ holds $dest, so rsync would copy the build into itself.
-rsync -a --exclude=/dist/ "${exclude_args[@]}" ./ "$dest/"
+rsync -a --exclude=/dist/ --exclude-from=.distignore ./ "$dest/"
 
 ( cd dist && zip -rqX "$zip_path" "$slug" )
 
