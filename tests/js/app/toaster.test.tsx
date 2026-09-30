@@ -1,3 +1,4 @@
+import { Profiler } from 'react'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { Toaster, notify } from '@/app/toaster'
@@ -76,6 +77,52 @@ describe('toaster', () => {
       advance(5_100)
       advance(1_000)
       expect(toast('Cache flushed.')).toBeNull()
+    })
+
+    it('drains the ring without re-rendering the toast', () => {
+      vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'setTimeout', 'clearTimeout', 'performance', 'Date'] })
+      const commits = vi.fn()
+      render(
+        <Profiler id="toaster" onRender={commits}>
+          <Toaster />
+        </Profiler>
+      )
+      act(() => notify('success', 'Drawn, not rendered.'))
+      advance(100)
+      commits.mockClear()
+
+      advance(1_000)
+
+      expect(ring('Drawn, not rendered.')).toBeCloseTo(89, 0)
+      expect(commits).not.toHaveBeenCalled()
+    })
+
+    it('counts only the time the page is visible', () => {
+      // A hidden page draws no frames, so frames are handed out by hand.
+      const frames: FrameRequestCallback[] = []
+      vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => frames.push(callback))
+      vi.stubGlobal('cancelAnimationFrame', () => {})
+      onTestFinished(() => void vi.unstubAllGlobals())
+      const frameAt = (now: number) => act(() => frames.splice(0).forEach((callback) => callback(now)))
+      const setHidden = (hidden: boolean) => {
+        Object.defineProperty(document, 'hidden', { configurable: true, value: hidden })
+        act(() => void document.dispatchEvent(new Event('visibilitychange')))
+      }
+      onTestFinished(() => void Reflect.deleteProperty(document, 'hidden'))
+      render(<Toaster />)
+      act(() => notify('success', 'Raised before the tab switch.'))
+
+      frameAt(1_000)
+      frameAt(3_000)
+      setHidden(true)
+      setHidden(false)
+      frameAt(60_000)
+
+      expect(toast('Raised before the tab switch.')).not.toBeNull()
+      expect(ring('Raised before the tab switch.')).toBeCloseTo(80, 0)
+
+      frameAt(68_000)
+      expect(toast('Raised before the tab switch.')).toBeNull()
     })
 
     it('starts over when the same message is raised again', () => {

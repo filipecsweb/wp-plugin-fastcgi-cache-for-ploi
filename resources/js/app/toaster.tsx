@@ -7,7 +7,7 @@
  *
  * @since 1.1.0
  */
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
 import { Toast } from '@base-ui/react/toast'
 import { __ } from '@wordpress/i18n'
 import { XIcon } from 'lucide-react'
@@ -58,12 +58,10 @@ function ToastList() {
 }
 
 function ToastItem({ toast }: { toast: Toast.Root.ToastObject<Raise> }) {
-  const remaining = useCountdown(TIMEOUT_MS, toast.data?.raise ?? 0)
+  const ring = useRef<SVGCircleElement>(null)
+  const close = useCallback(() => manager.close(toast.id), [toast.id])
+  useCountdown(ring, TIMEOUT_MS, toast.data?.raise ?? 0, close)
   const error = toast.type === 'error'
-
-  useEffect(() => {
-    if (remaining === 0) manager.close(toast.id)
-  }, [remaining, toast.id])
 
   return (
     <Toast.Root
@@ -82,7 +80,7 @@ function ToastItem({ toast }: { toast: Toast.Root.ToastObject<Raise> }) {
         aria-label={__('Dismiss this notice.', 'fastcgi-cache-for-ploi')}
         className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'tw:group/dismiss tw:absolute tw:end-1 tw:top-1')}
       >
-        <CountdownRing remaining={remaining} className={error ? 'tw:text-countdown-error' : 'tw:text-countdown-success'} />
+        <CountdownRing ringRef={ring} className={error ? 'tw:text-countdown-error' : 'tw:text-countdown-success'} />
         <XIcon aria-hidden="true" className="tw:size-5 tw:group-hover/dismiss:opacity-70 tw:group-active/dismiss:opacity-70" />
       </Toast.Close>
     </Toast.Root>
@@ -90,33 +88,42 @@ function ToastItem({ toast }: { toast: Toast.Root.ToastObject<Raise> }) {
 }
 
 /**
- * Share of `durationMs` left (1 → 0), counted on animation frames. A new `restartKey`
- * starts it over. Frames pause in a hidden tab, and so does the count.
+ * Drains `ring` over `durationMs` of visible time, then calls `onEnd`; a new
+ * `restartKey` starts it over. WHY drawn on the element: a React state per frame would
+ * re-render the whole toast 60 times a second.
  */
-function useCountdown(durationMs: number, restartKey: number): number {
-  const [remaining, setRemaining] = useState(1)
-
+function useCountdown(ring: RefObject<SVGCircleElement>, durationMs: number, restartKey: number, onEnd: () => void): void {
   useEffect(() => {
-    let start: number | null = null
+    let elapsed = 0
+    let last: number | null = null
     let frame = 0
+    // A hidden page draws no frames: forgetting the last one keeps the gap out of the count.
+    const forgetLastFrame = () => {
+      last = null
+    }
     const tick = (now: number) => {
-      start ??= now
-      const left = Math.max(0, 1 - (now - start) / durationMs)
-      setRemaining(left)
+      elapsed += last === null ? 0 : now - last
+      last = now
+      const left = Math.max(0, 1 - elapsed / durationMs)
+      ring.current?.setAttribute('stroke-dashoffset', String(100 - left * 100))
       if (left > 0) frame = requestAnimationFrame(tick)
+      else onEnd()
     }
     frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [durationMs, restartKey])
-
-  return remaining
+    document.addEventListener('visibilitychange', forgetLastFrame)
+    return () => {
+      cancelAnimationFrame(frame)
+      document.removeEventListener('visibilitychange', forgetLastFrame)
+    }
+  }, [ring, durationMs, restartKey, onEnd])
 }
 
-function CountdownRing({ remaining, className }: { remaining: number; className: string }) {
+function CountdownRing({ ringRef, className }: { ringRef: RefObject<SVGCircleElement>; className: string }) {
   return (
     <svg viewBox="0 0 34 34" aria-hidden="true" className={cn('tw:pointer-events-none tw:absolute tw:inset-0 tw:size-full', className)}>
       <circle cx="17" cy="17" r="14" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.2" />
       <circle
+        ref={ringRef}
         cx="17"
         cy="17"
         r="14"
@@ -127,7 +134,6 @@ function CountdownRing({ remaining, className }: { remaining: number; className:
         transform="rotate(-90 17 17)"
         pathLength={100}
         strokeDasharray="100"
-        strokeDashoffset={100 - remaining * 100}
       />
     </svg>
   )
