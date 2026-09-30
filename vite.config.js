@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, normalizePath } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 import { cn } from 'cn/vite'
 import path from 'node:path'
@@ -65,7 +65,8 @@ function wpExternals() {
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== 'chunk' || !chunk.isEntry || !chunk.facadeModuleId) continue
         const entryDeps = [...new Set(handles(chunk.fileName))]
-        if (entryDeps.length) deps[path.relative(root, chunk.facadeModuleId)] = entryDeps
+        // The manifest's own key for this entry (Vite's getChunkOriginalFileName), which the enqueuer looks up.
+        if (entryDeps.length) deps[normalizePath(path.relative(root, chunk.facadeModuleId))] = entryDeps
       }
       if (Object.keys(deps).length) {
         this.emitFile({ type: 'asset', fileName: '.vite/wp-deps.json', source: JSON.stringify(deps, null, 2) })
