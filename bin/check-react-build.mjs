@@ -17,13 +17,13 @@ import postcss from 'postcss'
 import { inMount } from './css-scope.mjs'
 
 const BUILD_DIR = 'public/build'
-const ENTRIES = ['resources/js/app/main.tsx']
 const SLUG = 'fastcgi-cache-for-ploi'
 // CONTRACT: the id is SettingsPage::APP_ROOT_ID.
 const ROOT_ID = `${SLUG}-app`
 const REACT_INTERNALS = ['__SECRET_INTERNALS_DO_NOT_USE', 'react.production', 'ReactCurrentDispatcher', 'scheduler', '"18.3.1"']
 
 const manifest = JSON.parse(fs.readFileSync(path.join(BUILD_DIR, '.vite/manifest.json'), 'utf8'))
+const entries = Object.keys(manifest).filter((key) => manifest[key].isEntry)
 const failures = []
 
 function files(key, seen = new Set()) {
@@ -34,7 +34,7 @@ function files(key, seen = new Set()) {
   return [chunk.file, ...(chunk.css ?? []), ...(chunk.imports ?? []).flatMap((imported) => files(imported, seen))]
 }
 
-for (const file of new Set(ENTRIES.flatMap((entry) => files(entry)))) {
+for (const file of new Set(entries.flatMap((entry) => files(entry)))) {
   const source = fs.readFileSync(path.join(BUILD_DIR, file), 'utf8')
 
   if (file.endsWith('.js')) {
@@ -64,4 +64,4 @@ if (failures.length) {
   process.exit(1)
 }
 
-console.log(`OK: no React copy, no CSS outside #${ROOT_ID} (${ENTRIES.join(', ')}).`)
+console.log(`OK: no React copy, no CSS outside #${ROOT_ID} (${entries.join(', ')}).`)
