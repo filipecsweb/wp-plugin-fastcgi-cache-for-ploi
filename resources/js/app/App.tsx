@@ -13,7 +13,7 @@ import { TooltipProvider } from '@/ui/tooltip'
 import LogsTab from './LogsTab'
 import Notices from './Notices'
 import SettingsTab from './SettingsTab'
-import { canFlush, useStore, type Config } from './store'
+import { canFlush, sitesBusy, useStore, type Config } from './store'
 import { TAB_KEYS, initialTab, isTabKey, type TabKey } from './tabs'
 import { Toaster, notify } from './toaster'
 
@@ -48,7 +48,7 @@ export default function App({ cfg, api }: Props) {
           data-has-token={String(state.saved.hasToken)}
           data-can-flush={String(canFlush(state))}
           data-busy-flush={String(state.busy.flush)}
-          data-busy-sites={String(state.busy.sites)}
+          data-busy-sites={String(sitesBusy(state))}
           data-reconnect-reason={state.reconnectReason}
           data-log-top-id={String(state.log[0]?.id ?? '')}
         >
