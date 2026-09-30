@@ -78,9 +78,11 @@ jobs:
           # action would default to the repo name and hit the wrong SVN URL.
           SLUG: fastcgi-cache-for-ploi
           # Assets live at .wordpress-org/assets/, one level below the action's
-          # default ASSETS_DIR (.wordpress-org). Without this the action copies the
-          # whole assets/ subfolder into SVN and nests it as assets/assets/, so the
-          # banner/icon go missing on the plugin page.
+          # default ASSETS_DIR (.wordpress-org). Without this the action mirrors
+          # .wordpress-org/ itself: it nests the images as assets/assets/, so the
+          # banner/icon go missing on the plugin page, and it publishes
+          # .wordpress-org/README.md. bin/check-wporg-assets.sh vets this same
+          # folder, so change both together.
           ASSETS_DIR: .wordpress-org/assets
           # VERSION is intentionally not set: the action derives it from the
           # release tag and strips a leading "v" (v1.2.3 -> 1.2.3).
