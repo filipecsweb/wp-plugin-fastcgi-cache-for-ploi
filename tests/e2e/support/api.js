@@ -38,7 +38,9 @@ export class Api {
   }
 
   req(method, routePath, body, namespace = NS) {
-    return this.page.request[method](`${this.root}${namespace}${routePath}`, {
+    // Under plain permalinks the root already carries a query string (?rest_route=), as core's apiFetch allows for.
+    const path = this.root.includes('?') ? routePath.replace('?', '&') : routePath
+    return this.page.request[method](`${this.root}${namespace}${path}`, {
       headers: { 'X-WP-Nonce': this.nonce, ...(body ? { 'Content-Type': 'application/json' } : {}) },
       ...(body ? { data: body } : {}),
     })
@@ -64,8 +66,9 @@ export class Api {
     return this.req('delete', '/connection')
   }
 
-  probe() {
-    return this.req('get', '/connection').then((r) => r.json())
+  /** GET /connection; the sites it returns are the named server's. */
+  probe(server = '') {
+    return this.req('get', server ? `/connection?server=${encodeURIComponent(server)}` : '/connection').then((r) => r.json())
   }
 
   log() {

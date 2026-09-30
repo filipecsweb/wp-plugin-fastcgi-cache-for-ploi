@@ -41,6 +41,13 @@ final class ConnectionController extends PloiRestController
     private const STATE_UNKNOWN            = 'unknown';
 
     /**
+     * A Ploi server id, wherever a route takes one.
+     *
+     * @since 1.1.0
+     */
+    private const SERVER_ID_PATTERN = '[A-Za-z0-9_-]+';
+
+    /**
      * @since 1.0.0
      */
     public function __construct(
@@ -53,6 +60,7 @@ final class ConnectionController extends PloiRestController
     }
 
     /**
+     * @since 1.1.0 GET /connection takes the server whose sites it returns.
      * @since 1.0.0
      */
     public function registerRoutes(): void
@@ -62,6 +70,9 @@ final class ConnectionController extends PloiRestController
                 'methods'             => 'GET',
                 'callback'            => [$this, 'status'],
                 'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
+                'args'                => [
+                    'server' => ['type' => 'string', 'pattern' => '^' . self::SERVER_ID_PATTERN . '$'],
+                ],
             ],
             [
                 'methods'             => 'POST',
@@ -78,7 +89,7 @@ final class ConnectionController extends PloiRestController
             ],
         ]);
 
-        $this->registerRoute('/servers/(?P<server>[A-Za-z0-9_-]+)/sites', [
+        $this->registerRoute('/servers/(?P<server>' . self::SERVER_ID_PATTERN . ')/sites', [
             'methods'             => 'GET',
             'callback'            => [$this, 'sites'],
             'permission_callback' => $this->guard(RestServiceProvider::CAPABILITY),
@@ -115,10 +126,13 @@ final class ConnectionController extends PloiRestController
     }
 
     /**
-     * Live health of the SAVED connection: probes both scopes and returns the state
-     * plus the servers (and the saved server's sites) so the client hydrates the
-     * target dropdowns without a second round-trip.
+     * Live health of the SAVED token: probes both scopes and returns the state plus the
+     * servers and the sites of the server the request names, so the client hydrates the
+     * target dropdowns without a second round-trip. WHY the client names the server: its
+     * saved target can be older than the database's (another tab or admin changed it),
+     * and the sites of any other server would read as its own.
      *
+     * @since 1.1.0 Probes the server the request names instead of the saved one.
      * @since 1.0.0
      */
     public function status(WP_REST_Request $request): WP_REST_Response|WP_Error
@@ -134,14 +148,13 @@ final class ConnectionController extends PloiRestController
                 : $this->respond(['state' => self::STATE_UNKNOWN, 'servers' => [], 'sites' => []]);
         }
 
-        $serverId = $this->settings->serverId();
+        $serverId = $this->stringParam($request, 'server');
         $result   = $this->probeToken($token, $serverId);
 
         return $this->respond([
             'state'   => $result['state'],
             'servers' => $result['servers'],
-            // Hand back the probed server's sites only when it IS the saved
-            // server, so the client hydrates the Site dropdown without re-fetching.
+            // None when no server was named or it is gone, never another server's.
             'sites'   => ($serverId !== '' && $result['probedServerId'] === $serverId) ? $result['sites'] : [],
         ]);
     }
