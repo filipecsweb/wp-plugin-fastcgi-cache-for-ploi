@@ -32,7 +32,7 @@ export default function TargetDialog({ state, actions }: Props) {
       }}
     >
       <DialogContent>
-        <DialogHeader closeDisabled={busy.target}>
+        <DialogHeader closeLabel={__('Close', 'fastcgi-cache-for-ploi')} closeDisabled={busy.target}>
           <DialogTitle>{__('Change flush target', 'fastcgi-cache-for-ploi')}</DialogTitle>
         </DialogHeader>
         <DialogBody className="tw:flex tw:flex-col tw:gap-4">
