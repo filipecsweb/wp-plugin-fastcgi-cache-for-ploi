@@ -2,13 +2,12 @@
  * shadcn/ui Dialog (base-nova), restyled as a centred white panel over a dimmed page:
  * a header bar holding the title and a × close, then a padded body. The portal renders
  * into the shared container (so the scoped reset still applies), the layers sit at
- * core's modal level, and "Close" is translatable.
+ * core's modal level, and the caller names the ×, so ui/ carries no strings.
  *
  * @since 1.1.0
  */
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
-import { __ } from "@wordpress/i18n"
 import { cn } from "@/ui/utils"
 
 import { Button } from "@/ui/button"
@@ -42,7 +41,13 @@ function DialogContent({ className, children, ...props }: DialogPrimitive.Popup.
 }
 
 // GOTCHA: the close button comes first among the popup's controls, so opening the dialog focuses it.
-function DialogHeader({ className, children, closeDisabled = false, ...props }: React.ComponentProps<"div"> & { closeDisabled?: boolean }) {
+function DialogHeader({
+  className,
+  children,
+  closeLabel,
+  closeDisabled = false,
+  ...props
+}: React.ComponentProps<"div"> & { closeLabel: string; closeDisabled?: boolean }) {
   return (
     <div
       data-slot="dialog-header"
@@ -53,7 +58,7 @@ function DialogHeader({ className, children, closeDisabled = false, ...props }: 
       <DialogPrimitive.Close
         data-slot="dialog-close"
         disabled={closeDisabled}
-        aria-label={__("Close", "fastcgi-cache-for-ploi")}
+        aria-label={closeLabel}
         render={<Button variant="link" className="tw:text-muted-foreground tw:hover:text-muted-foreground tw:active:text-muted-foreground tw:focus:text-muted-foreground" />}
       >
         <span aria-hidden="true" className="tw:text-glyph">
