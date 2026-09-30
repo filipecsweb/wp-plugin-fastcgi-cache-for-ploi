@@ -172,6 +172,20 @@ describe('TargetDialog', () => {
     error.mockRestore()
   })
 
+  it('stays open while its save is in flight', async () => {
+    const api = renderApp()
+    api.mockResolvedValueOnce({ state: 'ok', servers, sites })
+    await open()
+    api.mockReturnValueOnce(new Promise(() => {}))
+
+    fireEvent.click(button('Save target'))
+    fireEvent.keyDown(dialog(), { key: 'Escape' })
+    await act(async () => {})
+
+    expect(dialog()).toBeTruthy()
+    expect(within(dialog()).getByRole<HTMLButtonElement>('button', { name: 'Close' }).disabled).toBe(true)
+  })
+
   it('closes and hides its trigger when the probe reports a token failure', async () => {
     const api = renderApp()
     api.mockResolvedValueOnce({ state: 'invalid' })

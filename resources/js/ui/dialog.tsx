@@ -42,7 +42,7 @@ function DialogContent({ className, children, ...props }: DialogPrimitive.Popup.
 }
 
 // GOTCHA: the close button comes first among the popup's controls, so opening the dialog focuses it.
-function DialogHeader({ className, children, ...props }: React.ComponentProps<"div">) {
+function DialogHeader({ className, children, closeDisabled = false, ...props }: React.ComponentProps<"div"> & { closeDisabled?: boolean }) {
   return (
     <div
       data-slot="dialog-header"
@@ -52,6 +52,7 @@ function DialogHeader({ className, children, ...props }: React.ComponentProps<"d
       {children}
       <DialogPrimitive.Close
         data-slot="dialog-close"
+        disabled={closeDisabled}
         aria-label={__("Close", "fastcgi-cache-for-ploi")}
         render={<Button variant="link" className="tw:text-muted-foreground tw:hover:text-muted-foreground tw:active:text-muted-foreground tw:focus:text-muted-foreground" />}
       >

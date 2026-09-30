@@ -28,11 +28,11 @@ export default function TargetDialog({ state, actions }: Props) {
     <Dialog
       open={targetModalOpen}
       onOpenChange={(open) => {
-        if (!open) actions.closeTargetModal()
+        if (!open && !busy.target) actions.closeTargetModal()
       }}
     >
       <DialogContent>
-        <DialogHeader>
+        <DialogHeader closeDisabled={busy.target}>
           <DialogTitle>{__('Change flush target', 'fastcgi-cache-for-ploi')}</DialogTitle>
         </DialogHeader>
         <DialogBody className="tw:flex tw:flex-col tw:gap-4">
