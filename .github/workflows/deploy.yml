@@ -35,17 +35,9 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      # The shipped ZIP contains only the compiled public/build/ output; the
-      # front-end source is excluded via .distignore (single source of truth).
-      - run: npm ci
-      - run: npm run build
-
-      - name: Verify the build manifest exists
-        run: test -f public/build/.vite/manifest.json
-
-      # Production autoloader only — dev packages never ship.
-      - name: Install Composer dependencies (production)
-        run: composer install --prefer-dist --no-progress --no-dev --optimize-autoloader
+      # bin/build.sh owns the build and the .distignore filtering; BUILD_DIR ships
+      # the tree it leaves.
+      - run: bin/build.sh --no-restore
 
       - name: Deploy to WordPress.org SVN
         uses: 10up/action-wordpress-plugin-deploy@stable
@@ -55,6 +47,7 @@ jobs:
           # The GitHub repo name may differ from the wp.org slug; without SLUG the
           # action would default to the repo name and hit the wrong SVN URL.
           SLUG: fastcgi-cache-for-ploi
+          BUILD_DIR: dist/fastcgi-cache-for-ploi
           # Assets live at .wordpress-org/assets/, one level below the action's
           # default ASSETS_DIR (.wordpress-org). Without this the action copies the
           # whole assets/ subfolder into SVN and nests it as assets/assets/, so the

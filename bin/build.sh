@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# Build the distributable plugin ZIP — the artifact shipped to wordpress.org.
+# Build the plugin for distribution: dist/<slug>/ and its ZIP.
 #
 # Order matters; this script enforces it:
 #   1. Compile front-end assets    (npm ci && npm run build  -> public/build/, languages/ .pot + .mo + .json)
 #   2. Install production deps      (composer install --no-dev -> vendor/)
-#   3. Package the ZIP              (rsync the tree minus .distignore -> dist/<slug>-<version>.zip)
+#   3. Package                      (rsync the tree minus .distignore -> dist/<slug>/, zipped to dist/<slug>-<version>.zip)
 #   4. Restore dev deps             (composer install)  unless --no-restore
 #
 # Packaging is done with rsync + zip (not `wp dist-archive`) so the build is
@@ -26,9 +26,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-# Slug = the repo directory name (also the plugin folder name and the ZIP basename).
-# Single-sourced from the directory so build.sh and plugin-check.sh can never disagree.
-slug="$(basename "$repo_root")"
+slug="fastcgi-cache-for-ploi"
 # Main file found by CONTENT (the top-level .php with a Plugin Name header), not
 # by directory name — the checkout dir may differ from the slug (as in CI), and
 # the main file may not be <slug>.php (the contract's plugin_main_file exists
@@ -43,7 +41,7 @@ for arg in "$@"; do
     --no-restore) restore=0 ;;
     -h|--help)
       cat <<'USAGE'
-Build the distributable plugin ZIP (dist/<slug>-<version>.zip).
+Build the plugin for distribution: dist/<slug>/ and dist/<slug>-<version>.zip.
 
 Steps: npm ci && npm run build  ->  composer install --no-dev  ->  rsync + zip.
 Excludes are read from .distignore. Requires npm, wp (WP-CLI), composer, rsync, zip on PATH.
@@ -81,13 +79,11 @@ composer install --no-dev --optimize-autoloader --no-interaction
 # 3. Package. Stage the tree (minus .distignore entries) under a folder named after
 #    the slug so the ZIP extracts to wp-content/plugins/<slug>/, then zip it.
 echo "==> [3/4] Packaging ZIP"
-mkdir -p dist
 zip_path="$repo_root/dist/$slug-$version.zip"
 rm -f "$zip_path"
 
-staging="$(mktemp -d)"
-trap 'rm -rf "$staging"' EXIT
-dest="$staging/$slug"
+dest="$repo_root/dist/$slug"
+rm -rf "$dest"
 mkdir -p "$dest"
 
 # Turn each .distignore line (comments + blanks skipped) into an rsync --exclude.
@@ -100,9 +96,10 @@ while IFS= read -r line || [ -n "$line" ]; do
   exclude_args+=( --exclude="$line" )
 done < .distignore
 
-rsync -a "${exclude_args[@]}" ./ "$dest/"
+# GOTCHA: dist/ holds $dest, so rsync would copy the build into itself.
+rsync -a --exclude=/dist/ "${exclude_args[@]}" ./ "$dest/"
 
-( cd "$staging" && zip -rqX "$zip_path" "$slug" )
+( cd dist && zip -rqX "$zip_path" "$slug" )
 
 # 4. Restore the dev toolchain so the working tree is dev-ready again.
 if [ "$restore" -eq 1 ]; then
@@ -112,5 +109,5 @@ else
   echo "==> [4/4] Skipped dev-dependency restore (--no-restore); run 'composer install' to restore tooling"
 fi
 
-echo "==> Done: dist/$slug-$version.zip"
+echo "==> Done: dist/$slug/ and dist/$slug-$version.zip"
 ls -lh "$zip_path"
