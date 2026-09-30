@@ -43,3 +43,8 @@ jobs:
           # the svn:mime-type propsets ignore this flag, so property-only asset
           # entries can ride along (r3669416).
           SKIP_ASSETS: true
+          # Named as in deploy.yml so SKIP_ASSETS can be turned off safely: the
+          # action's default (.wordpress-org) holds README.md and has the images
+          # one level down, so an asset push from it would publish the README and
+          # nest the images under assets/assets/.
+          ASSETS_DIR: .wordpress-org/assets
