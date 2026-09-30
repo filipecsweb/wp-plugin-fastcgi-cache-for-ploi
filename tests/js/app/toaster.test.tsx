@@ -36,6 +36,15 @@ describe('toaster', () => {
     expect(screen.getAllByRole('dialog', { name: 'Flush target updated.' })).toHaveLength(1)
   })
 
+  it('keeps every toast dismissible, however many are up', () => {
+    render(<Toaster />)
+    const messages = ['First up.', 'Second up.', 'Third up.', 'Fourth up.']
+
+    act(() => messages.forEach((text) => notify('success', text)))
+
+    for (const text of messages) expect(screen.getByRole('dialog', { name: text }).hasAttribute('inert')).toBe(false)
+  })
+
   it('dismisses from its close button', async () => {
     render(<Toaster />)
     act(() => notify('success', 'Token removed.'))
