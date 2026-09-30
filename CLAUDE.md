@@ -106,8 +106,8 @@ Consequences (each one has bitten):
   (`data-horizontal`, `data-vertical`) are `@custom-variant`s in `app.css`, checked
   against shadcn's own `tailwind.css`.
 - **Strings:** `__()` from `@wordpress/i18n` with the plugin text domain, only in `app/`
-  (never in `shared/`: JSON translations are per entry file). After a string change, run
-  README → Translations; the pt_BR JSON is committed and keyed to the unhashed `main.js`.
+  (never in `shared/`: JSON translations are per entry file, keyed to the unhashed
+  `main.js`). Translating: CONTRIBUTING.md → Translations.
 - **Root contract:** React renders `.ploi-cache-admin` with the `data-*` attributes as
   plain props (never through an effect); the E2E page object
   (`tests/e2e/support/settings-page.js`) reads only roles, `data-testid` and those
