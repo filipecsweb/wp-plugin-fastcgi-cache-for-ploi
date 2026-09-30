@@ -59,10 +59,13 @@ final class Plugin
     private ?array $headers = null;
 
     /**
+     * @since 1.1.0 Takes the plugin's code identity as $slug.
      * @since 1.0.0
      */
-    public function __construct(private readonly string $file)
-    {
+    public function __construct(
+        private readonly string $file,
+        private readonly string $slug = '',
+    ) {
         $this->container = new Container();
         $this->container->instance(Container::class, $this->container);
         $this->container->instance(self::class, $this);
@@ -73,11 +76,16 @@ final class Plugin
     }
 
     /**
+     * WHY $slug: wordpress.org requires the text domain to match the plugin's directory
+     * slug, which is permanent, while option names, asset handles and cache groups
+     * follow the plugin's current name. Empty means the text domain.
+     *
+     * @since 1.1.0 Takes the plugin's code identity as $slug.
      * @since 1.0.0
      */
-    public static function create(string $file): self
+    public static function create(string $file, string $slug = ''): self
     {
-        return new self($file);
+        return new self($file, $slug);
     }
 
     /**
@@ -147,11 +155,22 @@ final class Plugin
     }
 
     /**
+     * The code identity: option names, asset handles and cache groups derive from it.
+     *
+     * @since 1.1.0
+     */
+    public function slug(): string
+    {
+        return $this->slug !== '' ? $this->slug : $this->textDomain();
+    }
+
+    /**
+     * @since 1.1.0 Derives from slug() instead of the text domain.
      * @since 1.0.0
      */
     public function optionPrefix(): string
     {
-        return str_replace('-', '_', $this->textDomain());
+        return str_replace('-', '_', $this->slug());
     }
 
     /**
@@ -299,6 +318,7 @@ final class Plugin
      * Plugin-specific primitives (Options, Migrator, SettingsRepository) live in
      * plugin providers because they need plugin-specific names.
      *
+     * @since 1.1.0 Names the logger and the asset handles after slug().
      * @since 1.0.0
      */
     private function registerFoundation(): void
@@ -319,14 +339,14 @@ final class Plugin
 
         $container->singleton(
             LoggerInterface::class,
-            fn (): LoggerInterface => new Logger($this->textDomain())
+            fn (): LoggerInterface => new Logger($this->slug())
         );
 
         $container->singleton(Vite::class, fn (): Vite => new Vite(
             rtrim($this->dir(), '/') . '/public/build',
             rtrim($this->url(), '/') . '/public/build',
             $this->version(),
-            sanitize_title($this->textDomain()),
+            sanitize_title($this->slug()),
         ));
 
         $container->singleton(TextDomain::class, fn (): TextDomain => new TextDomain(
