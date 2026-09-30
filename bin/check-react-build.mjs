@@ -6,10 +6,10 @@
  *     core ships (vite.config.js wpExternals()); a second copy breaks hooks and
  *     bloats the bundle.
  *  2. CSS scope. Every selector must match only the mount and what lies inside it
- *     (css-scope.mjs), or only set custom properties, so the stylesheet can't restyle
- *     wp-admin and another plugin's `tw` utilities can't outrank ours. Keyframe names
- *     are global, so they must carry the plugin slug. @property registrations are
- *     global by nature and allowed; @font-face is not.
+ *     (css-scope.mjs), or only set Tailwind's own `--tw-*` properties, so the stylesheet
+ *     can't restyle wp-admin, set its variables, or let another plugin's `tw` utilities
+ *     outrank ours. Keyframe names are global, so they must carry the plugin slug.
+ *     @property registrations are global by nature and allowed; @font-face is not.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -51,7 +51,7 @@ for (const file of new Set(entries.flatMap((entry) => files(entry)))) {
     })
     css.walkRules((rule) => {
       if (rule.parent?.type === 'atrule' && rule.parent.name.endsWith('keyframes')) return
-      if (rule.nodes.every((node) => node.type !== 'decl' || node.prop.startsWith('--'))) return
+      if (rule.nodes.every((node) => node.type !== 'decl' || node.prop.startsWith('--tw-'))) return
       for (const selector of rule.selectors) {
         if (!inMount(selector, ROOT_ID)) failures.push(`${file}: selector outside #${ROOT_ID}: ${selector}`)
       }
