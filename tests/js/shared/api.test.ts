@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createApi, toApiFailure } from '@/shared/api'
+import { createApi, isTransportFailure, toApiFailure, type ApiFailure } from '@/shared/api'
 
 // The real apiFetch runs (its default middlewares included); only the transport is stubbed.
 const fetchMock = vi.fn<typeof fetch>()
@@ -33,15 +33,18 @@ describe('createApi', () => {
   it('reports a transport failure without a status', async () => {
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'))
 
-    const failure = await api('GET', '/log').catch((e: unknown) => e)
+    const failure = await api<never>('GET', '/log').catch((e: ApiFailure) => e)
     expect(failure).toMatchObject({ code: expect.stringMatching(/^(fetch|offline)_error$/) })
     expect(failure).not.toHaveProperty('status')
+    expect(isTransportFailure(failure)).toBe(true)
   })
 
-  it('reports a non-JSON error body without a status', async () => {
-    fetchMock.mockResolvedValueOnce(new Response('<html>fatal</html>', { status: 500 }))
+  it('reports a non-JSON error body without a status, as a reply', async () => {
+    fetchMock.mockResolvedValueOnce(new Response('<html>Bad Gateway</html>', { status: 502 }))
 
-    await expect(api('GET', '/log')).rejects.toEqual({ code: 'invalid_json', message: expect.any(String) })
+    const failure = await api<never>('GET', '/log').catch((e: ApiFailure) => e)
+    expect(failure).toEqual({ code: 'invalid_json', message: expect.any(String) })
+    expect(isTransportFailure(failure)).toBe(false)
   })
 })
 

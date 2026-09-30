@@ -10,7 +10,7 @@
  */
 import { useMemo, useReducer, type Dispatch } from 'react'
 import { __ } from '@wordpress/i18n'
-import type { Api, ApiFailure } from '@/shared/api'
+import { isTransportFailure, type Api, type ApiFailure } from '@/shared/api'
 import { RECONNECT_REASON, createErrorRouter, type ReconnectReason } from '@/shared/errors'
 
 export interface Server {
@@ -244,12 +244,11 @@ export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Noti
   const busy = (key: BusyKey, value: boolean) => dispatch({ type: 'busy', key, value })
   const cannotReach = () => __("Couldn't reach Ploi right now. Try again in a moment.", 'fastcgi-cache-for-ploi')
 
-  // Ploi's own message when the request reached the server; one shared line for
-  // transport failures, which carry no status.
+  // The reply's own message when there was one; one shared line when there was none.
   const notifyFailure = (error: ApiFailure) =>
     notify(
       'error',
-      error.status ? error.message || __('Something went wrong. Please try again.', 'fastcgi-cache-for-ploi') : cannotReach()
+      isTransportFailure(error) ? cannotReach() : error.message || __('Something went wrong. Please try again.', 'fastcgi-cache-for-ploi')
     )
   const route = createErrorRouter({ requireReconnect: (reason) => dispatch({ type: 'reconnect', reason }), notifyFailure })
 
