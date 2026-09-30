@@ -50,6 +50,17 @@ describe('App tabs', () => {
     expect(window.history.length).toBe(entries)
   })
 
+  it('keeps what the user typed when they switch tabs and back', () => {
+    render(<App cfg={{ ...cfg, settings: { ...cfg.settings, hasToken: false } }} api={mockApi() as Api} />)
+    const token = () => document.querySelector<HTMLInputElement>('input[type="password"]')!
+
+    fireEvent.change(token(), { target: { value: 'half-typed' } })
+    fireEvent.click(screen.getByRole('tab', { name: 'Logs' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
+
+    expect(token().value).toBe('half-typed')
+  })
+
   it('fades in a tab the user picks, not the one the page opens on', () => {
     render(<App cfg={cfg} api={mockApi() as Api} />)
     expect(screen.getByRole('tabpanel', { name: 'Settings' }).hasAttribute('data-starting-style')).toBe(false)

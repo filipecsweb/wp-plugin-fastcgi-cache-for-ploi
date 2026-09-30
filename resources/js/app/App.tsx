@@ -61,10 +61,11 @@ export default function App({ cfg, api }: Props) {
                 </TabsTrigger>
               ))}
             </TabsList>
-            <TabsContent value="settings" className="tw:flex tw:flex-col tw:gap-5">
+            {/* WHY keepMounted: switching tabs must not throw away what the user typed in the other one. */}
+            <TabsContent value="settings" keepMounted className="tw:flex tw:flex-col tw:gap-5">
               <SettingsTab events={cfg.events} state={state} actions={actions} />
             </TabsContent>
-            <TabsContent value="logs">
+            <TabsContent value="logs" keepMounted>
               <LogsTab entries={state.log} busy={state.busy.log} onRefresh={actions.loadLog} />
             </TabsContent>
           </Tabs>
