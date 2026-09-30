@@ -38,7 +38,7 @@ export function Toaster() {
   // WHY no limit: Base UI keeps a toast past its limit on screen but inert, so its close button stops working.
   return (
     <Toast.Provider toastManager={manager} limit={Infinity}>
-      <Toast.Portal container={container ?? undefined}>
+      <Toast.Portal container={container}>
         {/* WHY the admin bar's height: the toasts sit above its z-index, so they'd cover it; core sets the property. */}
         <Toast.Viewport
           aria-label={__('Notifications', 'fastcgi-cache-for-ploi')}

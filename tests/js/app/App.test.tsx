@@ -40,3 +40,16 @@ describe('App root contract', () => {
     expect(await screen.findByText('Ploi said no.', { selector: '[data-testid="toast-error"] *' })).toBeTruthy()
   })
 })
+
+describe('App portals', () => {
+  it('never portals into document.body, not even before the shared container resolves', () => {
+    const observer = new MutationObserver(() => {})
+    observer.observe(document.body, { childList: true })
+
+    const { container } = render(<App cfg={cfg} api={mockApi() as Api} />)
+    const added = observer.takeRecords().flatMap((record) => [...record.addedNodes])
+    observer.disconnect()
+
+    expect(added.filter((node) => node !== container)).toEqual([])
+  })
+})
