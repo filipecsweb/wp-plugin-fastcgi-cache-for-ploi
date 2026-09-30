@@ -11,7 +11,7 @@ import { Button } from '@/ui/button'
 import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/ui/dialog'
 import { NativeSelect, NativeSelectOption } from '@/ui/native-select'
 import { Spinner } from '@/ui/spinner'
-import { selectedTarget, type Actions, type GoneLevel, type State } from './store'
+import { selectedTarget, sitesBusy, type Actions, type GoneLevel, type State } from './store'
 
 interface Props {
   state: State
@@ -20,6 +20,7 @@ interface Props {
 
 export default function TargetDialog({ state, actions }: Props) {
   const { target, servers, sites, serversLoaded, targetGone, targetModalOpen, busy } = state
+  const loadingSites = sitesBusy(state)
   const canSave = serversLoaded && target.serverId !== '' && target.siteId !== '' && !busy.target
 
   return (
@@ -67,13 +68,13 @@ export default function TargetDialog({ state, actions }: Props) {
             <label className="tw:flex tw:flex-col tw:gap-1">
               <span className="tw:flex tw:items-center tw:gap-2 tw:text-label tw:font-semibold">
                 {__('Site', 'fastcgi-cache-for-ploi')}
-                {busy.sites && <Spinner />}
+                {loadingSites && <Spinner />}
               </span>
               <NativeSelect
                 className="tw:w-full"
                 value={target.siteId}
                 onChange={(event) => actions.selectSite(event.target.value)}
-                disabled={busy.sites || !target.serverId || sites.length === 0}
+                disabled={loadingSites || !target.serverId || sites.length === 0}
               >
                 <NativeSelectOption value="">{__('— Select a site —', 'fastcgi-cache-for-ploi')}</NativeSelectOption>
                 {sites.map((site) => (

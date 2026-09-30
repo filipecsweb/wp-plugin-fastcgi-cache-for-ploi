@@ -10,6 +10,7 @@ import {
   needsReconnect,
   reducer,
   selectedTarget,
+  sitesBusy,
   useStore,
   type Action,
   type Settings,
@@ -40,7 +41,7 @@ describe('initialState', () => {
     expect(s.enabled).not.toBe(settings.enabledEvents)
     expect(s.target).toEqual({ serverId: '', siteId: '' })
     expect(s.log).toEqual([entry(1)])
-    expect(Object.values(s.busy)).toEqual(Array(8).fill(false))
+    expect(Object.values(s.busy)).toEqual(Array(7).fill(false))
   })
 
   it('reads the decrypt failure PHP reports as the unreadable reason', () => {
@@ -94,7 +95,14 @@ describe('reducer', () => {
       { servers: [], sites: [], serversLoaded: false, targetGone: '', targetStale: true },
     ],
     ['options/loaded', open, { type: 'options/loaded', servers, sites }, { servers, sites, serversLoaded: true }],
-    ['sites/loaded', open, { type: 'sites/loaded', serverId: 's1', sites }, { sites }],
+    ['sites/start', open, { type: 'sites/start', serverId: 's1' }, { sitesLoading: 's1' }],
+    ['sites/loaded ends its own load', reducer(open, { type: 'sites/start', serverId: 's1' }), { type: 'sites/loaded', serverId: 's1', sites }, { sites, sitesLoading: '' }],
+    [
+      'sites/loaded for a server the user left changes nothing',
+      reducer(open, { type: 'sites/start', serverId: 's1' }),
+      { type: 'sites/loaded', serverId: 's2', sites: [{ id: 'w9', domain: 'other.com' }] },
+      {},
+    ],
     [
       'a gone server takes its site and the site list with it',
       loaded,
@@ -156,6 +164,15 @@ describe('actions', () => {
   // Everything the handler dispatched, applied in order: proves handler + reducer together.
   const applied = (from: State = initialState(cfg)) => dispatch.mock.calls.reduce((s, [action]) => reducer(s, action), from)
   const busyTrail = (key: string) => dispatch.mock.calls.filter(([a]) => a.type === 'busy' && a.key === key).map(([a]) => a.type === 'busy' && a.value)
+  // sitesBusy after each dispatch, repeats collapsed.
+  const sitesBusyTrail = () =>
+    dispatch.mock.calls.reduce<[State, boolean[]]>(
+      ([s, trail], [action]) => {
+        const next = reducer(s, action)
+        return [next, trail.at(-1) === sitesBusy(next) ? trail : [...trail, sitesBusy(next)]]
+      },
+      [initialState(cfg), []]
+    )[1]
 
   beforeEach(() => {
     api.mockReset()
@@ -238,7 +255,7 @@ describe('actions', () => {
 
       expect(api).toHaveBeenLastCalledWith('GET', '/servers/s1/sites')
       expect(applied()).toMatchObject({ sites, targetGone: '', targetStale: false })
-      expect(busyTrail('sites')).toEqual([true, false])
+      expect(sitesBusyTrail()).toEqual([false, true, false])
     })
 
     it('leaves the saved site alone when its sites fail to load', async () => {
@@ -313,7 +330,7 @@ describe('actions', () => {
 
       expect(api).toHaveBeenCalledWith('GET', '/servers/s2/sites')
       expect(applied()).toMatchObject({ target: { serverId: 's2', siteId: '' }, sites })
-      expect(busyTrail('sites')).toEqual([true, false])
+      expect(sitesBusyTrail()).toEqual([false, true, false])
     })
 
     it('clears the list without a request when no server is picked', async () => {
@@ -330,7 +347,7 @@ describe('actions', () => {
 
       expect(applied(reducer(initialState(cfg), { type: 'options/loaded', servers, sites })).sites).toEqual([])
       expect(notify).toHaveBeenCalledWith('error', 'flush_failed message')
-      expect(busyTrail('sites')).toEqual([true, false])
+      expect(sitesBusyTrail()).toEqual([false, true, false])
     })
 
     it('keeps the last picked server’s list when an earlier reply lands after it', async () => {

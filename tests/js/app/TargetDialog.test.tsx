@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import type { Api } from '@/shared/api'
 import App from '@/app/App'
 import type { Config } from '@/app/store'
@@ -73,6 +73,26 @@ describe('TargetDialog', () => {
     await waitFor(() => expect(site.disabled).toBe(false))
     fireEvent.change(site, { target: { value: 'w1' } })
     expect(button('Save target').disabled).toBe(false)
+  })
+
+  it('stays busy until the sites of the last picked server arrive', async () => {
+    const api = renderApp()
+    api.mockResolvedValueOnce({ state: 'ok', servers, sites })
+    await open()
+    const busy = () => document.querySelector<HTMLElement>('.ploi-cache-admin')!.dataset.busySites
+    let replyForLeft: (reply: { sites: typeof sites }) => void = () => {}
+    let replyForPicked: (reply: { sites: typeof sites }) => void = () => {}
+    api.mockReturnValueOnce(new Promise((resolve) => (replyForLeft = resolve)))
+    api.mockReturnValueOnce(new Promise((resolve) => (replyForPicked = resolve)))
+
+    fireEvent.change(pickers()[0], { target: { value: 's2' } })
+    fireEvent.change(pickers()[0], { target: { value: 's1' } })
+    await act(async () => replyForLeft({ sites: [sites[1]] }))
+    expect(busy()).toBe('true')
+
+    await act(async () => replyForPicked({ sites }))
+    expect(busy()).toBe('false')
+    expect(pickers()[1].options).toHaveLength(sites.length + 1)
   })
 
   it('flags a gone server, clears both pickers and blocks Save; Cancel leaves the target unflushable', async () => {

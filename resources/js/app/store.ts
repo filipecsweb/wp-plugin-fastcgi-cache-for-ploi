@@ -87,7 +87,7 @@ export interface Saved extends NamedTarget {
   hasToken: boolean
 }
 
-export const BUSY_KEYS = ['connect', 'disconnect', 'servers', 'sites', 'save', 'flush', 'log', 'target'] as const
+export const BUSY_KEYS = ['connect', 'disconnect', 'servers', 'save', 'flush', 'log', 'target'] as const
 export type BusyKey = (typeof BUSY_KEYS)[number]
 
 export type GoneLevel = 'server' | 'site'
@@ -101,6 +101,8 @@ export interface State {
   target: Target
   servers: Server[]
   sites: Site[]
+  // The server whose site list was last requested and hasn't arrived; '' when none.
+  sitesLoading: string
   // Lets the dialog tell "loaded, none found" from "load failed" (a toast).
   serversLoaded: boolean
   // A probe found the saved server/site gone from Ploi: gates canFlush until a fresh
@@ -121,6 +123,7 @@ export type Action =
   | { type: 'modal/close' }
   | { type: 'options/start' }
   | { type: 'options/loaded'; servers: Server[]; sites: Site[] }
+  | { type: 'sites/start'; serverId: string }
   | { type: 'sites/loaded'; serverId: string; sites: Site[] }
   | { type: 'target/gone'; level: GoneLevel }
   | { type: 'target/server'; serverId: string }
@@ -144,6 +147,7 @@ export function initialState(cfg: Config): State {
     target: EMPTY_TARGET,
     servers: [],
     sites: [],
+    sitesLoading: '',
     serversLoaded: false,
     targetGone: '',
     targetModalOpen: false,
@@ -170,9 +174,16 @@ export function reducer(state: State, action: Action): State {
       return { ...state, servers: [], sites: [], serversLoaded: false, targetGone: '' }
     case 'options/loaded':
       return { ...state, servers: action.servers, sites: action.sites, serversLoaded: true }
+    case 'sites/start':
+      return { ...state, sitesLoading: action.serverId }
     case 'sites/loaded':
-      // A reply for a server the user has since switched away from is dropped.
-      return action.serverId === state.target.serverId ? { ...state, sites: action.sites } : state
+      // A reply for a server the user has since switched away from is dropped, and
+      // only the reply to the latest request ends the load.
+      return {
+        ...state,
+        sites: action.serverId === state.target.serverId ? action.sites : state.sites,
+        sitesLoading: action.serverId === state.sitesLoading ? '' : state.sitesLoading,
+      }
     case 'target/gone':
       // A gone server takes its site and the site list with it; a gone site keeps
       // the still-valid server and its live list.
@@ -191,6 +202,8 @@ export function reducer(state: State, action: Action): State {
 }
 
 export const needsReconnect = (s: State): boolean => s.reconnectReason !== ''
+
+export const sitesBusy = (s: State): boolean => s.sitesLoading !== '' && s.sitesLoading === s.target.serverId
 
 export const canFlush = (s: State): boolean =>
   s.saved.hasToken && s.saved.serverId !== '' && s.saved.siteId !== '' && !needsReconnect(s) && !s.targetStale
@@ -229,7 +242,7 @@ export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Noti
       dispatch({ type: 'sites/loaded', serverId, sites: [] })
       return []
     }
-    busy('sites', true)
+    dispatch({ type: 'sites/start', serverId })
     let sites: Site[] | null = null
     try {
       sites = (await api<{ sites?: Site[] }>('GET', `/servers/${encodeURIComponent(serverId)}/sites`)).sites ?? []
@@ -237,7 +250,6 @@ export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Noti
       route(e as ApiFailure)
     } finally {
       dispatch({ type: 'sites/loaded', serverId, sites: sites ?? [] })
-      busy('sites', false)
     }
     return sites
   }
