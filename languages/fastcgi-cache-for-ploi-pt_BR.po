@@ -1,5 +1,3 @@
-# Copyright (C) 2026 Filipe Seabra
-# This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
 "Project-Id-Version: FastCGI Cache for Ploi 1.0.0\n"
@@ -18,7 +16,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: fastcgi-cache-for-ploi.php
-#: src/Admin/SettingsPage.php:69
+#: src/Admin/SettingsPage.php
 msgid "FastCGI Cache for Ploi"
 msgstr "FastCGI Cache for Ploi"
 
@@ -42,381 +40,383 @@ msgstr "Filipe Seabra"
 msgid "https://github.com/filipecsweb"
 msgstr "https://github.com/filipecsweb"
 
-#: fastcgi-cache-for-ploi.php:59
+#: fastcgi-cache-for-ploi.php
 msgid "FastCGI Cache for Ploi: dependencies are missing. Run \"composer install\" in the plugin directory."
 msgstr "FastCGI Cache for Ploi: as dependências não foram instaladas. Execute \"composer install\" no diretório do plugin."
 
-#: public/build/main.js:1
+#. translators: %s: plugin version number.
+#: public/build/main.js
 #, php-format,js-format
 msgid "Version %s"
 msgstr "Versão %s"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Ploi is a trademark of its respective owner. This plugin is not affiliated with or endorsed by Ploi."
 msgstr "Ploi é uma marca registrada de seu respectivo proprietário. Este plugin não é afiliado à Ploi nem endossado por ela."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Recent flushes"
 msgstr "Limpezas recentes"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Refresh"
 msgstr "Atualizar"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "No flushes recorded yet."
 msgstr "Nenhuma limpeza registrada até agora."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "When"
 msgstr "Quando"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Trigger"
 msgstr "Gatilho"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Target"
 msgstr "Destino"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Result"
 msgstr "Resultado"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Duration"
 msgstr "Duração"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Success"
 msgstr "Sucesso"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Failed"
 msgstr "Falhou"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Close"
 msgstr "Fechar"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Reconnect required."
 msgstr "Reconexão necessária."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Harden your token's encryption key"
 msgstr "Reforce a chave de criptografia do seu token"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Your WordPress security keys (salts) aren't defined in <code>wp-config.php</code>. Define them — or add a dedicated key — so the key that encrypts your token lives in <code>wp-config.php</code>, separate from your database: <code>define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '…' );</code>"
 msgstr "As chaves de segurança (salts) do WordPress não estão definidas no <code>wp-config.php</code>. Defina-as — ou adicione uma chave dedicada — para que a chave que criptografa seu token fique no <code>wp-config.php</code>, separada do banco de dados: <code>define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '…' );</code>"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Saving…"
 msgstr "Salvando…"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Save settings"
 msgstr "Salvar configurações"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Connection"
 msgstr "Conexão"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Connecting validates your token with Ploi and stores it encrypted; a saved token is never shown again. Disconnect to enter a different one."
 msgstr "Ao conectar, seu token é validado na Ploi e armazenado criptografado; um token salvo nunca é exibido novamente. Desconecte para informar outro."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Ploi API token"
 msgstr "Token da API da Ploi"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Connected — disconnect to enter a new token"
 msgstr "Conectado — desconecte para informar um novo token"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Enter your Ploi API token"
 msgstr "Informe seu token da API da Ploi"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Connecting…"
 msgstr "Conectando…"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Connect"
 msgstr "Conectar"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Disconnecting…"
 msgstr "Desconectando…"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Disconnect"
 msgstr "Desconectar"
 
-#: public/build/main.js:1
+#. translators: 1: <strong>-wrapped breadcrumb to the Ploi API keys screen; 2: opening <a> tag; 3: closing </a> tag; 4: <code>-wrapped example token name.
+#: public/build/main.js
 #, php-format,js-format
 msgid "Paste a Ploi API token to connect. Create one in %1$s (%2$sopen ↗%3$s) and name it something like %4$s so it's easy to find and revoke later."
 msgstr "Cole um token da API da Ploi para conectar. Crie um em %1$s (%2$sabrir ↗%3$s) e dê a ele um nome como %4$s para facilitar encontrá-lo e revogá-lo depois."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Ploi → API keys"
 msgstr "Ploi → API keys"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "FastCGI Cache — yoursite.com"
 msgstr "FastCGI Cache — seusite.com.br"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Flush target (Server and Site)"
 msgstr "Destino da limpeza (servidor e site)"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Currently flushing:"
 msgstr "Destino atual:"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Change"
 msgstr "Alterar"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Select target"
 msgstr "Selecionar destino"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Flushing…"
 msgstr "Limpando…"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Flush now"
 msgstr "Limpar agora"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Flush automatically when…"
 msgstr "Limpar automaticamente quando…"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Change flush target"
 msgstr "Alterar destino da limpeza"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Settings sections"
 msgstr "Seções de configurações"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Server"
 msgstr "Servidor"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "— Select a server —"
 msgstr "— Selecione um servidor —"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "No servers found for this token."
 msgstr "Nenhum servidor encontrado para este token."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Site"
 msgstr "Site"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "— Select a site —"
 msgstr "— Selecione um site —"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Choose a server first."
 msgstr "Escolha um servidor primeiro."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Save target"
 msgstr "Salvar destino"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Dismiss this notice."
 msgstr "Dispensar este aviso."
 
-#: src/Admin/SettingsPage.php:113
+#: src/Admin/SettingsPage.php
 msgid "Automatically flush your Ploi-managed site's FastCGI cache when content changes."
 msgstr "Limpe automaticamente o cache FastCGI do seu site gerenciado pela Ploi quando o conteúdo mudar."
 
-#: src/Admin/SettingsPage.php:61
+#: src/Admin/SettingsPage.php
 msgid "Sorry, you are not allowed to access this page."
 msgstr "Sem permissão para acessar esta página."
 
-#: src/Admin/SettingsPage.php:77
+#: src/Admin/SettingsPage.php
 msgid "FastCGI Cache"
 msgstr "FastCGI Cache"
 
-#: src/Admin/SettingsPage.php:95
-#: public/build/main.js:1
+#: src/Admin/SettingsPage.php
+#: public/build/main.js
 msgid "Settings"
 msgstr "Configurações"
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Logs"
 msgstr "Registros"
 
-#: src/Cache/FlushEvents.php:70
+#: src/Cache/FlushEvents.php
 msgid "A published post, page or custom post type is created, updated, or changes status."
 msgstr "Um post, página ou tipo de post personalizado publicado é criado, atualizado ou muda de status."
 
-#: src/Cache/FlushEvents.php:71
+#: src/Cache/FlushEvents.php
 msgid "A published post is moved to trash or permanently deleted."
 msgstr "Um post publicado é movido para a lixeira ou excluído permanentemente."
 
-#: src/Cache/FlushEvents.php:72
+#: src/Cache/FlushEvents.php
 msgid "A comment is submitted, approved, unapproved, spammed or deleted."
 msgstr "Um comentário é enviado, aprovado, reprovado, marcado como spam ou excluído."
 
-#: src/Cache/FlushEvents.php:73
+#: src/Cache/FlushEvents.php
 msgid "The active theme changes."
 msgstr "O tema ativo é alterado."
 
-#: src/Cache/FlushEvents.php:74
+#: src/Cache/FlushEvents.php
 msgid "Customizer settings are saved."
 msgstr "As configurações do personalizador são salvas."
 
-#: src/Cache/FlushEvents.php:75
+#: src/Cache/FlushEvents.php
 msgid "A navigation menu is created or updated."
 msgstr "Um menu de navegação é criado ou atualizado."
 
-#: src/Cache/FlushReason.php:68
+#: src/Cache/FlushReason.php
 msgid "Post published or updated"
 msgstr "Post publicado ou atualizado"
 
-#: src/Cache/FlushReason.php:69
+#: src/Cache/FlushReason.php
 msgid "Post deleted"
 msgstr "Post excluído"
 
-#: src/Cache/FlushReason.php:70
+#: src/Cache/FlushReason.php
 msgid "Comment posted or moderated"
 msgstr "Comentário publicado ou moderado"
 
-#: src/Cache/FlushReason.php:71
+#: src/Cache/FlushReason.php
 msgid "Theme switched"
 msgstr "Tema alterado"
 
-#: src/Cache/FlushReason.php:72
+#: src/Cache/FlushReason.php
 msgid "Customizer changes published"
 msgstr "Alterações do personalizador publicadas"
 
-#: src/Cache/FlushReason.php:73
+#: src/Cache/FlushReason.php
 msgid "Navigation menu updated"
 msgstr "Menu de navegação atualizado"
 
-#: src/Cache/FlushReason.php:74
+#: src/Cache/FlushReason.php
 msgid "Manual flush"
 msgstr "Limpeza manual"
 
-#: src/Log/FlushLogEntry.php:125
+#: src/Log/FlushLogEntry.php
 msgid "Ploi rejected the token as wrong or expired."
 msgstr "A Ploi rejeitou o token por ser inválido ou expirado."
 
-#: src/Log/FlushLogEntry.php:126
+#: src/Log/FlushLogEntry.php
 msgid "Ploi could not find the server or site — it may have been deleted."
 msgstr "A Ploi não encontrou o servidor ou o site — ele pode ter sido excluído."
 
-#: src/Log/FlushLogEntry.php:127
+#: src/Log/FlushLogEntry.php
 msgid "Ploi rejected the flush — FastCGI caching may not be enabled for this site."
 msgstr "A Ploi rejeitou a limpeza — o cache FastCGI pode não estar habilitado para este site."
 
-#: src/Ploi/PloiApiException.php:40
+#: src/Ploi/PloiApiException.php
 msgid "Your Ploi API token was rejected. Check the token and try again."
 msgstr "Seu token da API da Ploi foi rejeitado. Verifique o token e tente novamente."
 
-#: src/Ploi/PloiApiException.php:47
+#: src/Ploi/PloiApiException.php
 msgid "This Ploi API token is missing a required permission. Use a token with the Servers and Sites scopes."
 msgstr "Este token da API da Ploi não tem uma permissão necessária. Use um token com os escopos Servers e Sites."
 
 #. translators: %d: HTTP status code.
-#: src/Ploi/PloiApiException.php:71
+#: src/Ploi/PloiApiException.php
 #, php-format
 msgid "The Ploi API request failed (HTTP %d)."
 msgstr "A requisição à API da Ploi falhou (HTTP %d)."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Settings saved."
 msgstr "Configurações salvas."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Connected to Ploi. Now choose a flush target."
 msgstr "Conectado à Ploi. Agora escolha um destino de limpeza."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Flush target updated."
 msgstr "Destino da limpeza atualizado."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Token removed. Add a new token to reconnect."
 msgstr "Token removido. Adicione um novo token para reconectar."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Something went wrong. Please try again."
 msgstr "Algo deu errado. Tente novamente."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Add a Ploi API token first."
 msgstr "Adicione um token da API da Ploi primeiro."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Your saved token could not be read — your site's security keys may have changed. Re-enter your Ploi API token and click Connect."
 msgstr "Seu token salvo não pôde ser lido — as chaves de segurança do seu site podem ter mudado. Informe novamente seu token da API da Ploi e clique em Conectar."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Ploi rejected your saved token. Re-enter a valid Ploi API token and click Connect."
 msgstr "A Ploi rejeitou seu token salvo. Informe um token válido da API da Ploi e clique em Conectar."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Your saved token is missing a required permission. Re-enter a token with the Servers and Sites scopes and click Connect."
 msgstr "Seu token salvo não tem uma permissão necessária. Informe um token com os escopos Servers e Sites e clique em Conectar."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Couldn't reach Ploi right now. Try again in a moment."
 msgstr "Não foi possível conectar à Ploi agora. Tente novamente em instantes."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "The saved server no longer exists in Ploi. Choose a new server and site."
 msgstr "O servidor salvo não existe mais na Ploi. Escolha um novo servidor e site."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "The saved site no longer exists in Ploi. Choose another site."
 msgstr "O site salvo não existe mais na Ploi. Escolha outro site."
 
-#: src/Rest/ConnectionController.php:103
+#: src/Rest/ConnectionController.php
 msgid "Enter a Ploi API token to connect."
 msgstr "Informe um token da API da Ploi para conectar."
 
-#: src/Rest/FlushController.php:60
+#: src/Rest/FlushController.php
 msgid "Add a token, then choose a server and site before flushing."
 msgstr "Adicione um token e escolha um servidor e um site antes de limpar o cache."
 
-#: src/Rest/FlushController.php:68
+#: src/Rest/FlushController.php
 msgid "Nothing to flush — the plugin is not configured."
 msgstr "Nada para limpar — o plugin não está configurado."
 
-#: src/Rest/FlushController.php:86
+#: src/Rest/FlushController.php
 msgid "FastCGI cache flushed."
 msgstr "Cache FastCGI limpo."
 
-#: src/Rest/FlushController.php:107
+#: src/Rest/FlushController.php
 msgid "The flush request failed."
 msgstr "A solicitação de limpeza falhou."
 
 #. translators: 1: friendly explanation, 2: raw message from the Ploi API.
-#: src/Rest/FlushController.php:112
+#: src/Rest/FlushController.php
 #, php-format
 msgid "%1$s (Ploi: %2$s)"
 msgstr "%1$s (Ploi: %2$s)"
 
-#: src/Rest/PloiRestController.php:42
+#: src/Rest/PloiRestController.php
 msgid "Your saved token could not be read. Please re-enter your Ploi API token."
 msgstr "Seu token salvo não pôde ser lido. Informe novamente seu token da API da Ploi."
 
-#: public/build/main.js:1
+#: public/build/main.js
 msgid "Notifications"
 msgstr "Notificações"
