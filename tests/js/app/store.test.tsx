@@ -10,11 +10,13 @@ import {
   needsReconnect,
   reducer,
   selectedTarget,
+  serversBusy,
   sitesBusy,
   useStore,
   type Action,
   type Settings,
   type State,
+  type TargetOptions,
 } from '@/app/store'
 import { cfg, entry, mockApi, settings } from './fixtures'
 
@@ -30,6 +32,8 @@ const UPSTREAM_502 = failure('flush_failed', 502)
 const OFFLINE = failure('fetch_error')
 
 const withSaved = (patch: Partial<Settings>) => reducer(initialState(cfg), { type: 'saved', settings: { ...settings, ...patch } })
+const probing = (from: State, probe = 1) => reducer(from, { type: 'options/start', probe })
+const probed = (from: State, options: TargetOptions) => reducer(probing(from), { type: 'options/loaded', probe: 1, options })
 
 describe('initialState', () => {
   it('seeds the saved snapshot, the working copies and the log from the config', () => {
@@ -41,7 +45,7 @@ describe('initialState', () => {
     expect(s.enabled).not.toBe(settings.enabledEvents)
     expect(s.target).toEqual({ serverId: '', siteId: '' })
     expect(s.log).toEqual([entry(1)])
-    expect(Object.values(s.busy)).toEqual(Array(7).fill(false))
+    expect(Object.values(s.busy)).toEqual(Array(6).fill(false))
   })
 
   it('reads the decrypt failure PHP reports as the unreadable reason', () => {
@@ -53,7 +57,7 @@ describe('initialState', () => {
 
 describe('reducer', () => {
   const open = reducer(initialState(cfg), { type: 'modal/open' })
-  const loaded = reducer(open, { type: 'options/loaded', servers, sites })
+  const loaded = probed(open, { servers, sites, gone: '' })
 
   it.each<[string, State, Action, Partial<State>]>([
     ['busy on', initialState(cfg), { type: 'busy', key: 'flush', value: true }, { busy: { ...initialState(cfg).busy, flush: true } }],
@@ -65,7 +69,7 @@ describe('reducer', () => {
     ],
     [
       'saved adopts the snapshot and clears a stale target',
-      reducer(loaded, { type: 'target/gone', level: 'site' }),
+      probed(open, { servers, sites, gone: 'site' }),
       { type: 'saved', settings: { ...settings, siteId: 'w2', siteDomain: 'two.com' } },
       { saved: { ...loaded.saved, siteId: 'w2', siteDomain: 'two.com' }, targetStale: false },
     ],
@@ -90,11 +94,12 @@ describe('reducer', () => {
     ['modal/close', open, { type: 'modal/close' }, { targetModalOpen: false }],
     [
       'options/start clears the lists and the gone notice',
-      reducer(loaded, { type: 'target/gone', level: 'site' }),
-      { type: 'options/start' },
-      { servers: [], sites: [], serversLoaded: false, targetGone: '', targetStale: true },
+      probed(open, { servers, sites, gone: 'site' }),
+      { type: 'options/start', probe: 2 },
+      { servers: [], sites: [], serversLoaded: false, targetGone: '', targetStale: true, serversLoading: 2 },
     ],
-    ['options/loaded', open, { type: 'options/loaded', servers, sites }, { servers, sites, serversLoaded: true }],
+    ['options/loaded ends its own probe', probing(open), { type: 'options/loaded', probe: 1, options: { servers, sites, gone: '' } }, { servers, sites, serversLoaded: true, serversLoading: 0 }],
+    ['a failed probe ends without its lists', probing(open), { type: 'options/loaded', probe: 1, options: null }, { serversLoading: 0 }],
     ['sites/start', open, { type: 'sites/start', serverId: 's1' }, { sitesLoading: 's1' }],
     ['sites/loaded ends its own load', reducer(open, { type: 'sites/start', serverId: 's1' }), { type: 'sites/loaded', serverId: 's1', sites }, { sites, sitesLoading: '' }],
     [
@@ -105,15 +110,15 @@ describe('reducer', () => {
     ],
     [
       'a gone server takes its site and the site list with it',
-      loaded,
-      { type: 'target/gone', level: 'server' },
-      { targetStale: true, targetGone: 'server', target: { serverId: '', siteId: '' }, sites: [], servers },
+      probing(open),
+      { type: 'options/loaded', probe: 1, options: { servers, sites, gone: 'server' } },
+      { serversLoading: 0, serversLoaded: true, targetStale: true, targetGone: 'server', target: { serverId: '', siteId: '' }, sites: [], servers },
     ],
     [
       'a gone site keeps the server and its list',
-      loaded,
-      { type: 'target/gone', level: 'site' },
-      { targetStale: true, targetGone: 'site', target: { serverId: 's1', siteId: '' }, sites },
+      probing(open),
+      { type: 'options/loaded', probe: 1, options: { servers, sites, gone: 'site' } },
+      { serversLoading: 0, serversLoaded: true, targetStale: true, targetGone: 'site', target: { serverId: 's1', siteId: '' }, servers, sites },
     ],
     ['picking a server resets the site and its list', loaded, { type: 'target/server', serverId: 's2' }, { target: { serverId: 's2', siteId: '' }, sites: [] }],
     ['picking a site', loaded, { type: 'target/site', siteId: 'w9' }, { target: { serverId: 's1', siteId: 'w9' } }],
@@ -125,6 +130,12 @@ describe('reducer', () => {
     expect(after).toEqual({ ...before, ...expected })
     expect(after).not.toBe(before)
   })
+
+  it('drops the reply of a superseded probe', () => {
+    const reopened = probing(probing(open, 1), 2)
+
+    expect(reducer(reopened, { type: 'options/loaded', probe: 1, options: { servers, sites, gone: 'site' } })).toBe(reopened)
+  })
 })
 
 describe('selectors', () => {
@@ -134,7 +145,7 @@ describe('selectors', () => {
     ['no server', withSaved({ serverId: '' }), false],
     ['no site', withSaved({ siteId: '' }), false],
     ['reconnect required', reducer(initialState(cfg), { type: 'reconnect', reason: RECONNECT_REASON.INVALID }), false],
-    ['target gone', reducer(initialState(cfg), { type: 'target/gone', level: 'site' }), false],
+    ['target gone', probed(initialState(cfg), { servers, sites, gone: 'site' }), false],
   ])('canFlush: %s', (_, state, expected) => {
     expect(canFlush(state)).toBe(expected)
   })
@@ -151,7 +162,7 @@ describe('selectors', () => {
     const open = reducer(initialState(cfg), { type: 'modal/open' })
     expect(selectedTarget(open)).toEqual({ serverId: 's1', siteId: 'w1', serverName: 'web-1', siteDomain: 'example.com' })
 
-    const picked = reducer(reducer(open, { type: 'options/loaded', servers, sites }), { type: 'target/server', serverId: 's2' })
+    const picked = reducer(probed(open, { servers, sites, gone: '' }), { type: 'target/server', serverId: 's2' })
     expect(selectedTarget(picked)).toEqual({ serverId: 's2', siteId: '', serverName: 'web-2', siteDomain: 'example.com' })
   })
 })
@@ -164,12 +175,12 @@ describe('actions', () => {
   // Everything the handler dispatched, applied in order: proves handler + reducer together.
   const applied = (from: State = initialState(cfg)) => dispatch.mock.calls.reduce((s, [action]) => reducer(s, action), from)
   const busyTrail = (key: string) => dispatch.mock.calls.filter(([a]) => a.type === 'busy' && a.key === key).map(([a]) => a.type === 'busy' && a.value)
-  // sitesBusy after each dispatch, repeats collapsed.
-  const sitesBusyTrail = () =>
+  // A busy selector after each dispatch, repeats collapsed.
+  const selectorTrail = (busy: (s: State) => boolean) =>
     dispatch.mock.calls.reduce<[State, boolean[]]>(
       ([s, trail], [action]) => {
         const next = reducer(s, action)
-        return [next, trail.at(-1) === sitesBusy(next) ? trail : [...trail, sitesBusy(next)]]
+        return [next, trail.at(-1) === busy(next) ? trail : [...trail, busy(next)]]
       },
       [initialState(cfg), []]
     )[1]
@@ -217,7 +228,7 @@ describe('actions', () => {
       await actions.disconnect()
 
       expect(api).toHaveBeenCalledWith('DELETE', '/connection')
-      const s = applied(reducer(initialState(cfg), { type: 'options/loaded', servers, sites }))
+      const s = applied(probed(initialState(cfg), { servers, sites, gone: '' }))
       expect(s.saved.hasToken).toBe(false)
       expect(s.servers).toEqual([])
       expect(notify).toHaveBeenCalledWith('success', 'Token removed. Add a new token to reconnect.')
@@ -245,7 +256,7 @@ describe('actions', () => {
       expect(api.mock.calls).toEqual([['GET', '/connection?server=s1']])
       const s = applied()
       expect(s).toMatchObject({ targetModalOpen: true, target: saved, servers, sites, serversLoaded: true, targetGone: '', targetStale: false })
-      expect(busyTrail('servers')).toEqual([true, false])
+      expect(selectorTrail(serversBusy)).toEqual([false, true, false])
     })
 
     it('marks the saved site gone when its server has no sites left', async () => {
@@ -298,7 +309,7 @@ describe('actions', () => {
 
       expect(applied()).toMatchObject({ reconnectReason: state, targetModalOpen: false, saved: { hasToken: false } })
       expect(notify).not.toHaveBeenCalled()
-      expect(busyTrail('servers')).toEqual([true, false])
+      expect(selectorTrail(serversBusy)).toEqual([false, true, false])
     })
 
     it('toasts the unknown state without touching the token', async () => {
@@ -316,7 +327,7 @@ describe('actions', () => {
       await actions.openTargetModal(saved)
 
       expect(applied()).toMatchObject({ reconnectReason: RECONNECT_REASON.UNREADABLE, targetModalOpen: false })
-      expect(busyTrail('servers')).toEqual([true, false])
+      expect(selectorTrail(serversBusy)).toEqual([false, true, false])
     })
   })
 
@@ -328,14 +339,14 @@ describe('actions', () => {
 
       expect(api).toHaveBeenCalledWith('GET', '/servers/s2/sites')
       expect(applied()).toMatchObject({ target: { serverId: 's2', siteId: '' }, sites })
-      expect(sitesBusyTrail()).toEqual([false, true, false])
+      expect(selectorTrail(sitesBusy)).toEqual([false, true, false])
     })
 
     it('clears the list without a request when no server is picked', async () => {
       await actions.selectServer('')
 
       expect(api).not.toHaveBeenCalled()
-      expect(applied(reducer(initialState(cfg), { type: 'options/loaded', servers, sites })).sites).toEqual([])
+      expect(applied(probed(initialState(cfg), { servers, sites, gone: '' })).sites).toEqual([])
     })
 
     it('leaves no stale options on a failure and routes it', async () => {
@@ -343,9 +354,9 @@ describe('actions', () => {
 
       await actions.selectServer('s2')
 
-      expect(applied(reducer(initialState(cfg), { type: 'options/loaded', servers, sites })).sites).toEqual([])
+      expect(applied(probed(initialState(cfg), { servers, sites, gone: '' })).sites).toEqual([])
       expect(notify).toHaveBeenCalledWith('error', 'flush_failed message')
-      expect(sitesBusyTrail()).toEqual([false, true, false])
+      expect(selectorTrail(sitesBusy)).toEqual([false, true, false])
     })
 
     it('keeps the last picked server’s list when an earlier reply lands after it', async () => {

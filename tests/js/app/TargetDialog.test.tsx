@@ -95,6 +95,40 @@ describe('TargetDialog', () => {
     expect(pickers()[1].options).toHaveLength(sites.length + 1)
   })
 
+  it('keeps the server picker busy until the reopened dialog’s own probe answers', async () => {
+    const api = renderApp()
+    let replyToFirst: (reply: unknown) => void = () => {}
+    api.mockReturnValueOnce(new Promise((resolve) => (replyToFirst = resolve)))
+    api.mockReturnValueOnce(new Promise(() => {}))
+
+    fireEvent.click(targetButton())
+    fireEvent.click(button('Cancel'))
+    await closed()
+    fireEvent.click(targetButton())
+    await act(async () => replyToFirst({ state: 'ok', servers, sites }))
+
+    expect(pickers()[0].disabled).toBe(true)
+  })
+
+  it('drops the reply of a probe the reopened dialog superseded', async () => {
+    const api = renderApp()
+    let replyToFirst: (reply: unknown) => void = () => {}
+    api.mockReturnValueOnce(new Promise((resolve) => (replyToFirst = resolve)))
+    api.mockResolvedValueOnce({ state: 'ok', servers, sites })
+
+    fireEvent.click(targetButton())
+    fireEvent.click(button('Cancel'))
+    await closed()
+    await open()
+    api.mockResolvedValueOnce({ sites: [sites[1]] })
+    fireEvent.change(pickers()[0], { target: { value: 's2' } })
+    await waitFor(() => expect(pickers()[1].disabled).toBe(false))
+    await act(async () => replyToFirst({ state: 'ok', servers, sites }))
+
+    expect(pickers()[0].value).toBe('s2')
+    expect([...pickers()[1].options].map((o) => o.value)).toEqual(['', 'w2'])
+  })
+
   it('flags a gone server, clears both pickers and blocks Save; Cancel leaves the target unflushable', async () => {
     const api = renderApp()
     api.mockResolvedValueOnce({ state: 'ok', servers: [servers[1]], sites: [] })
