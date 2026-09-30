@@ -87,10 +87,17 @@ export interface Saved extends NamedTarget {
   hasToken: boolean
 }
 
-export const BUSY_KEYS = ['connect', 'disconnect', 'servers', 'save', 'flush', 'log', 'target'] as const
+export const BUSY_KEYS = ['connect', 'disconnect', 'save', 'flush', 'log', 'target'] as const
 export type BusyKey = (typeof BUSY_KEYS)[number]
 
 export type GoneLevel = 'server' | 'site'
+
+/** What a probe found: the lists, and which level of the saved target is gone ('' when neither). */
+export interface TargetOptions {
+  servers: Server[]
+  sites: Site[]
+  gone: GoneLevel | ''
+}
 
 export interface State {
   saved: Saved
@@ -101,6 +108,8 @@ export interface State {
   target: Target
   servers: Server[]
   sites: Site[]
+  // The latest probe while it hasn't answered; 0 when none.
+  serversLoading: number
   // The server whose site list was last requested and hasn't arrived; '' when none.
   sitesLoading: string
   // Lets the dialog tell "loaded, none found" from "load failed" (a toast).
@@ -121,11 +130,10 @@ export type Action =
   | { type: 'disconnected'; settings: Settings }
   | { type: 'modal/open' }
   | { type: 'modal/close' }
-  | { type: 'options/start' }
-  | { type: 'options/loaded'; servers: Server[]; sites: Site[] }
+  | { type: 'options/start'; probe: number }
+  | { type: 'options/loaded'; probe: number; options: TargetOptions | null }
   | { type: 'sites/start'; serverId: string }
   | { type: 'sites/loaded'; serverId: string; sites: Site[] }
-  | { type: 'target/gone'; level: GoneLevel }
   | { type: 'target/server'; serverId: string }
   | { type: 'target/site'; siteId: string }
   | { type: 'event/toggle'; key: string; enabled: boolean }
@@ -147,6 +155,7 @@ export function initialState(cfg: Config): State {
     target: EMPTY_TARGET,
     servers: [],
     sites: [],
+    serversLoading: 0,
     sitesLoading: '',
     serversLoaded: false,
     targetGone: '',
@@ -171,9 +180,19 @@ export function reducer(state: State, action: Action): State {
     case 'modal/close':
       return { ...state, targetModalOpen: false }
     case 'options/start':
-      return { ...state, servers: [], sites: [], serversLoaded: false, targetGone: '' }
-    case 'options/loaded':
-      return { ...state, servers: action.servers, sites: action.sites, serversLoaded: true }
+      return { ...state, servers: [], sites: [], serversLoaded: false, targetGone: '', serversLoading: action.probe }
+    case 'options/loaded': {
+      // Only the latest probe answers: reopening the dialog mid-probe sends a newer one.
+      if (action.probe !== state.serversLoading) return state
+      if (!action.options) return { ...state, serversLoading: 0 }
+      const { servers, sites, gone } = action.options
+      const loaded: State = { ...state, serversLoading: 0, servers, sites, serversLoaded: true }
+      // A gone server takes its site and the site list with it; a gone site keeps
+      // the still-valid server and its live list.
+      if (gone === 'server') return { ...loaded, targetStale: true, targetGone: gone, target: EMPTY_TARGET, sites: [] }
+      if (gone === 'site') return { ...loaded, targetStale: true, targetGone: gone, target: { ...state.target, siteId: '' } }
+      return loaded
+    }
     case 'sites/start':
       return { ...state, sitesLoading: action.serverId }
     case 'sites/loaded':
@@ -184,12 +203,6 @@ export function reducer(state: State, action: Action): State {
         sites: action.serverId === state.target.serverId ? action.sites : state.sites,
         sitesLoading: action.serverId === state.sitesLoading ? '' : state.sitesLoading,
       }
-    case 'target/gone':
-      // A gone server takes its site and the site list with it; a gone site keeps
-      // the still-valid server and its live list.
-      return action.level === 'server'
-        ? { ...state, targetStale: true, targetGone: 'server', target: EMPTY_TARGET, sites: [] }
-        : { ...state, targetStale: true, targetGone: 'site', target: { ...state.target, siteId: '' } }
     case 'target/server':
       return { ...state, target: { serverId: action.serverId, siteId: '' }, sites: [] }
     case 'target/site':
@@ -202,6 +215,8 @@ export function reducer(state: State, action: Action): State {
 }
 
 export const needsReconnect = (s: State): boolean => s.reconnectReason !== ''
+
+export const serversBusy = (s: State): boolean => s.serversLoading !== 0
 
 export const sitesBusy = (s: State): boolean => s.sitesLoading !== '' && s.sitesLoading === s.target.serverId
 
@@ -221,6 +236,9 @@ export const selectedTarget = (s: State): NamedTarget => ({
 })
 
 export type Notify = (type: 'success' | 'error', text: string) => void
+
+// Module-wide, so a probe id stays unique even if the handlers are rebuilt mid-probe.
+let probes = 0
 
 export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Notify) {
   const busy = (key: BusyKey, value: boolean) => dispatch({ type: 'busy', key, value })
@@ -255,30 +273,30 @@ export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Noti
   // sites of the server it names, never another's. A failure comes back as a `state`,
   // not an HTTP error.
   const loadTargetOptions = async (target: Target): Promise<void> => {
-    dispatch({ type: 'options/start' })
-    busy('servers', true)
+    const probe = ++probes
+    dispatch({ type: 'options/start', probe })
+    let options: TargetOptions | null = null
     try {
       const data = await api<ConnectionStatus>('GET', target.serverId ? `/connection?server=${encodeURIComponent(target.serverId)}` : '/connection')
-      if (data.state !== 'ok') {
-        if (data.state === RECONNECT_REASON.INVALID || data.state === RECONNECT_REASON.MISSING_PERMISSION) {
-          dispatch({ type: 'reconnect', reason: data.state })
-        } else {
-          notify('error', cannotReach())
-        }
-        return
+      if (data.state === 'ok') {
+        const servers = data.servers ?? []
+        const sites = data.sites ?? []
+        const gone =
+          target.serverId && !servers.some((x) => x.id === target.serverId)
+            ? 'server'
+            : target.siteId && !sites.some((x) => x.id === target.siteId)
+              ? 'site'
+              : ''
+        options = { servers, sites, gone }
+      } else if (data.state === RECONNECT_REASON.INVALID || data.state === RECONNECT_REASON.MISSING_PERMISSION) {
+        dispatch({ type: 'reconnect', reason: data.state })
+      } else {
+        notify('error', cannotReach())
       }
-      const servers = data.servers ?? []
-      const sites = data.sites ?? []
-      dispatch({ type: 'options/loaded', servers, sites })
-      if (target.serverId && !servers.some((x) => x.id === target.serverId)) {
-        dispatch({ type: 'target/gone', level: 'server' })
-        return
-      }
-      if (target.siteId && !sites.some((x) => x.id === target.siteId)) dispatch({ type: 'target/gone', level: 'site' })
     } catch (e) {
       route(e as ApiFailure)
     } finally {
-      busy('servers', false)
+      dispatch({ type: 'options/loaded', probe, options })
     }
   }
 

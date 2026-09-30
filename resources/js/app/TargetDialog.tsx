@@ -11,7 +11,7 @@ import { Button } from '@/ui/button'
 import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/ui/dialog'
 import { NativeSelect, NativeSelectOption } from '@/ui/native-select'
 import { Spinner } from '@/ui/spinner'
-import { selectedTarget, sitesBusy, type Actions, type GoneLevel, type State } from './store'
+import { selectedTarget, serversBusy, sitesBusy, type Actions, type GoneLevel, type State } from './store'
 
 interface Props {
   state: State
@@ -20,6 +20,7 @@ interface Props {
 
 export default function TargetDialog({ state, actions }: Props) {
   const { target, servers, sites, serversLoaded, targetGone, targetModalOpen, busy } = state
+  const loadingServers = serversBusy(state)
   const loadingSites = sitesBusy(state)
   const canSave = serversLoaded && target.serverId !== '' && target.siteId !== '' && !busy.target
 
@@ -45,13 +46,13 @@ export default function TargetDialog({ state, actions }: Props) {
             <label className="tw:flex tw:flex-col tw:gap-1">
               <span className="tw:flex tw:items-center tw:gap-2 tw:text-label tw:font-semibold">
                 {__('Server', 'fastcgi-cache-for-ploi')}
-                {busy.servers && <Spinner />}
+                {loadingServers && <Spinner />}
               </span>
               <NativeSelect
                 className="tw:w-full"
                 value={target.serverId}
                 onChange={(event) => void actions.selectServer(event.target.value)}
-                disabled={busy.servers || servers.length === 0}
+                disabled={loadingServers || servers.length === 0}
               >
                 <NativeSelectOption value="">{__('— Select a server —', 'fastcgi-cache-for-ploi')}</NativeSelectOption>
                 {servers.map((server) => (
@@ -60,7 +61,7 @@ export default function TargetDialog({ state, actions }: Props) {
                   </NativeSelectOption>
                 ))}
               </NativeSelect>
-              {serversLoaded && !busy.servers && servers.length === 0 && (
+              {serversLoaded && servers.length === 0 && (
                 <span className="tw:text-body tw:text-muted-foreground">{__('No servers found for this token.', 'fastcgi-cache-for-ploi')}</span>
               )}
             </label>
