@@ -19,11 +19,18 @@ import type { Notify } from './store'
 
 const TIMEOUT_MS = 10_000
 
-const manager = Toast.createToastManager()
+interface Raise {
+  raise: number
+}
+
+const manager = Toast.createToastManager<Raise>()
+let raises = 0
 
 // The id is the message: re-raising it restarts the countdown instead of stacking a duplicate.
+// WHY a raise count, not Base UI's updateKey: re-raising a closing toast re-adds it with
+// updateKey 0 on the same instance, so a toast never updated before would keep its spent count.
 export const notify: Notify = (type, text) => {
-  manager.add({ id: `${type}:${text}`, type, title: text, timeout: 0, priority: type === 'error' ? 'high' : 'low' })
+  manager.add({ id: `${type}:${text}`, type, title: text, timeout: 0, priority: type === 'error' ? 'high' : 'low', data: { raise: ++raises } })
 }
 
 export function Toaster() {
@@ -44,13 +51,13 @@ export function Toaster() {
 }
 
 function ToastList() {
-  const { toasts } = Toast.useToastManager()
+  const { toasts } = Toast.useToastManager<Raise>()
   // Oldest first, so a new toast lands at the bottom of the stack.
   return [...toasts].reverse().map((toast) => <ToastItem key={toast.id} toast={toast} />)
 }
 
-function ToastItem({ toast }: { toast: Toast.Root.ToastObject }) {
-  const remaining = useCountdown(TIMEOUT_MS, toast.updateKey ?? 0)
+function ToastItem({ toast }: { toast: Toast.Root.ToastObject<Raise> }) {
+  const remaining = useCountdown(TIMEOUT_MS, toast.data?.raise ?? 0)
   const error = toast.type === 'error'
 
   useEffect(() => {

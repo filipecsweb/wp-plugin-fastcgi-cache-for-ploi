@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { Toaster, notify } from '@/app/toaster'
 
@@ -83,6 +83,24 @@ describe('toaster', () => {
       advance(5_000)
       advance(1_000)
       expect(toast('Saved again.')).toBeNull()
+    })
+
+    it('starts over when the message is raised again while it closes', () => {
+      vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'setTimeout', 'clearTimeout', 'performance', 'Date'] })
+      // An exit transition that never ends: jsdom has none, so it removes a closing toast at once and a
+      // re-raise would mount a new one instead of reviving the closing one, as a browser does.
+      Object.defineProperty(Element.prototype, 'getAnimations', { configurable: true, value: () => [{ finished: new Promise(() => {}) }] })
+      onTestFinished(() => void delete (Element.prototype as Partial<Element>).getAnimations)
+      render(<Toaster />)
+      act(() => notify('success', 'Raised while closing.'))
+      advance(10_100)
+      expect(toast('Raised while closing.')!.hasAttribute('data-ending-style')).toBe(true)
+
+      act(() => notify('success', 'Raised while closing.'))
+      advance(5_000)
+
+      expect(toast('Raised while closing.')!.hasAttribute('data-ending-style')).toBe(false)
+      expect(ring('Raised while closing.')).toBeCloseTo(50, 0)
     })
   })
 })
