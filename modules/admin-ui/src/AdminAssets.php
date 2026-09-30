@@ -26,6 +26,7 @@ final class AdminAssets
      * @since 1.1.0 Registers the script's translations when a text domain is passed.
      * @since 1.0.0
      *
+     * @param non-empty-string     $handle
      * @param array<string, mixed> $localize Data exposed to JS as a global object.
      */
     public function enqueueOnScreen(

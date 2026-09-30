@@ -68,7 +68,8 @@ final class Vite
      * @since 1.1.0 Always enqueues the built entry, with its sidecar dependencies merged into $deps.
      * @since 1.0.0
      *
-     * @param list<string> $deps
+     * @param non-empty-string       $handle
+     * @param list<non-empty-string> $deps
      */
     public function enqueueScript(string $entry, string $handle, array $deps = [], bool $inFooter = true): void
     {
@@ -122,18 +123,19 @@ final class Vite
      *
      * @since 1.1.0
      *
-     * @return list<string>
+     * @return list<non-empty-string>
      */
     private function coreDeps(string $entry): array
     {
         $this->depsCache ??= $this->readBuildJson(self::DEPS_SIDECAR) ?? [];
         $deps              = $this->depsCache[$entry] ?? [];
+        $handles           = is_array($deps) ? array_values(array_filter($deps, static fn (mixed $dep): bool => is_string($dep) && $dep !== '')) : [];
 
-        if (! is_array($deps) || ! array_is_list($deps) || array_filter($deps, 'is_string') !== $deps) {
+        if ($handles !== $deps) {
             throw new ViteException(sprintf('Vite deps sidecar has no list of script handles for "%s".', $entry));
         }
 
-        return $deps;
+        return $handles;
     }
 
     /**
