@@ -237,42 +237,40 @@ describe('actions', () => {
   describe('openTargetModal', () => {
     const saved = { serverId: 's1', siteId: 'w1' }
 
-    it('opens, then reuses the sites the probe returned for the saved server', async () => {
+    it('opens and asks the probe for the sites of its own saved server', async () => {
       api.mockResolvedValueOnce({ state: 'ok', servers, sites })
 
       await actions.openTargetModal(saved)
 
-      expect(api).toHaveBeenCalledTimes(1)
+      expect(api.mock.calls).toEqual([['GET', '/connection?server=s1']])
       const s = applied()
       expect(s).toMatchObject({ targetModalOpen: true, target: saved, servers, sites, serversLoaded: true, targetGone: '', targetStale: false })
       expect(busyTrail('servers')).toEqual([true, false])
     })
 
-    it('loads the sites itself when the probe returned none', async () => {
-      api.mockResolvedValueOnce({ state: 'ok', servers, sites: [] }).mockResolvedValueOnce({ sites })
+    it('marks the saved site gone when its server has no sites left', async () => {
+      api.mockResolvedValueOnce({ state: 'ok', servers, sites: [] })
 
       await actions.openTargetModal(saved)
 
-      expect(api).toHaveBeenLastCalledWith('GET', '/servers/s1/sites')
-      expect(applied()).toMatchObject({ sites, targetGone: '', targetStale: false })
-      expect(sitesBusyTrail()).toEqual([false, true, false])
+      expect(api).toHaveBeenCalledTimes(1)
+      expect(applied()).toMatchObject({ targetGone: 'site', targetStale: true, target: { serverId: 's1', siteId: '' }, sites: [] })
     })
 
-    it('leaves the saved site alone when its sites fail to load', async () => {
-      api.mockResolvedValueOnce({ state: 'ok', servers, sites: [] }).mockRejectedValueOnce(UPSTREAM_502)
+    it('escapes the saved server id in the query', async () => {
+      api.mockResolvedValueOnce({ state: 'ok', servers, sites: [] })
 
-      await actions.openTargetModal(saved)
+      await actions.openTargetModal({ serverId: 'a/b', siteId: '' })
 
-      expect(applied()).toMatchObject({ target: saved, targetGone: '', targetStale: false })
-      expect(notify).toHaveBeenCalledWith('error', 'flush_failed message')
+      expect(api).toHaveBeenCalledWith('GET', '/connection?server=a%2Fb')
     })
 
-    it('skips the sites load when nothing is saved', async () => {
+    it('names no server when nothing is saved', async () => {
       api.mockResolvedValueOnce({ state: 'ok', servers, sites: [] })
 
       await actions.openTargetModal({ serverId: '', siteId: '' })
 
-      expect(api).toHaveBeenCalledTimes(1)
+      expect(api.mock.calls).toEqual([['GET', '/connection']])
       expect(applied()).toMatchObject({ servers, sites: [], serversLoaded: true, targetStale: false })
     })
 
@@ -309,7 +307,7 @@ describe('actions', () => {
       await actions.openTargetModal(saved)
 
       expect(notify).toHaveBeenCalledWith('error', "Couldn't reach Ploi right now. Try again in a moment.")
-      expect(applied()).toMatchObject({ reconnectReason: '', targetModalOpen: true, serversLoaded: false })
+      expect(applied()).toMatchObject({ reconnectReason: '', targetModalOpen: true, serversLoaded: false, targetStale: false })
     })
 
     it('routes an HTTP failure of the probe', async () => {
@@ -326,7 +324,7 @@ describe('actions', () => {
     it('resets the site, loads the new list', async () => {
       api.mockResolvedValueOnce({ sites })
 
-      await expect(actions.selectServer('s2')).resolves.toEqual(sites)
+      await actions.selectServer('s2')
 
       expect(api).toHaveBeenCalledWith('GET', '/servers/s2/sites')
       expect(applied()).toMatchObject({ target: { serverId: 's2', siteId: '' }, sites })
@@ -334,7 +332,7 @@ describe('actions', () => {
     })
 
     it('clears the list without a request when no server is picked', async () => {
-      await expect(actions.selectServer('')).resolves.toEqual([])
+      await actions.selectServer('')
 
       expect(api).not.toHaveBeenCalled()
       expect(applied(reducer(initialState(cfg), { type: 'options/loaded', servers, sites })).sites).toEqual([])
@@ -343,7 +341,7 @@ describe('actions', () => {
     it('leaves no stale options on a failure and routes it', async () => {
       api.mockRejectedValueOnce(UPSTREAM_502)
 
-      await expect(actions.selectServer('s2')).resolves.toBeNull()
+      await actions.selectServer('s2')
 
       expect(applied(reducer(initialState(cfg), { type: 'options/loaded', servers, sites })).sites).toEqual([])
       expect(notify).toHaveBeenCalledWith('error', 'flush_failed message')

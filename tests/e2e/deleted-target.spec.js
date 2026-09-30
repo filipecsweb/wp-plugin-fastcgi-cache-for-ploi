@@ -6,8 +6,8 @@ import { jsonRoute } from './support/mock.js'
  * Deleted-target regressions (F1–F4). Each test enforces the behavior when a saved
  * server/site has been deleted in Ploi out from under the plugin.
  *
- * Deletions are simulated by route-mocking the UI's own Ploi-backed fetches
- * (/connection, /servers/{id}/sites). page.route does not touch the harness's
+ * Deletions are simulated by route-mocking the UI's own Ploi-backed probe
+ * (/connection). page.route does not touch the harness's
  * page.request, so `api` still reads/writes the real saved state. The saved IDs are
  * read live and excluded from the mocked lists — never assumed.
  *
@@ -27,9 +27,6 @@ test.describe('Deleted flush target (F1–F4)', () => {
     await jsonRoute(admin, MOCK.connection, {
       state: 'ok',
       servers: [{ id: saved.serverId, name: saved.serverName }, { id: 'mock-server', name: 'Another server' }],
-      sites: [],
-    })
-    await jsonRoute(admin, MOCK.sites, {
       sites: [{ id: 'mock-site-1', domain: 'other-a.example' }, { id: 'mock-site-2', domain: 'other-b.example' }],
     })
 

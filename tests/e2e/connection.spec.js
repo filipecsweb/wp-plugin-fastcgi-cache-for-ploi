@@ -32,6 +32,17 @@ test.describe('Connection', () => {
     expect(cfgJson).not.toContain(TOKENS.good)
   })
 
+  test('the probe answers for the server the screen names, not the saved one', async ({ connected, api }) => {
+    const { server_id, site_id } = await api.resolveCanonicalTarget()
+    // Another tab moves the saved target on while this screen still names its own server.
+    await api.setTarget({ server_id: '999999999', site_id: '999999999', server_name: 'Ghost', site_domain: 'ghost.example' })
+
+    const probe = await api.probe(server_id)
+
+    expect(probe.state).toBe('ok')
+    expect(probe.sites.map((site) => String(site.id))).toContain(site_id)
+  })
+
   test('disconnecting clears the token and target, keeps event preferences, and makes Flush inert', async ({ connected, admin, api, settings }) => {
     const before = await api.settings()
     expect(before.hasToken).toBe(true)

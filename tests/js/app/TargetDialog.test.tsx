@@ -41,7 +41,7 @@ describe('TargetDialog', () => {
     api.mockResolvedValueOnce({ state: 'ok', servers, sites })
 
     await open()
-    expect(api).toHaveBeenCalledWith('GET', '/connection')
+    expect(api).toHaveBeenCalledWith('GET', '/connection?server=s1')
     const [server, site] = pickers()
     expect(server.value).toBe('s1')
     expect(site.value).toBe('w1')
@@ -114,7 +114,7 @@ describe('TargetDialog', () => {
 
   it('flags a gone site and keeps the server with its live list', async () => {
     const api = renderApp()
-    api.mockResolvedValueOnce({ state: 'ok', servers, sites: [] }).mockResolvedValueOnce({ sites: [sites[1]] })
+    api.mockResolvedValueOnce({ state: 'ok', servers, sites: [sites[1]] })
 
     await open()
     expect(within(dialog()).getByText(/saved site no longer exists/)).toBeTruthy()
