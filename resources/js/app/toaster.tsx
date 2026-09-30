@@ -35,8 +35,9 @@ export const notify: Notify = (type, text) => {
 
 export function Toaster() {
   const container = usePortalContainer()
+  // WHY no limit: Base UI keeps a toast past its limit on screen but inert, so its close button stops working.
   return (
-    <Toast.Provider toastManager={manager}>
+    <Toast.Provider toastManager={manager} limit={Infinity}>
       <Toast.Portal container={container ?? undefined}>
         {/* WHY the admin bar's height: the toasts sit above its z-index, so they'd cover it; core sets the property. */}
         <Toast.Viewport
