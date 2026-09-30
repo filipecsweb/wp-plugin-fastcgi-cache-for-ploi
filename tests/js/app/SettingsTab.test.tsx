@@ -50,6 +50,15 @@ describe('SettingsTab', () => {
     expect(checkbox(/Post published/).getAttribute('aria-checked')).toBe('false')
   })
 
+  it('toasts a reply that isn’t JSON by its own message, not as unreachable', async () => {
+    const api = renderApp()
+    api.mockRejectedValueOnce({ code: 'invalid_json', message: 'The response is not a valid JSON response.' })
+
+    fireEvent.click(saveButton())
+
+    expect(await screen.findByText('The response is not a valid JSON response.', { selector: '[data-testid="toast-error"] *' })).toBeTruthy()
+  })
+
   it('renders the footer from the config', () => {
     renderApp()
 

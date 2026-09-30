@@ -10,10 +10,14 @@ import apiFetch from '@wordpress/api-fetch'
 export interface ApiFailure {
   code: string
   message: string
-  // Absent when the request never reached the server (apiFetch's fetch_error /
-  // offline_error) or the body wasn't JSON.
+  // Absent when the body carried none: a transport failure, or a reply that wasn't JSON.
   status?: number
 }
+
+// apiFetch's own codes for a request that got no reply at all.
+const TRANSPORT_FAILURES = ['fetch_error', 'offline_error']
+
+export const isTransportFailure = (failure: ApiFailure): boolean => TRANSPORT_FAILURES.includes(failure.code)
 
 export type Method = 'GET' | 'POST' | 'DELETE'
 
