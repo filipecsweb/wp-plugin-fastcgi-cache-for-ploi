@@ -4,7 +4,7 @@ Tags: fastcgi-cache, cache, nginx, performance, purge
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,10 @@ No. Flushes happen via a background request to the Ploi API after content change
 Click **Disconnect** on the settings screen to remove the saved token, or deactivate/uninstall the plugin. With no token saved, the plugin makes no requests to Ploi.
 
 == Changelog ==
+
+= 1.1.0 =
+* Rebuilt the settings screen: it looks and works as before, loads faster, and fades between tabs. On narrow screens the Recent flushes table now scrolls sideways instead of stacking each row. Admin notices from other plugins and from WordPress no longer show on the settings screen.
+* The plugin now ships a translation template (`languages/fastcgi-cache-for-ploi.pot`), so it can be translated locally with tools like Loco Translate or Poedit.
 
 = 1.0.1 =
 * Added a Settings action link to the plugin's row on the Plugins screen.
