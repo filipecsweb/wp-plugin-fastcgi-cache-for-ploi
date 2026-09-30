@@ -223,9 +223,10 @@ export const sitesBusy = (s: State): boolean => s.sitesLoading !== '' && s.sites
 export const canFlush = (s: State): boolean =>
   s.saved.hasToken && s.saved.serverId !== '' && s.saved.siteId !== '' && !needsReconnect(s) && !s.targetStale
 
+const needToken = () => __('Add a Ploi API token first.', 'fastcgi-cache-for-ploi')
+
 // '' while the reconnect banner is up: it already says why.
-export const flushDisabledReason = (s: State): string =>
-  needsReconnect(s) || s.saved.hasToken ? '' : __('Add a Ploi API token first.', 'fastcgi-cache-for-ploi')
+export const flushDisabledReason = (s: State): string => (needsReconnect(s) || s.saved.hasToken ? '' : needToken())
 
 /** The working copy plus its display names, as POST /target expects them. */
 export const selectedTarget = (s: State): NamedTarget => ({
@@ -315,7 +316,7 @@ export function createActions(dispatch: Dispatch<Action>, api: Api, notify: Noti
     async connect(token: string): Promise<boolean> {
       const entered = token.trim()
       if (!entered) {
-        notify('error', __('Add a Ploi API token first.', 'fastcgi-cache-for-ploi'))
+        notify('error', needToken())
         return false
       }
       busy('connect', true)
