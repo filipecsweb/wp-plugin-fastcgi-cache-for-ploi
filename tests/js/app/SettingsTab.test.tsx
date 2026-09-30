@@ -39,6 +39,16 @@ describe('SettingsTab', () => {
     await waitFor(() => expect(saveButton().disabled).toBe(false))
   })
 
+  it('boxes the save label while idle as well as busy, so the spinner never changes its height', () => {
+    const api = renderApp()
+    api.mockReturnValueOnce(new Promise(() => {}))
+    const boxed = () => saveButton().firstElementChild?.classList.contains('tw:inline-flex')
+
+    expect(boxed()).toBe(true)
+    fireEvent.click(saveButton())
+    expect(boxed()).toBe(true)
+  })
+
   it('toasts a failed save and keeps the edits', async () => {
     const api = renderApp()
     api.mockRejectedValueOnce({ code: 'rest_forbidden', message: 'Not allowed.', status: 403 })
