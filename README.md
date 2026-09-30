@@ -30,7 +30,7 @@ every one of its primitives.
 - PHP **8.2+** with the **sodium** extension (bundled in PHP 8.2+)
 - WordPress **6.6+**
 - A Ploi account and API token
-- For development: Composer, Node (the version pinned in `.nvmrc`), and [Herd](https://herd.laravel.com) + [DBngin](https://dbngin.com)
+- For development: Composer and Node (the version pinned in `.nvmrc`)
 
 ## Installation
 
@@ -46,28 +46,20 @@ npm run build               # emits public/build/ (entries + .vite/manifest.json
 Then copy/symlink the plugin folder into your site's `wp-content/plugins/` and
 activate it.
 
-### Local development with Herd + DBngin
+### Local development
 
-1. **Install** [Herd](https://herd.laravel.com) (serves PHP/WordPress) and
-   [DBngin](https://dbngin.com) (local MySQL).
-2. In **DBngin**, start a MySQL instance (default port `3306`).
-3. **Create a WordPress site** under Herd's sites directory, e.g. `~/Herd/mysite`,
-   and point its `wp-config.php` at the DBngin database.
-4. **Clone this plugin** somewhere outside the site, e.g. `~/dev/fastcgi-cache-for-ploi`,
-   and build it:
+1. **Clone this plugin** outside any WordPress site and build it from its folder:
    ```bash
-   cd ~/dev/fastcgi-cache-for-ploi
    composer install
    npm install
    npm run build
    ```
-5. **Symlink** it into the site's plugins directory:
+2. **Symlink** it, from the same folder, into a WordPress site's plugins directory:
    ```bash
-   ln -s ~/dev/fastcgi-cache-for-ploi ~/Herd/mysite/wp-content/plugins/fastcgi-cache-for-ploi
+   ln -s "$PWD" /path/to/site/wp-content/plugins/fastcgi-cache-for-ploi
    ```
-6. Visit `https://mysite.test/wp-admin/`, activate **FastCGI Cache for Ploi**, then
-   open **Settings → FastCGI Cache**.
-7. *(Recommended)* add a dedicated encryption key to the site's `wp-config.php`
+3. Activate **FastCGI Cache for Ploi**, then open **Settings → FastCGI Cache**.
+4. *(Recommended)* add a dedicated encryption key to the site's `wp-config.php`
    (see [Security](#security)):
    ```php
    define( 'FASTCGI_CACHE_FOR_PLOI_KEY', '<a long random string>' );
@@ -134,8 +126,7 @@ npm run e2e      # Playwright E2E against a real WordPress (see below)
 **E2E (Playwright against a real WordPress):**
 
 The suite drives an actual WordPress install — not a bundled container. Point it at
-a local site (Herd/Valet, or any WordPress) that serves *this* checkout, then run
-Playwright. Copy `.claude/.env.example` to `.claude/.env` (auto-loaded) and set:
+a WordPress site that serves *this* checkout, then run Playwright. Copy `.claude/.env.example` to `.claude/.env` (auto-loaded) and set:
 
 ```bash
 WP_BASE_URL=https://your-site.test        # the WordPress under test
