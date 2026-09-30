@@ -70,3 +70,4 @@ docs
 *.example
 bin
 dist
+.scratch
