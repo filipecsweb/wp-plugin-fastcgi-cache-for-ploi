@@ -134,6 +134,8 @@ abstract class AdminPage
      */
     public function silenceNotices(): void
     {
+        // WHY manual: it exists only once the page's own screen loads, a runtime
+        // condition a compile-time #[Action] attribute can't express.
         add_action('in_admin_header', static function (): void {
             foreach (self::NOTICE_HOOKS as $hook) {
                 remove_all_actions($hook);
