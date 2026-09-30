@@ -12,6 +12,7 @@
  *     @property registrations are global by nature and allowed; @font-face is not.
  */
 import fs from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import postcss from 'postcss'
 import { inMount } from './css-scope.mjs'
@@ -20,7 +21,9 @@ const BUILD_DIR = 'public/build'
 const SLUG = 'fastcgi-cache-for-ploi'
 // CONTRACT: the id is SettingsPage::APP_ROOT_ID.
 const ROOT_ID = `${SLUG}-app`
-const REACT_INTERNALS = ['__SECRET_INTERNALS_DO_NOT_USE', 'react.production', 'ReactCurrentDispatcher', 'scheduler', '"18.3.1"']
+const REACT_VERSION = createRequire(import.meta.url)('react/package.json').version
+// WHY every quote: the minifier may print the version as a template literal.
+const REACT_INTERNALS = ['__SECRET_INTERNALS_DO_NOT_USE', 'react.production', 'ReactCurrentDispatcher', 'scheduler', ...['"', "'", '`'].map((quote) => quote + REACT_VERSION + quote)]
 
 const manifest = JSON.parse(fs.readFileSync(path.join(BUILD_DIR, '.vite/manifest.json'), 'utf8'))
 const entries = Object.keys(manifest).filter((key) => manifest[key].isEntry)
